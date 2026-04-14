@@ -397,12 +397,43 @@ function initListingCardLinks() {
 function initItemPage() {
   // Only runs on pages that have the item layout
   if (!document.getElementById('item-name-heading')) return;
-  if (typeof ITEMS_DATA === 'undefined') return;
 
   const params = new URLSearchParams(window.location.search);
   const id     = params.get('id') || 'gravity-fruit';
-  const item   = ITEMS_DATA[id];
-  if (!item) return;
+  const item   = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[id] : null;
+
+  if (!item) {
+    // Not in ITEMS_DATA — try fetching from API by item name derived from the id
+    const searchName = id.replace(/-/g, ' ');
+    fetch(`https://rellmarket.vercel.app/api/listings/get?search=${encodeURIComponent(searchName)}&limit=1`)
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        const l = json?.listings?.[0];
+        if (!l) return;
+        populateItemPage({
+          name:        l.item_name,
+          image:       l.image_url || '',
+          rarity:      l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '',
+          rarityClass: l.rarity || 'common',
+          category:    l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
+          type:        l.fruit_type || '',
+          description: l.description || '',
+          seller:      l.profiles?.roblox_username || l.profiles?.username || 'Trader',
+          price:       l.price ? `${Number(l.price).toLocaleString()} Beli` : 'Make Offer',
+          priceSub:    '',
+          rating:      '—',
+          reviewCount: 0,
+          id,
+        });
+      })
+      .catch(() => {});
+    return;
+  }
+
+  populateItemPage(item);
+}
+
+function populateItemPage(item) {
 
   // Page title
   document.title = `${item.name} — RellMarket`;
@@ -471,8 +502,9 @@ function initItemPage() {
 
   // Similar items grid — show up to 4 other items from ITEMS_DATA, excluding current
   const similarGrid = document.querySelector('.similar-grid');
-  if (similarGrid) {
-    const others = Object.values(ITEMS_DATA).filter(i => i.id !== id).slice(0, 4);
+  if (similarGrid && typeof ITEMS_DATA !== 'undefined') {
+    const currentId = item.id || itemNameToId(item.name);
+    const others = Object.values(ITEMS_DATA).filter(i => i.id !== currentId).slice(0, 4);
     similarGrid.innerHTML = others.map(i => `
       <article class="mini-card">
         <a href="item.html?id=${i.id}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
@@ -935,6 +967,11 @@ function initTradeModal() {
   });
 }
 
+// ─── Item name → URL id helper ───────────────────────────────────────────────
+function itemNameToId(name) {
+  return name.toLowerCase().replace(/\s+/g, '-');
+}
+
 // ─── Fetch real listings from API ────────────────────────────────────────────
 function initFetchListings() {
   const grid = document.getElementById('listing-grid');
@@ -968,19 +1005,20 @@ function initFetchListings() {
           l.fruit_type || ''
         ].filter(Boolean).join(' · ');
 
+        const itemUrl = `item.html?id=${itemNameToId(l.item_name)}`;
         return `
           <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
-            <a href="item.html?lid=${l.id}" class="listing-card__img-wrap">
+            <a href="${itemUrl}" class="listing-card__img-wrap">
               ${imgHTML}
               ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
             </a>
             <div class="listing-card__body">
               <p class="listing-card__type">${typeLabel}</p>
-              <h3 class="listing-card__name">${l.item_name}</h3>
+              <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
               <p class="listing-card__seller">by <a href="#">${seller}</a></p>
               <div class="listing-card__footer">
                 ${priceHTML}
-                <a href="item.html?lid=${l.id}" class="btn btn--trade-card">Trade</a>
+                <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
               </div>
             </div>
           </article>`;
