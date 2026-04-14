@@ -1614,7 +1614,10 @@ function initReportListing() {
   if (!listingId) return; // static page, no real listing
 
   // Auth check: show button only if logged-in user is NOT the seller
+  // TEMP: commented out for testing — button always visible
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  reportRow.hidden = false;
+  /*
   supabaseClient.auth.getUser().then(({ data: { user } }) => {
     if (!user) return; // not logged in — no report link shown
     supabaseClient
@@ -1628,6 +1631,7 @@ function initReportListing() {
         }
       });
   });
+  */
 
   function openModal()  { modal.hidden = false; document.body.style.overflow = 'hidden'; }
   function closeModal() { modal.hidden = true;  document.body.style.overflow = ''; form.reset(); }
