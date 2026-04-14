@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initItemWatchlist();
   initListingCardHearts();
   initWatchlistPage();
+  initFetchListings();
 });
 
 // ─── Footer year ──────────────────────────────────────────────────────────────
@@ -742,7 +743,7 @@ function initPostListingForm() {
     el.addEventListener('input',  () => clearFieldError(el));
   });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     let valid = true;
 
@@ -770,15 +771,59 @@ function initPostListingForm() {
 
     if (!valid) return;
 
-    // Success
-    showToast('Listing posted! 🎉');
-    form.reset();
-    beliWrap.classList.remove('is-visible');
-    uploadArea.classList.remove('has-image');
-    uploadPreview.src = '';
-    previewImg.src = '';
-    previewImgBox.classList.remove('has-image');
-    updatePreview();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Posting…';
+
+    try {
+      // Get session token if Supabase is available
+      let token = null;
+      if (typeof supabaseClient !== 'undefined') {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        token = session?.access_token || null;
+      }
+
+      const itemText = fieldItem.value && fieldItem.value !== 'other'
+        ? fieldItem.options[fieldItem.selectedIndex].text
+        : '';
+
+      const payload = {
+        item_name:   itemText,
+        category:    fieldCategory.value,
+        rarity:      fieldRarity.value || null,
+        fruit_type:  fieldType.value   || null,
+        price:       fieldPrice.value  ? Number(fieldPrice.value) : null,
+        price_type:  priceType,
+        description: fieldDesc.value   || null,
+        image_url:   null,
+      };
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/listings/create', {
+        method:  'POST',
+        headers,
+        body:    JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to post listing');
+
+      showToast('Listing posted! 🎉');
+      form.reset();
+      beliWrap.classList.remove('is-visible');
+      uploadArea.classList.remove('has-image');
+      uploadPreview.src = '';
+      previewImg.src = '';
+      previewImgBox.classList.remove('has-image');
+      updatePreview();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '＋ Post Listing';
+    }
   });
 
   // Run once to set initial state
@@ -938,6 +983,59 @@ function initTradeModal() {
     e.preventDefault();
     showToast('Trade requests coming soon! 🏴‍☠️');
   });
+}
+
+// ─── Fetch real listings from API ────────────────────────────────────────────
+function initFetchListings() {
+  const grid = document.getElementById('listing-grid');
+  if (!grid) return;
+
+  fetch('/api/listings/get')
+    .then(res => res.ok ? res.json() : null)
+    .then(json => {
+      if (!json || !json.listings || json.listings.length === 0) return;
+
+      // Replace hardcoded grid with API results
+      grid.innerHTML = json.listings.map(l => {
+        const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+        const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : 'listing-badge--common';
+        const rarityLabel = l.rarity
+          ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1)
+          : '';
+        const priceHTML = l.price
+          ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
+          : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
+        const imgHTML = l.image_url
+          ? `<img src="${l.image_url}" alt="${l.item_name}" class="listing-card__img" />`
+          : `<div class="listing-card__placeholder" style="--ph:#f0fdfa;">📦</div>`;
+        const typeLabel = [
+          l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
+          l.fruit_type || ''
+        ].filter(Boolean).join(' · ');
+
+        return `
+          <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+            <a href="item.html?lid=${l.id}" class="listing-card__img-wrap">
+              ${imgHTML}
+              ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
+            </a>
+            <div class="listing-card__body">
+              <p class="listing-card__type">${typeLabel}</p>
+              <h3 class="listing-card__name">${l.item_name}</h3>
+              <p class="listing-card__seller">by <a href="#">${seller}</a></p>
+              <div class="listing-card__footer">
+                ${priceHTML}
+                <a href="item.html?lid=${l.id}" class="btn btn--trade-card">Trade</a>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+
+      // Re-run filter and heart buttons to cover the new cards
+      applyListingFilters();
+      initListingCardHearts();
+    })
+    .catch(() => { /* silently fall back to hardcoded cards */ });
 }
 
 // ─── Watchlist helpers ────────────────────────────────────────────────────────
