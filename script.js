@@ -1600,80 +1600,71 @@ function initItemWatchlist() {
 
 // ─── Report listing ───────────────────────────────────────────────────────────
 function initReportListing() {
-  const reportRow    = document.getElementById('item-report-row');
-  const reportBtn    = document.getElementById('item-report-btn');
-  const modal        = document.getElementById('report-modal');
-  const closeBtn     = document.getElementById('report-modal-close');
-  const cancelBtn    = document.getElementById('report-cancel-btn');
-  const form         = document.getElementById('report-form');
-  const submitBtn    = document.getElementById('report-submit-btn');
-  if (!reportRow || !modal || !form) return;
+  const reportBtn = document.getElementById('report-btn');
+  if (!reportBtn) return;
 
-  const params    = new URLSearchParams(window.location.search);
-  const listingId = params.get('listing_id');
-  if (!listingId) return; // static page, no real listing
-
-  // Auth check: show button only if logged-in user is NOT the seller
-  // TEMP: commented out for testing — button always visible
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  reportRow.hidden = false;
-  /*
-  supabaseClient.auth.getUser().then(({ data: { user } }) => {
-    if (!user) return; // not logged in — no report link shown
-    supabaseClient
-      .from('listings')
-      .select('user_id')
-      .eq('id', listingId)
-      .single()
-      .then(({ data: listing }) => {
-        if (listing && listing.user_id !== user.id) {
-          reportRow.hidden = false;
-        }
-      });
-  });
-  */
-
-  function openModal()  { modal.hidden = false; document.body.style.overflow = 'hidden'; }
-  function closeModal() { modal.hidden = true;  document.body.style.overflow = ''; form.reset(); }
-
-  if (reportBtn)  reportBtn.addEventListener('click', openModal);
-  if (closeBtn)   closeBtn.addEventListener('click', closeModal);
-  if (cancelBtn)  cancelBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
-
-  form.addEventListener('submit', async (e) => {
+  reportBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    const reason  = document.getElementById('report-reason').value;
-    const details = document.getElementById('report-details').value.trim();
-    if (!reason) return;
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting…';
+    // Remove existing modal if any
+    const existing = document.getElementById('report-modal');
+    if (existing) existing.remove();
 
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const token = session?.access_token;
-      const res = await fetch('/api/listings/report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          listing_id: listingId,
-          reason: details ? `${reason} — ${details}` : reason
-        })
-      });
-      if (!res.ok) throw new Error('Failed');
-      closeModal();
-      showToast("Report submitted. We'll review it shortly.");
-    } catch (err) {
-      showToast('Something went wrong. Please try again.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Report';
-    }
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'report-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h3 style="font-size:1.1rem;font-weight:800;">🚩 Report Listing</h3>
+          <button id="report-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;">×</button>
+        </div>
+        <label style="display:block;font-size:.85rem;font-weight:600;margin-bottom:.4rem;">Reason</label>
+        <select id="report-reason" style="width:100%;padding:.6rem;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.9rem;margin-bottom:1rem;">
+          <option value="">Select a reason...</option>
+          <option value="scam">Scam</option>
+          <option value="fake">Fake listing</option>
+          <option value="wrong_price">Wrong price</option>
+          <option value="inappropriate">Inappropriate</option>
+          <option value="other">Other</option>
+        </select>
+        <label style="display:block;font-size:.85rem;font-weight:600;margin-bottom:.4rem;">Details (optional)</label>
+        <textarea id="report-details" style="width:100%;padding:.6rem;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.9rem;resize:vertical;min-height:80px;margin-bottom:1rem;" placeholder="Any additional details..."></textarea>
+        <button id="report-submit" style="width:100%;background:#0d9488;color:#fff;border:none;border-radius:8px;padding:.75rem;font-size:.95rem;font-weight:700;cursor:pointer;">Submit Report</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('report-close').onclick = () => modal.remove();
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    document.getElementById('report-submit').onclick = async () => {
+      const reason = document.getElementById('report-reason').value;
+      if (!reason) { showToast('Please select a reason'); return; }
+
+      const params = new URLSearchParams(window.location.search);
+      const listing_id = params.get('listing_id');
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const token = session?.access_token;
+        const res = await fetch('https://rellmarket.vercel.app/api/listings/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ listing_id, reason })
+        });
+        const json = await res.json();
+        if (json.success) {
+          modal.remove();
+          showToast('Report submitted. We will review it shortly.');
+        } else {
+          showToast('Error: ' + json.error);
+        }
+      } catch (err) {
+        showToast('Something went wrong. Please try again.');
+      }
+    };
   });
 }
 
