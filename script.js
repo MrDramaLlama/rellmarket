@@ -940,9 +940,14 @@ function initFetchListings() {
   const grid = document.getElementById('listing-grid');
   if (!grid) return;
 
-  fetch('/api/listings/get')
-    .then(res => res.ok ? res.json() : null)
+  console.log('Fetching listings from API...');
+  fetch('https://rellmarket.vercel.app/api/listings/get')
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
     .then(json => {
+      console.log('API response:', json);
       if (!json || !json.listings || json.listings.length === 0) return;
 
       // Replace hardcoded grid with API results
@@ -985,7 +990,7 @@ function initFetchListings() {
       applyListingFilters();
       initListingCardHearts();
     })
-    .catch(() => { /* silently fall back to hardcoded cards */ });
+    .catch(err => { console.log('API error:', err); });
 }
 
 // ─── Watchlist helpers ────────────────────────────────────────────────────────
