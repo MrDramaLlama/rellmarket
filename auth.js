@@ -54,37 +54,40 @@ async function updateNavbar() {
       .single();
     const name = profile?.roblox_username || profile?.username || 'Account';
 
-    // Fetch pending incoming trade count for badge
-    let pendingCount = 0;
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        const r = await fetch('https://rellmarket.vercel.app/api/trades/get?type=incoming', {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        if (r.ok) {
-          const json = await r.json();
-          pendingCount = (json.trades || []).filter(t => t.status === 'pending').length;
-        }
-      }
-    } catch (e) {}
-
     if (loginBtn) {
       loginBtn.textContent = `👤 ${name}`;
       loginBtn.href = 'my-listings.html';
-      loginBtn.style.position = 'relative';
-
-      // Remove any existing badge before adding
-      loginBtn.querySelector('.nav-trade-badge')?.remove();
-
-      if (pendingCount > 0) {
-        const badge = document.createElement('span');
-        badge.className = 'nav-trade-badge';
-        badge.textContent = pendingCount;
-        loginBtn.appendChild(badge);
-      }
+      // Remove any existing click listeners by cloning the element
+      const newBtn = loginBtn.cloneNode(true);
+      loginBtn.parentNode.replaceChild(newBtn, loginBtn);
     }
     if (signupBtn) signupBtn.style.display = 'none';
+
+    // Add logout button separately next to the username
+    const navbar = document.querySelector('.navbar__right');
+    if (navbar && !navbar.querySelector('.btn--logout')) {
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'btn btn--ghost btn--logout';
+      logoutBtn.textContent = 'Log Out';
+      logoutBtn.addEventListener('click', handleLogout);
+      navbar.appendChild(logoutBtn);
+    }
+
+    // Check pending trades
+    try {
+      const token = (await supabaseClient.auth.getSession()).data.session?.access_token;
+      const res = await fetch('https://rellmarket.vercel.app/api/trades/get?type=incoming', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const json = await res.json();
+      const pending = (json.trades || []).filter(t => t.status === 'pending').length;
+      if (pending > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'nav-trade-badge';
+        badge.textContent = pending;
+        document.querySelector('.btn--login')?.appendChild(badge);
+      }
+    } catch (e) {}
   }
 }
 

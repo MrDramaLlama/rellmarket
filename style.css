@@ -132,6 +132,25 @@ button { font-family: var(--font); cursor: pointer; }
 }
 .btn--more:hover { background: var(--color-surface); border-color: #cbd5e0; }
 
+/* Ghost / Log Out button */
+.btn--ghost {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1.5px solid var(--color-border);
+  font-size: .82rem;
+  padding: .4rem .85rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 600;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn--ghost:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-muted);
+}
+
 /* Hero carousel: primary CTA */
 .btn--carousel-primary {
   background: #fff;
