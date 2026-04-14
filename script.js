@@ -1603,6 +1603,24 @@ function initReportListing() {
   const reportBtn = document.getElementById('report-btn');
   if (!reportBtn) return;
 
+  // Hide report button if viewer is the seller
+  async function checkAndHideReport() {
+    const params = new URLSearchParams(window.location.search);
+    const listing_id = params.get('listing_id');
+    if (!listing_id) return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`https://rellmarket.vercel.app/api/listings/getone?id=${listing_id}`);
+      const json = await res.json();
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (json.listing && user && json.listing.user_id === user.id) {
+        reportBtn.style.display = 'none';
+      }
+    } catch (e) {}
+  }
+  checkAndHideReport();
+
   reportBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
