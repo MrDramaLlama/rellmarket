@@ -1282,7 +1282,7 @@ async function initMyListings() {
   try {
     const { data: profile } = await client
       .from('profiles')
-      .select('username, roblox_username, avatar_url')
+      .select('username, roblox_username, avatar_url, discord_id, discord_username')
       .eq('id', userId)
       .single();
 
@@ -1293,6 +1293,23 @@ async function initMyListings() {
       if (avatarEl && profile.avatar_url) {
         avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="Avatar"
           style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      }
+
+      // Discord link status
+      const discordStatus  = document.getElementById('profile-discord-status');
+      const discordLinkBtn = document.getElementById('discord-link-btn');
+      if (profile.discord_username) {
+        if (discordStatus) discordStatus.textContent = `💬 Discord: ${profile.discord_username}`;
+        if (discordLinkBtn) discordLinkBtn.style.display = 'none';
+      } else {
+        if (discordStatus) discordStatus.textContent = '';
+        if (discordLinkBtn) discordLinkBtn.style.display = '';
+      }
+
+      // Show toast if just connected via Discord OAuth redirect
+      if (new URLSearchParams(window.location.search).get('discord') === 'connected') {
+        showToast('Discord account linked! 💬');
+        history.replaceState(null, '', 'my-listings.html');
       }
     }
   } catch (e) {}
