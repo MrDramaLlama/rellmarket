@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initListingCardHearts();
   initWatchlistPage();
   initFetchListings();
+  initHomepageMiniGrids();
 });
 
 // ─── Footer year ──────────────────────────────────────────────────────────────
@@ -1014,9 +1015,15 @@ function initFetchListings() {
     })
     .then(json => {
       console.log('API response:', json);
-      if (!json || !json.listings || json.listings.length === 0) return;
+      const emptyState = document.getElementById('listing-empty');
 
-      // Replace hardcoded grid with API results
+      if (!json || !json.listings || json.listings.length === 0) {
+        if (emptyState) emptyState.hidden = false;
+        return;
+      }
+      if (emptyState) emptyState.hidden = true;
+
+      // Replace grid with API results
       grid.innerHTML = json.listings.map(l => {
         const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
         const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : 'listing-badge--common';
@@ -1058,6 +1065,50 @@ function initFetchListings() {
       initListingCardHearts();
     })
     .catch(err => { console.log('API error:', err); });
+}
+
+// ─── Homepage mini-grids ─────────────────────────────────────────────────────
+function initHomepageMiniGrids() {
+  const mostTradedGrid = document.getElementById('most-traded-grid');
+  const newItemsGrid   = document.getElementById('new-items-grid');
+  if (!mostTradedGrid && !newItemsGrid) return;
+
+  function buildMiniCard(l) {
+    const itemId  = itemNameToId(l.item_name);
+    const itemUrl = `item.html?id=${itemId}&listing_id=${l.id}`;
+    const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
+    const imgHTML = staticItem?.image
+      ? `<img src="${staticItem.image}" alt="${l.item_name}" class="mini-card__img" />`
+      : l.image_url
+        ? `<img src="${l.image_url}" alt="${l.item_name}" class="mini-card__img" />`
+        : `<div class="mini-card__placeholder" style="--ph:#f0fdfa; font-size:2rem;">📦</div>`;
+    return `
+      <article class="mini-card">
+        <a href="${itemUrl}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+          ${imgHTML}
+        </a>
+        <div class="mini-card__body">
+          <a href="${itemUrl}" class="mini-card__name">${l.item_name}</a>
+          <a href="${itemUrl}" class="btn btn--mini-trade">Trade</a>
+        </div>
+      </article>`;
+  }
+
+  // Fetch first 8 listings — first 4 go to "Most Traded", next 4 to "New Items"
+  fetch('https://rellmarket.vercel.app/api/listings/get?limit=8')
+    .then(r => r.ok ? r.json() : null)
+    .then(json => {
+      const listings = json?.listings || [];
+      if (mostTradedGrid) {
+        const cards = listings.slice(0, 4).map(buildMiniCard).join('');
+        if (cards) mostTradedGrid.innerHTML = cards;
+      }
+      if (newItemsGrid) {
+        const cards = listings.slice(4, 8).map(buildMiniCard).join('');
+        if (cards) newItemsGrid.innerHTML = cards;
+      }
+    })
+    .catch(() => {});
 }
 
 // ─── Watchlist helpers ────────────────────────────────────────────────────────
