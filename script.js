@@ -1303,7 +1303,19 @@ async function initMyListings() {
         if (discordLinkBtn) discordLinkBtn.style.display = 'none';
       } else {
         if (discordStatus) discordStatus.textContent = '';
-        if (discordLinkBtn) discordLinkBtn.style.display = '';
+        if (discordLinkBtn) {
+          discordLinkBtn.style.display = '';
+          // Pass session token as state so the callback can identify the user
+          discordLinkBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+              window.location.href = `/api/auth/discord?token=${encodeURIComponent(session.access_token)}`;
+            } else {
+              window.location.href = '/api/auth/discord';
+            }
+          });
+        }
       }
 
       // Show toast if just connected via Discord OAuth redirect

@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
     const discordUser = await userRes.json();
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    const token = req.cookies?.['sb-access-token'] || req.headers?.authorization?.replace('Bearer ', '');
+    const token = req.query.state;
     const { data: { user } } = await supabase.auth.getUser(token);
 
     if (user) {
