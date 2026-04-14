@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroCounter();
   initSellerCopy();
   initTradeModal();
+  initReportListing();
   initItemWatchlist();
   initListingCardHearts();
   initWatchlistPage();
@@ -1594,6 +1595,81 @@ function initItemWatchlist() {
     const added = toggleWatchlist(id);
     updateBtn(added);
     showToast(added ? 'Added to Watchlist ♥' : 'Removed from Watchlist');
+  });
+}
+
+// ─── Report listing ───────────────────────────────────────────────────────────
+function initReportListing() {
+  const reportRow    = document.getElementById('item-report-row');
+  const reportBtn    = document.getElementById('item-report-btn');
+  const modal        = document.getElementById('report-modal');
+  const closeBtn     = document.getElementById('report-modal-close');
+  const cancelBtn    = document.getElementById('report-cancel-btn');
+  const form         = document.getElementById('report-form');
+  const submitBtn    = document.getElementById('report-submit-btn');
+  if (!reportRow || !modal || !form) return;
+
+  const params    = new URLSearchParams(window.location.search);
+  const listingId = params.get('listing_id');
+  if (!listingId) return; // static page, no real listing
+
+  // Auth check: show button only if logged-in user is NOT the seller
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseClient.auth.getUser().then(({ data: { user } }) => {
+    if (!user) return; // not logged in — no report link shown
+    supabaseClient
+      .from('listings')
+      .select('user_id')
+      .eq('id', listingId)
+      .single()
+      .then(({ data: listing }) => {
+        if (listing && listing.user_id !== user.id) {
+          reportRow.hidden = false;
+        }
+      });
+  });
+
+  function openModal()  { modal.hidden = false; document.body.style.overflow = 'hidden'; }
+  function closeModal() { modal.hidden = true;  document.body.style.overflow = ''; form.reset(); }
+
+  if (reportBtn)  reportBtn.addEventListener('click', openModal);
+  if (closeBtn)   closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn)  cancelBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const reason  = document.getElementById('report-reason').value;
+    const details = document.getElementById('report-details').value.trim();
+    if (!reason) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch('/api/listings/report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listing_id: listingId,
+          reason: details ? `${reason} — ${details}` : reason
+        })
+      });
+      if (!res.ok) throw new Error('Failed');
+      closeModal();
+      showToast("Report submitted. We'll review it shortly.");
+    } catch (err) {
+      showToast('Something went wrong. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Report';
+    }
   });
 }
 

@@ -204,6 +204,11 @@
             <span class="item-seller__badge">Trusted Seller ✓</span>
           </div>
 
+          <!-- Report link (hidden until auth check in JS) -->
+          <p class="item-report-row" id="item-report-row" hidden>
+            <button class="item-report-btn" id="item-report-btn">🚩 Report this listing</button>
+          </p>
+
           <!-- Price -->
           <div class="item-price">
             <p id="item-price-label" class="item-price__label">Make Offer</p>
@@ -387,6 +392,46 @@
         <div class="modal-actions">
           <button type="submit" class="btn btn--post-listing" id="trade-submit-btn">Send Request 🏴‍☠️</button>
           <button type="button" class="btn--modal-cancel" id="trade-modal-cancel">Cancel</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       REPORT LISTING MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" hidden>
+    <div class="modal-card modal-card--sm">
+
+      <div class="modal-header">
+        <h2 class="modal-title" id="report-modal-title">🚩 Report Listing</h2>
+        <button class="modal-close" id="report-modal-close" aria-label="Close modal">✕</button>
+      </div>
+
+      <form id="report-form" class="modal-form">
+
+        <div class="form-group">
+          <label class="form-label" for="report-reason">Reason</label>
+          <select class="form-input form-select" id="report-reason" required>
+            <option value="" disabled selected>Select a reason…</option>
+            <option value="Scam">Scam</option>
+            <option value="Fake listing">Fake listing</option>
+            <option value="Wrong price">Wrong price</option>
+            <option value="Inappropriate">Inappropriate</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="report-details">Details <span class="trade-modal__optional">(optional)</span></label>
+          <textarea class="form-input form-textarea" id="report-details" rows="3"
+            placeholder="Describe the issue…" maxlength="500"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--ghost" id="report-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--danger" id="report-submit-btn">Submit Report</button>
         </div>
 
       </form>
