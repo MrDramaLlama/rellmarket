@@ -3101,11 +3101,25 @@ body.page-out {
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  overflow: hidden;
+  margin: 1.5rem auto .75rem;
+  /* default: no background — set by modifier below */
+}
+
+/* Letter-initial fallback */
+.profile-card__avatar--letter {
   background: var(--color-accent);
   color: #fff;
   font-size: 2rem;
   font-weight: 700;
-  margin: 1.5rem auto .75rem;
+}
+
+/* Roblox avatar image */
+.profile-card__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .profile-card__body {
@@ -3126,12 +3140,27 @@ body.page-out {
   margin: 0 0 .75rem;
 }
 
+.profile-card__bio {
+  font-size: .875rem;
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 0 0 .75rem;
+  line-height: 1.5;
+}
+
+.profile-card__edit-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: .75rem;
+}
+
 .profile-card__badges {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: .4rem;
-  margin-bottom: 1rem;
+  margin-bottom: .75rem;
 }
 
 .profile-badge {
@@ -3176,6 +3205,10 @@ body.page-out {
   color: var(--color-heading);
 }
 
+.profile-card__stat-value--discord {
+  color: #059669;
+}
+
 /* Right column — listings */
 .profile-listings__heading {
   font-size: 1.25rem;
@@ -3203,6 +3236,8 @@ body.page-out {
   .profile-card__avatar {
     width: 64px;
     height: 64px;
+  }
+  .profile-card__avatar--letter {
     font-size: 1.5rem;
   }
 }

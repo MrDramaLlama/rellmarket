@@ -56,7 +56,7 @@ async function updateNavbar() {
 
     if (loginBtn) {
       loginBtn.textContent = `👤 ${name}`;
-      loginBtn.href = 'my-listings.html';
+      loginBtn.href = `profile.html?username=${encodeURIComponent(name)}`;
       // Remove any existing click listeners by cloning the element
       const newBtn = loginBtn.cloneNode(true);
       loginBtn.parentNode.replaceChild(newBtn, loginBtn);

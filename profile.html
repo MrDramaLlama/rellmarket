@@ -128,13 +128,21 @@
       <!-- ── Left: Profile card ── -->
       <aside class="profile-card" id="profile-card">
 
-        <div class="profile-card__avatar" id="profile-avatar">⚓</div>
+        <div class="profile-card__avatar profile-card__avatar--letter" id="profile-avatar">⚓</div>
 
         <div class="profile-card__body">
           <h1 class="profile-card__username" id="profile-username">Loading…</h1>
           <p class="profile-card__roblox" id="profile-roblox"></p>
 
-          <div class="profile-card__badges" id="profile-badges"></div>
+          <div class="profile-card__badges" id="profile-badges">
+            <span class="profile-badge profile-badge--trusted">✓ Trusted Seller</span>
+          </div>
+
+          <p class="profile-card__bio" id="profile-bio">No bio yet.</p>
+
+          <div id="profile-edit-btn-wrap" hidden>
+            <a href="my-listings.html" class="btn btn--ghost profile-card__edit-btn">✏️ Edit Profile</a>
+          </div>
 
           <ul class="profile-card__stats">
             <li>
@@ -146,8 +154,8 @@
               <span class="profile-card__stat-value" id="stat-member-since">—</span>
             </li>
             <li id="stat-discord-row" hidden>
-              <span class="profile-card__stat-label">💬 Discord</span>
-              <span class="profile-card__stat-value" id="stat-discord">—</span>
+              <span class="profile-card__stat-label">Discord</span>
+              <span class="profile-card__stat-value profile-card__stat-value--discord" id="stat-discord">—</span>
             </li>
           </ul>
         </div>
@@ -242,10 +250,16 @@
         if (!res.ok) throw new Error('Not found');
         const { profile, listings } = await res.json();
 
-        // Avatar initial
-        const avatarEl = document.getElementById('profile-avatar');
         const displayName = profile.roblox_username || profile.username || username;
-        avatarEl.textContent = displayName.charAt(0).toUpperCase();
+
+        // Avatar — image if available, otherwise first-letter circle
+        const avatarEl = document.getElementById('profile-avatar');
+        if (profile.avatar_url) {
+          avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="${displayName}" class="profile-card__avatar-img" />`;
+          avatarEl.classList.remove('profile-card__avatar--letter');
+        } else {
+          avatarEl.textContent = displayName.charAt(0).toUpperCase();
+        }
 
         // Names
         document.getElementById('profile-username').textContent = displayName;
@@ -254,15 +268,20 @@
           robloxEl.textContent = `@${profile.username}`;
         }
 
+        // Bio
+        if (profile.bio) {
+          document.getElementById('profile-bio').textContent = profile.bio;
+        }
+
         // Member since
         const since = document.getElementById('stat-member-since');
         if (profile.created_at) {
           since.textContent = new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
         }
 
-        // Discord
+        // Discord — show "💬 Connected" in green if linked
         if (profile.discord_username) {
-          document.getElementById('stat-discord').textContent = profile.discord_username;
+          document.getElementById('stat-discord').textContent = '💬 Connected';
           document.getElementById('stat-discord-row').hidden = false;
         }
 
@@ -271,6 +290,23 @@
 
         // Heading
         document.getElementById('profile-listings-heading').textContent = `Active Listings by ${displayName}`;
+
+        // Edit Profile button — only show if logged-in user matches this profile
+        try {
+          const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          const { data: { user } } = await supabaseClient.auth.getUser();
+          if (user) {
+            const { data: myProfile } = await supabaseClient
+              .from('profiles')
+              .select('roblox_username, username')
+              .eq('id', user.id)
+              .single();
+            const myName = myProfile?.roblox_username || myProfile?.username;
+            if (myName && myName === displayName) {
+              document.getElementById('profile-edit-btn-wrap').hidden = false;
+            }
+          }
+        } catch (e) {}
 
         // Listings grid
         const grid = document.getElementById('profile-listing-grid');
