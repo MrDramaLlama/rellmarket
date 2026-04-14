@@ -1,16 +1,16 @@
 'use strict';
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── Sign Up ──────────────────────────────────────────────────────
 async function handleSignUp(email, password, username) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
   if (error) return { error: error.message };
 
   // Create profile
   if (data.user) {
-    await supabase.from('profiles').insert({
+    await supabaseClient.from('profiles').insert({
       id: data.user.id,
       username: username,
     });
@@ -20,20 +20,20 @@ async function handleSignUp(email, password, username) {
 
 // ── Log In ───────────────────────────────────────────────────────
 async function handleLogin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
   return { success: true, user: data.user };
 }
 
 // ── Log Out ──────────────────────────────────────────────────────
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   window.location.href = 'index.html';
 }
 
 // ── Get current user ─────────────────────────────────────────────
 async function getCurrentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   return user;
 }
 
