@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Logging in...</title><link rel="stylesheet" href="style.css" /></head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+const username = params.get('username');
+if (token) {
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  client.auth.verifyOtp({ token_hash: token, type: 'magiclink' }).then(() => {
+    localStorage.setItem('rellmarket-username', username);
+    window.location.href = 'index.html';
+  });
+} else {
+  window.location.href = 'login.html?error=no_token';
+}
+</script>
+</body>
+</html>

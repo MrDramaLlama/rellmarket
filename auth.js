@@ -65,7 +65,11 @@ if (loginForm) {
     if (result.error) {
       btn.textContent = 'Log In';
       btn.disabled = false;
-      showToast('Error: ' + result.error);
+      if (result.error.includes('email_not_confirmed') || result.error.includes('Email not confirmed')) {
+        window.location.href = 'verify-email.html';
+      } else {
+        showToast('Error: ' + result.error);
+      }
     } else {
       showToast('Welcome back! 🏴‍☠️');
       setTimeout(() => window.location.href = 'index.html', 1000);
@@ -90,8 +94,7 @@ if (signupForm) {
       btn.disabled = false;
       showToast('Error: ' + result.error);
     } else {
-      showToast('Account created! Check your email to verify. 🎉');
-      setTimeout(() => window.location.href = 'login.html', 2000);
+      window.location.href = 'verify-email.html';
     }
   });
 }
