@@ -67,8 +67,19 @@ async function updateNavbar() {
     } catch (e) {}
 
     if (loginBtn) {
-      loginBtn.textContent = pendingCount > 0 ? `👤 ${name} (${pendingCount})` : `👤 ${name}`;
+      loginBtn.textContent = `👤 ${name}`;
       loginBtn.href = 'my-listings.html';
+      loginBtn.style.position = 'relative';
+
+      // Remove any existing badge before adding
+      loginBtn.querySelector('.nav-trade-badge')?.remove();
+
+      if (pendingCount > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'nav-trade-badge';
+        badge.textContent = pendingCount;
+        loginBtn.appendChild(badge);
+      }
     }
     if (signupBtn) signupBtn.style.display = 'none';
   }

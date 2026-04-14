@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -rl 'Price History' *.html)"
+      "Bash(grep -rl 'Price History' *.html)",
+      "Bash(grep -n \"Price History\\\\|Trade Requests\" \"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Dokument\\\\Website Rellazon\"/*.html)"
     ]
   }
 }
