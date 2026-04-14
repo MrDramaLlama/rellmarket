@@ -2846,6 +2846,47 @@ body.page-out {
 }
 .dashboard-empty__sub { margin-bottom: 1.5rem; font-size: .92rem; }
 
+/* My listings grid */
+.my-listings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.my-listing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem 1.1rem;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.my-listing-info { flex: 1; min-width: 0; }
+.my-listing-name {
+  font-weight: 700;
+  font-size: .95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.my-listing-meta { font-size: .82rem; color: var(--color-muted); margin-top: .15rem; }
+.my-listing-right {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+.my-listing-status {
+  font-size: .75rem;
+  font-weight: 700;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+}
+.my-listing-status--active  { background: #d1fae5; color: #065f46; }
+.my-listing-status--inactive { background: #fee2e2; color: #991b1b; }
+
 /* Profile section */
 .dashboard-profile {
   margin-top: 3rem;
