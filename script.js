@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWatchlistPage();
   initFetchListings();
   initHomepageMiniGrids();
+  initMyListings();
 });
 
 // ─── Footer year ──────────────────────────────────────────────────────────────
@@ -1245,6 +1246,221 @@ function initHomepageMiniGrids() {
       }
     })
     .catch(() => {});
+}
+
+// ─── My Listings dashboard ───────────────────────────────────────────────────
+async function initMyListings() {
+  const grid = document.getElementById('my-listings-grid');
+  if (!grid) return; // only runs on my-listings.html
+
+  const emptyState   = document.getElementById('active-empty');
+  const statActive   = document.querySelectorAll('.stat-card__value')[0];
+  const statWatchlist= document.querySelectorAll('.stat-card__value')[2];
+
+  // Watchlist count from localStorage
+  try {
+    const wl = JSON.parse(localStorage.getItem('rellmarket-watchlist')) || [];
+    if (statWatchlist) statWatchlist.textContent = wl.length;
+  } catch (e) {}
+
+  // Supabase client (reuse global from auth.js if ready, else create one)
+  const client = (typeof supabaseClient !== 'undefined')
+    ? supabaseClient
+    : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Auth guard — redirect to login if no session
+  const { data: { session } } = await client.auth.getSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const token  = session.access_token;
+  const userId = session.user.id;
+
+  // ── Profile section ──
+  try {
+    const { data: profile } = await client
+      .from('profiles')
+      .select('username, roblox_username, avatar_url')
+      .eq('id', userId)
+      .single();
+
+    if (profile) {
+      const nameEl   = document.querySelector('.profile-info__name');
+      const avatarEl = document.querySelector('.profile-avatar');
+      if (nameEl) nameEl.textContent = profile.roblox_username || profile.username || 'Pirate';
+      if (avatarEl && profile.avatar_url) {
+        avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="Avatar"
+          style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      }
+    }
+  } catch (e) {}
+
+  // ── Fetch this user's listings ──
+  async function fetchMyListings() {
+    const res  = await fetch(
+      `https://rellmarket.vercel.app/api/listings/get?user_id=${userId}&limit=100`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    const json = await res.json();
+    return json.listings || [];
+  }
+
+  // ── Build one listing row card ──
+  function renderListing(l) {
+    const itemId     = itemNameToId(l.item_name);
+    const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
+    const imgSrc     = staticItem?.image || l.image_url || '';
+    const imgHTML    = imgSrc
+      ? `<img src="${imgSrc}" alt="${l.item_name}" class="my-listing-img" />`
+      : `<div class="my-listing-img my-listing-img--placeholder">📦</div>`;
+
+    const priceText  = l.price_type === 'fixed' && l.price
+      ? `${Number(l.price).toLocaleString()} Beli`
+      : 'Make Offer';
+    const rarityLabel = l.rarity
+      ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1)
+      : '';
+    const rarityBadge = rarityLabel
+      ? `<span class="listing-badge listing-badge--${l.rarity}" style="position:static;">${rarityLabel}</span>`
+      : '';
+    const statusBadge = l.is_active
+      ? '<span class="my-listing-status my-listing-status--active">Active</span>'
+      : '<span class="my-listing-status my-listing-status--inactive">Inactive</span>';
+
+    const article = document.createElement('article');
+    article.className = 'my-listing-row';
+    article.dataset.listingId = l.id;
+    article.innerHTML = `
+      ${imgHTML}
+      <div class="my-listing-info">
+        <p class="my-listing-name">${l.item_name}</p>
+        <p class="my-listing-meta">${[rarityLabel, priceText].filter(Boolean).join(' · ')}</p>
+      </div>
+      <div class="my-listing-right">
+        ${statusBadge}
+        ${rarityBadge}
+        <button class="btn btn--login my-listing-edit" data-id="${l.id}">Edit</button>
+        <button class="btn my-listing-delete" data-id="${l.id}"
+          style="background:#ef4444;color:#fff;border-color:transparent;">Delete</button>
+      </div>`;
+
+    // Delete
+    article.querySelector('.my-listing-delete').addEventListener('click', async () => {
+      if (!confirm(`Delete "${l.item_name}"? This cannot be undone.`)) return;
+      try {
+        const r = await fetch(
+          `https://rellmarket.vercel.app/api/listings/delete?id=${l.id}`,
+          { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        if (!r.ok) throw new Error((await r.json()).error);
+        article.remove();
+        const remaining = grid.querySelectorAll('.my-listing-row').length;
+        if (statActive) statActive.textContent = remaining;
+        if (remaining === 0) emptyState.style.display = '';
+        showToast('Listing deleted.');
+      } catch (err) {
+        showToast('Error: ' + err.message);
+      }
+    });
+
+    // Edit
+    article.querySelector('.my-listing-edit').addEventListener('click', () => openEditModal(l));
+
+    return article;
+  }
+
+  // ── Render all listings ──
+  async function renderAll() {
+    let listings;
+    try { listings = await fetchMyListings(); }
+    catch (e) { listings = []; showToast('Failed to load listings.'); }
+
+    grid.innerHTML = '';
+    if (listings.length === 0) {
+      emptyState.style.display = '';
+      if (statActive) statActive.textContent = 0;
+      return;
+    }
+    emptyState.style.display = 'none';
+    listings.forEach(l => grid.appendChild(renderListing(l)));
+    if (statActive) statActive.textContent = listings.filter(l => l.is_active).length;
+  }
+
+  // ── Edit modal wiring ──
+  const modal           = document.getElementById('edit-listing-modal');
+  const editForm        = document.getElementById('edit-listing-form');
+  const editId          = document.getElementById('edit-listing-id');
+  const editName        = document.getElementById('edit-item-name');
+  const editPrice       = document.getElementById('edit-price');
+  const editBeliWrap    = document.getElementById('edit-beli-wrap');
+  const editDesc        = document.getElementById('edit-description');
+  const editIsActive    = document.getElementById('edit-is-active');
+  const editPriceRadios = editForm.querySelectorAll('input[name="edit-price-type"]');
+
+  editPriceRadios.forEach(r => {
+    r.addEventListener('change', () => {
+      editBeliWrap.classList.toggle('is-visible', r.value === 'fixed' && r.checked);
+    });
+  });
+
+  function openEditModal(l) {
+    editId.value        = l.id;
+    editName.value      = l.item_name   || '';
+    editDesc.value      = l.description || '';
+    editIsActive.checked = l.is_active  !== false;
+    editPrice.value     = l.price       || '';
+    const pt = l.price_type === 'fixed' ? 'fixed' : 'offer';
+    editForm.querySelector(`input[name="edit-price-type"][value="${pt}"]`).checked = true;
+    editBeliWrap.classList.toggle('is-visible', pt === 'fixed');
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditModal() {
+    modal.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('edit-modal-close').addEventListener('click', closeEditModal);
+  document.getElementById('edit-modal-cancel').addEventListener('click', closeEditModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeEditModal(); });
+
+  editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById('edit-modal-save');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    const priceType = editForm.querySelector('input[name="edit-price-type"]:checked').value;
+    try {
+      const r = await fetch(
+        `https://rellmarket.vercel.app/api/listings/update?id=${editId.value}`,
+        {
+          method:  'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            item_name:   editName.value,
+            price:       priceType === 'fixed' && editPrice.value ? Number(editPrice.value) : null,
+            price_type:  priceType,
+            description: editDesc.value || null,
+            is_active:   editIsActive.checked,
+          }),
+        }
+      );
+      if (!r.ok) throw new Error((await r.json()).error);
+      showToast('Listing updated! ✅');
+      closeEditModal();
+      renderAll();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Changes';
+    }
+  });
+
+  renderAll();
 }
 
 // ─── Watchlist helpers ────────────────────────────────────────────────────────
