@@ -3335,6 +3335,23 @@ body.page-out {
   cursor: not-allowed;
 }
 
+/* ─── Locked / auto-filled form fields ───────────────────────────────────── */
+.form-input--locked {
+  background: var(--color-surface, #f8fafc);
+  color: var(--color-muted, #94a3b8);
+  border-color: var(--color-border, #e2e8f0);
+  cursor: not-allowed;
+  opacity: .75;
+}
+
+.autofill-hint {
+  font-size: .75rem;
+  font-weight: 400;
+  color: var(--color-muted, #94a3b8);
+  margin-left: .35rem;
+  user-select: none;
+}
+
 /* ─── Load More ──────────────────────────────────────────────────────────── */
 .load-more-wrap {
   display: flex;

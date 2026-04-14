@@ -673,6 +673,26 @@ function initPostListingForm() {
   const categoryMap = { 'Devil Fruit': 'fruit' };
   const rarityMap   = { 'Legendary': 'legendary', 'Rare': 'rare', 'Uncommon': 'uncommon', 'Common': 'common' };
 
+  // ── Lock / unlock auto-filled fields ──
+  function lockField(el) {
+    el.disabled = true;
+    el.classList.add('form-input--locked');
+    const label = el.closest('.form-group')?.querySelector('.form-label');
+    if (label && !label.querySelector('.autofill-hint')) {
+      const hint = document.createElement('span');
+      hint.className = 'autofill-hint';
+      hint.textContent = ' 🔒 auto-filled';
+      label.appendChild(hint);
+    }
+  }
+
+  function unlockField(el) {
+    el.disabled = false;
+    el.classList.remove('form-input--locked');
+    const label = el.closest('.form-group')?.querySelector('.form-label');
+    label?.querySelector('.autofill-hint')?.remove();
+  }
+
   // ── Auto-fill from known item ──
   function applyItemData(data) {
     const catVal    = categoryMap[data.category]  || data.category  || '';
@@ -682,6 +702,10 @@ function initPostListingForm() {
     setSelectValue(fieldCategory, catVal);
     setSelectValue(fieldRarity,   rarityVal);
     setSelectValue(fieldType,     typeVal);
+
+    // Lock rarity and type so user cannot override auto-filled values
+    lockField(fieldRarity);
+    lockField(fieldType);
 
     // Show/hide fruit type group immediately based on auto-filled category
     fruitTypeGrp.style.display = catVal === 'fruit' ? '' : 'none';
@@ -701,6 +725,8 @@ function initPostListingForm() {
     setSelectValue(fieldCategory, '');
     setSelectValue(fieldRarity,   '');
     setSelectValue(fieldType,     '');
+    unlockField(fieldRarity);
+    unlockField(fieldType);
     previewImg.src = '';
     previewImgBox.classList.remove('has-image');
   }
