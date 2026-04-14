@@ -39,6 +39,9 @@ async function getCurrentUser() {
 
 // ── Update navbar based on auth state ────────────────────────────
 async function updateNavbar() {
+  const currentPage = window.location.pathname;
+  if (currentPage.includes('login.html') || currentPage.includes('signup.html')) return;
+
   const user = await getCurrentUser();
   const loginBtn = document.querySelector('.btn--login');
   const signupBtn = document.querySelector('.btn--signup');
