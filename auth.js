@@ -44,10 +44,44 @@ async function updateNavbar() {
   const signupBtn = document.querySelector('.btn--signup');
 
   if (user) {
-    if (loginBtn) loginBtn.textContent = 'Log Out';
-    if (loginBtn) loginBtn.href = '#';
-    if (loginBtn) loginBtn.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('roblox_username, username')
+      .eq('id', user.id)
+      .single();
+    const name = profile?.roblox_username || profile?.username || 'Account';
+    if (loginBtn) {
+      loginBtn.textContent = `👤 ${name}`;
+      loginBtn.href = 'my-listings.html';
+    }
     if (signupBtn) signupBtn.style.display = 'none';
+  }
+}
+
+// ── Load user profile on my-listings.html ────────────────────────
+async function loadUserProfile() {
+  if (!document.querySelector('.dashboard-profile')) return;
+
+  const user = await getCurrentUser();
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Fetch profile from Supabase
+  const { data: profile } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (profile) {
+    const nameEl = document.querySelector('.profile-info__name');
+    const avatarEl = document.querySelector('.profile-avatar');
+    if (nameEl) nameEl.textContent = profile.roblox_username || profile.username || 'Pirate';
+    if (avatarEl && profile.avatar_url) {
+      avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+    }
   }
 }
 
@@ -99,5 +133,6 @@ if (signupForm) {
   });
 }
 
-// Run navbar update on every page
+// Run on every page
 updateNavbar();
+loadUserProfile();
