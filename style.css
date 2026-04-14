@@ -3217,6 +3217,57 @@ body.page-out {
   margin: 0 0 1.25rem;
 }
 
+/* ─── Load More ──────────────────────────────────────────────────────────── */
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0 1rem;
+}
+
+.btn--load-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .65rem 2.25rem;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  color: var(--color-accent);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  min-width: 140px;
+  min-height: 44px;
+}
+
+.btn--load-more:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.btn--load-more:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Spinner shown while loading */
+.btn--load-more.is-loading::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin .65s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Seller link on item page */
 .item-seller__name--link {
   color: var(--color-accent);

@@ -241,7 +241,7 @@
 
           <!-- Top bar -->
           <div class="listings-topbar">
-            <p class="listings-topbar__count">Showing <strong>12</strong> listings</p>
+            <p class="listings-topbar__count" id="listings-count">Showing <strong>0</strong> listings</p>
             <div class="listings-topbar__right">
               <label for="sort-select" class="listings-topbar__sort-label">Sort by:</label>
               <select class="listings-topbar__sort" id="sort-select" aria-label="Sort listings">
@@ -257,6 +257,11 @@
           <div class="listing-grid" id="listing-grid">
           </div>
           <!-- /listing-grid -->
+
+          <!-- Load More -->
+          <div class="load-more-wrap" id="load-more-wrap" hidden>
+            <button class="btn btn--load-more" id="load-more-btn">Load More</button>
+          </div>
 
           <!-- Empty state -->
           <div class="listing-empty" id="listing-empty" hidden>

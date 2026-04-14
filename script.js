@@ -1147,64 +1147,125 @@ function initFetchListings() {
   const grid = document.getElementById('listing-grid');
   if (!grid) return;
 
-  console.log('Fetching listings from API...');
-  fetch('https://rellmarket.vercel.app/api/listings/get')
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(json => {
-      console.log('API response:', json);
-      const emptyState = document.getElementById('listing-empty');
+  const PAGE_SIZE   = 20;
+  let currentOffset = 0;
+  let totalLoaded   = 0;
+  let isFetching    = false;
 
-      if (!json || !json.listings || json.listings.length === 0) {
-        if (emptyState) emptyState.hidden = false;
-        return;
-      }
-      if (emptyState) emptyState.hidden = true;
+  const emptyState  = document.getElementById('listing-empty');
+  const loadMoreWrap = document.getElementById('load-more-wrap');
+  const loadMoreBtn  = document.getElementById('load-more-btn');
+  const countEl      = document.getElementById('listings-count');
 
-      // Replace grid with API results
-      grid.innerHTML = json.listings.map(l => {
-        const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
-        const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : 'listing-badge--common';
-        const rarityLabel = l.rarity
-          ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1)
-          : '';
-        const priceHTML = l.price
-          ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
-          : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
-        const imgHTML = l.image_url
-          ? `<img src="${l.image_url}" alt="${l.item_name}" class="listing-card__img" />`
-          : `<div class="listing-card__placeholder" style="--ph:#f0fdfa;">📦</div>`;
-        const typeLabel = [
-          l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
-          l.fruit_type || ''
-        ].filter(Boolean).join(' · ');
+  function buildCardHTML(l) {
+    const seller     = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+    const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : 'listing-badge--common';
+    const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
+    const priceHTML  = l.price
+      ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
+      : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
+    const imgHTML    = l.image_url
+      ? `<img src="${l.image_url}" alt="${l.item_name}" class="listing-card__img" />`
+      : `<div class="listing-card__placeholder" style="--ph:#f0fdfa;">📦</div>`;
+    const typeLabel  = [
+      l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
+      l.fruit_type || ''
+    ].filter(Boolean).join(' · ');
+    const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
+    return `
+      <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+        <a href="${itemUrl}" class="listing-card__img-wrap">
+          ${imgHTML}
+          ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
+        </a>
+        <div class="listing-card__body">
+          <p class="listing-card__type">${typeLabel}</p>
+          <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
+          <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
+          <div class="listing-card__footer">
+            ${priceHTML}
+            <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
+          </div>
+        </div>
+      </article>`;
+  }
 
-        const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
-        return `
-          <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
-            <a href="${itemUrl}" class="listing-card__img-wrap">
-              ${imgHTML}
-              ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
-            </a>
-            <div class="listing-card__body">
-              <p class="listing-card__type">${typeLabel}</p>
-              <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
-              <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
-              <div class="listing-card__footer">
-                ${priceHTML}
-                <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
-              </div>
-            </div>
-          </article>`;
-      }).join('');
+  function updateCount(hasMore) {
+    if (!countEl) return;
+    if (hasMore) {
+      countEl.innerHTML = `Showing <strong>${totalLoaded}</strong> listings — more available`;
+    } else {
+      countEl.innerHTML = `Showing <strong>${totalLoaded}</strong> listing${totalLoaded !== 1 ? 's' : ''}`;
+    }
+  }
 
-      // Re-run filter and heart buttons to cover the new cards
-      applyListingFilters();
-      initListingCardHearts();
-    })
-    .catch(err => { console.log('API error:', err); });
+  function fetchPage(offset) {
+    if (isFetching) return;
+    isFetching = true;
+
+    if (loadMoreBtn) {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.classList.add('is-loading');
+      loadMoreBtn.textContent = '';
+    }
+
+    fetch(`https://rellmarket.vercel.app/api/listings/get?limit=${PAGE_SIZE}&offset=${offset}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(json => {
+        const listings = json.listings || [];
+        const hasMore  = json.hasMore === true;
+
+        if (offset === 0 && listings.length === 0) {
+          if (emptyState) emptyState.hidden = false;
+          if (loadMoreWrap) loadMoreWrap.hidden = true;
+          isFetching = false;
+          return;
+        }
+
+        if (emptyState) emptyState.hidden = true;
+
+        // First page: replace; subsequent pages: append
+        if (offset === 0) {
+          grid.innerHTML = listings.map(buildCardHTML).join('');
+        } else {
+          grid.insertAdjacentHTML('beforeend', listings.map(buildCardHTML).join(''));
+        }
+
+        totalLoaded   += listings.length;
+        currentOffset  = offset + listings.length;
+
+        updateCount(hasMore);
+        applyListingFilters();
+        initListingCardHearts();
+
+        if (loadMoreWrap) loadMoreWrap.hidden = !hasMore;
+        if (loadMoreBtn) {
+          loadMoreBtn.disabled = false;
+          loadMoreBtn.classList.remove('is-loading');
+          loadMoreBtn.textContent = 'Load More';
+        }
+      })
+      .catch(err => {
+        console.log('API error:', err);
+        if (loadMoreBtn) {
+          loadMoreBtn.disabled = false;
+          loadMoreBtn.classList.remove('is-loading');
+          loadMoreBtn.textContent = 'Load More';
+        }
+      })
+      .finally(() => { isFetching = false; });
+  }
+
+  // Wire Load More button
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => fetchPage(currentOffset));
+  }
+
+  // Initial load
+  fetchPage(0);
 }
 
 // ─── Homepage mini-grids ─────────────────────────────────────────────────────
