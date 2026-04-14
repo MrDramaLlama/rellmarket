@@ -532,11 +532,6 @@ function initPostListingForm() {
   const previewImgBox = document.getElementById('preview-img-box');
   const previewImg    = document.getElementById('preview-img');
 
-  // Image upload refs
-  const uploadArea    = document.getElementById('upload-area');
-  const uploadInput   = document.getElementById('upload-input');
-  const uploadPreview = document.getElementById('upload-preview');
-
   // Category label map
   const categoryLabels = {
     fruit: 'Devil Fruit', armor: 'Armor', weapon: 'Weapon',
@@ -583,16 +578,13 @@ function initPostListingForm() {
     // Show/hide fruit type group immediately based on auto-filled category
     fruitTypeGrp.style.display = catVal === 'fruit' ? '' : 'none';
 
-    // Set preview image if item has one
+    // Set preview image from ITEMS_DATA if available
     if (data.image) {
       previewImg.src = data.image;
       previewImgBox.classList.add('has-image');
     } else {
-      // Only clear preview image if user hasn't uploaded their own
-      if (!uploadArea.classList.contains('has-image')) {
-        previewImg.src = '';
-        previewImgBox.classList.remove('has-image');
-      }
+      previewImg.src = '';
+      previewImgBox.classList.remove('has-image');
     }
   }
 
@@ -601,10 +593,8 @@ function initPostListingForm() {
     setSelectValue(fieldCategory, '');
     setSelectValue(fieldRarity,   '');
     setSelectValue(fieldType,     '');
-    if (!uploadArea.classList.contains('has-image')) {
-      previewImg.src = '';
-      previewImgBox.classList.remove('has-image');
-    }
+    previewImg.src = '';
+    previewImgBox.classList.remove('has-image');
   }
 
   // ── Item selector change ──
@@ -679,44 +669,6 @@ function initPostListingForm() {
   [fieldQty, fieldCategory, fieldRarity, fieldType, fieldPrice].forEach(el => {
     el.addEventListener('input', updatePreview);
     el.addEventListener('change', updatePreview);
-  });
-
-  // ── Image upload ──
-  function loadImageFile(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-    if (file.size > 4 * 1024 * 1024) { alert('Image must be under 4 MB.'); return; }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      uploadPreview.src = e.target.result;
-      uploadArea.classList.add('has-image');
-      previewImg.src = e.target.result;
-      previewImgBox.classList.add('has-image');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  uploadArea.addEventListener('click', () => uploadInput.click());
-  uploadArea.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); uploadInput.click(); }
-  });
-
-  uploadInput.addEventListener('change', () => {
-    if (uploadInput.files[0]) loadImageFile(uploadInput.files[0]);
-  });
-
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('is-dragover');
-  });
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('is-dragover');
-  });
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('is-dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) loadImageFile(file);
   });
 
   // ── Form validation ──
@@ -795,7 +747,7 @@ function initPostListingForm() {
         price:       fieldPrice.value  ? Number(fieldPrice.value) : null,
         price_type:  priceType,
         description: fieldDesc.value   || null,
-        image_url:   null,
+        image_url:   (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
       };
 
       const headers = { 'Content-Type': 'application/json' };
@@ -813,8 +765,6 @@ function initPostListingForm() {
       showToast('Listing posted! 🎉');
       form.reset();
       beliWrap.classList.remove('is-visible');
-      uploadArea.classList.remove('has-image');
-      uploadPreview.src = '';
       previewImg.src = '';
       previewImgBox.classList.remove('has-image');
       updatePreview();
