@@ -537,7 +537,10 @@ function populateItemPage(item) {
 
   // Seller
   const sellerName = document.getElementById('item-seller-name');
-  if (sellerName) sellerName.textContent = item.seller;
+  if (sellerName) {
+    sellerName.textContent = item.seller;
+    sellerName.href = `profile.html?username=${encodeURIComponent(item.seller)}`;
+  }
 
   // Price
   const priceLabel = document.getElementById('item-price-label');
@@ -1188,7 +1191,7 @@ function initFetchListings() {
             <div class="listing-card__body">
               <p class="listing-card__type">${typeLabel}</p>
               <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
-              <p class="listing-card__seller">by <a href="#">${seller}</a></p>
+              <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
               <div class="listing-card__footer">
                 ${priceHTML}
                 <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
@@ -1602,7 +1605,7 @@ function initWatchlistPage() {
           <div class="listing-card__body">
             <p class="listing-card__type">${item.category} · ${item.type}</p>
             <h3 class="listing-card__name">${item.name}</h3>
-            <p class="listing-card__seller">by <a href="#">${item.seller}</a></p>
+            <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(item.seller)}">${item.seller}</a></p>
             <div class="listing-card__footer">
               ${priceHTML}
               <a href="item.html?id=${item.id}" class="btn btn--trade-card">View</a>
@@ -1692,17 +1695,9 @@ function initHeroCounter() {
   });
 }
 
-// ─── Seller name clipboard copy ───────────────────────────────────────────────
+// ─── Seller name — now a profile link; no copy needed ────────────────────────
 function initSellerCopy() {
-  const sellerName = document.getElementById('item-seller-name');
-  if (!sellerName) return;
-
-  sellerName.title = 'Click to copy username';
-  sellerName.addEventListener('click', () => {
-    navigator.clipboard.writeText(sellerName.textContent.trim()).then(() => {
-      showToast('Copied!');
-    });
-  });
+  // Seller is rendered as an <a> tag; href is set by populateItemPage().
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────

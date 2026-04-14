@@ -3073,3 +3073,136 @@ body.page-out {
   .dashboard-profile { flex-direction: column; align-items: flex-start; }
   .profile-actions { margin-left: 0; }
 }
+
+/* ─── Public Profile Page ─────────────────────────────────────────────────── */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* Left column — profile card */
+.profile-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: sticky;
+  top: 1rem;
+}
+
+.profile-card__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 1.5rem auto .75rem;
+}
+
+.profile-card__body {
+  padding: 0 1.25rem 1.5rem;
+  text-align: center;
+}
+
+.profile-card__username {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 .2rem;
+}
+
+.profile-card__roblox {
+  font-size: .85rem;
+  color: var(--color-muted);
+  margin: 0 0 .75rem;
+}
+
+.profile-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: 99px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.profile-card__stats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-border);
+  padding-top: .75rem;
+  text-align: left;
+}
+
+.profile-card__stats li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .45rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: .875rem;
+}
+
+.profile-card__stats li:last-child { border-bottom: none; }
+
+.profile-card__stat-label {
+  color: var(--color-muted);
+}
+
+.profile-card__stat-value {
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+/* Right column — listings */
+.profile-listings__heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 1.25rem;
+}
+
+/* Seller link on item page */
+.item-seller__name--link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.item-seller__name--link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+  .profile-card {
+    position: static;
+  }
+  .profile-card__avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 1.5rem;
+  }
+}
