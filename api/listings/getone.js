@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*, profiles(username, roblox_username, avatar_url)')
+    .select('*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted)')
     .eq('id', id)
     .single();
 

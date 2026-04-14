@@ -423,8 +423,10 @@ function initItemPage() {
         const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
         const rarityClass = l.rarity || 'common';
 
-        // Seller: real profile username
-        const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+        // Seller: real profile username + verification flags
+        const seller           = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+        const sellerIsVerified = l.profiles?.is_verified || false;
+        const sellerIsTrusted  = l.profiles?.is_trusted  || false;
 
         // Price
         const price    = l.price_type === 'offer' ? 'Make Offer' : `${Number(l.price).toLocaleString()} Beli`;
@@ -442,6 +444,8 @@ function initItemPage() {
           type:        typeLabel,
           description,
           seller,
+          sellerIsVerified,
+          sellerIsTrusted,
           price,
           priceSub,
           rating:      staticItem?.rating      || '—',
@@ -479,7 +483,9 @@ function initItemPage() {
         category:    l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
         type:        l.fruit_type || '',
         description: l.description || '',
-        seller:      l.profiles?.roblox_username || l.profiles?.username || 'Trader',
+        seller:           l.profiles?.roblox_username || l.profiles?.username || 'Trader',
+        sellerIsVerified: l.profiles?.is_verified || false,
+        sellerIsTrusted:  l.profiles?.is_trusted  || false,
         price:       l.price_type === 'offer' ? 'Make Offer' : `${Number(l.price).toLocaleString()} Beli`,
         priceSub:    '',
         rating:      '—',
@@ -541,6 +547,16 @@ function populateItemPage(item) {
   if (sellerName) {
     sellerName.textContent = item.seller;
     sellerName.href = `profile.html?username=${encodeURIComponent(item.seller)}`;
+  }
+  const sellerBadge = document.getElementById('item-seller-badge');
+  if (sellerBadge) {
+    if (item.sellerIsVerified) {
+      sellerBadge.className = 'item-seller__badge item-seller__badge--verified';
+      sellerBadge.textContent = '⭐ Verified';
+    } else if (item.sellerIsTrusted) {
+      sellerBadge.className = 'item-seller__badge item-seller__badge--trusted';
+      sellerBadge.textContent = '🛡️ Trusted';
+    }
   }
 
   // Price

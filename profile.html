@@ -134,9 +134,7 @@
           <h1 class="profile-card__username" id="profile-username">Loading…</h1>
           <p class="profile-card__roblox" id="profile-roblox"></p>
 
-          <div class="profile-card__badges" id="profile-badges">
-            <span class="profile-badge profile-badge--trusted">✓ Trusted Seller</span>
-          </div>
+          <div class="profile-card__badges" id="profile-badges"></div>
 
           <p class="profile-card__bio" id="profile-bio">No bio yet.</p>
 
@@ -148,6 +146,10 @@
             <li>
               <span class="profile-card__stat-label">Active Listings</span>
               <span class="profile-card__stat-value" id="stat-active-listings">—</span>
+            </li>
+            <li>
+              <span class="profile-card__stat-label">Completed Trades</span>
+              <span class="profile-card__stat-value" id="stat-completed-trades">—</span>
             </li>
             <li>
               <span class="profile-card__stat-label">Member Since</span>
@@ -272,6 +274,18 @@
         if (profile.bio) {
           document.getElementById('profile-bio').textContent = profile.bio;
         }
+
+        // Badges — verified and/or trusted
+        const badgesEl = document.getElementById('profile-badges');
+        if (profile.is_verified) {
+          badgesEl.insertAdjacentHTML('beforeend', '<span class="profile-badge profile-badge--verified">⭐ Verified Trader</span>');
+        }
+        if (profile.is_trusted) {
+          badgesEl.insertAdjacentHTML('beforeend', '<span class="profile-badge profile-badge--trusted">🛡️ Trusted Trader</span>');
+        }
+
+        // Completed trades
+        document.getElementById('stat-completed-trades').textContent = profile.completed_trades || 0;
 
         // Member since
         const since = document.getElementById('stat-member-since');

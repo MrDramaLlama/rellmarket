@@ -263,9 +263,37 @@
           if (badgeEl) { badgeEl.className = `trade-status trade-status--${status}`; badgeEl.textContent = status; }
           cardEl.querySelector('.trade-card__actions')?.remove();
           if (typeof showToast === 'function') showToast(`Trade ${status}.`);
+          // If accepted, show the Mark as Completed button
+          if (status === 'accepted') {
+            addCompleteButton(id, cardEl);
+          }
         } catch (err) {
           if (typeof showToast === 'function') showToast('Error: ' + err.message);
         }
+      }
+
+      function addCompleteButton(tradeId, cardEl) {
+        const wrap = document.createElement('div');
+        wrap.className = 'trade-card__complete';
+        wrap.innerHTML = `<button class="btn btn--complete-trade">✓ Mark as Completed</button>`;
+        cardEl.appendChild(wrap);
+        wrap.querySelector('.btn--complete-trade').addEventListener('click', async () => {
+          try {
+            const r = await fetch('https://rellmarket.vercel.app/api/trades/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ trade_id: tradeId }),
+            });
+            const json = await r.json();
+            if (!r.ok) throw new Error(json.error);
+            const badgeEl = cardEl.querySelector('.trade-status');
+            if (badgeEl) { badgeEl.className = 'trade-status trade-status--completed'; badgeEl.textContent = 'completed'; }
+            wrap.remove();
+            if (typeof showToast === 'function') showToast('Trade completed! 🎉');
+          } catch (err) {
+            if (typeof showToast === 'function') showToast('Error: ' + err.message);
+          }
+        });
       }
 
       function buildIncomingCard(t) {
@@ -297,6 +325,9 @@
         if (t.status === 'pending') {
           card.querySelector('.btn--accept')?.addEventListener('click', () => updateTradeStatus(t.id, 'accepted', card));
           card.querySelector('.btn--decline')?.addEventListener('click', () => updateTradeStatus(t.id, 'declined', card));
+        }
+        if (t.status === 'accepted') {
+          addCompleteButton(t.id, card);
         }
         return card;
       }
