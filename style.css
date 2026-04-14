@@ -2846,6 +2846,96 @@ body.page-out {
 }
 .dashboard-empty__sub { margin-bottom: 1.5rem; font-size: .92rem; }
 
+/* Trade request cards */
+.trades-page { padding: 2.5rem 0 4rem; }
+.trades-header { margin-bottom: 2rem; }
+.trades-header h1 { font-size: 1.75rem; font-weight: 800; }
+.trades-header p   { color: var(--color-muted); margin-top: .3rem; }
+
+.trade-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.trade-card {
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.trade-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.trade-card__title {
+  font-weight: 700;
+  font-size: .97rem;
+}
+.trade-card__meta {
+  font-size: .83rem;
+  color: var(--color-muted);
+  margin-top: .15rem;
+}
+.trade-card__offer {
+  font-size: .9rem;
+  padding: .55rem .75rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+.trade-card__offer strong { color: var(--color-heading); }
+.trade-card__message {
+  font-size: .88rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+.trade-card__actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: .25rem;
+}
+.trade-status {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+.trade-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+.trade-status--pending  { background: #fef3c7; color: #92400e; }
+.trade-status--accepted { background: #d1fae5; color: #065f46; }
+.trade-status--declined { background: #fee2e2; color: #991b1b; }
+.trade-status--cancelled{ background: #f3f4f6; color: #6b7280; }
+
+.btn--accept  { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn--accept:hover { filter: brightness(1.08); }
+.btn--decline { background: transparent; color: #ef4444; border: 1.5px solid #ef4444; }
+.btn--decline:hover { background: #fef2f2; }
+.btn--cancel-trade { background: transparent; color: var(--color-muted); border: 1.5px solid var(--color-border); }
+.btn--cancel-trade:hover { background: var(--color-surface); color: var(--color-text); }
+
 /* My listings grid */
 .my-listings-grid {
   display: flex;

@@ -50,8 +50,24 @@ async function updateNavbar() {
       .eq('id', user.id)
       .single();
     const name = profile?.roblox_username || profile?.username || 'Account';
+
+    // Fetch pending incoming trade count for badge
+    let pendingCount = 0;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        const r = await fetch('https://rellmarket.vercel.app/api/trades/get?type=incoming', {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+        if (r.ok) {
+          const json = await r.json();
+          pendingCount = (json.trades || []).filter(t => t.status === 'pending').length;
+        }
+      }
+    } catch (e) {}
+
     if (loginBtn) {
-      loginBtn.textContent = `👤 ${name}`;
+      loginBtn.textContent = pendingCount > 0 ? `👤 ${name} (${pendingCount})` : `👤 ${name}`;
       loginBtn.href = 'my-listings.html';
     }
     if (signupBtn) signupBtn.style.display = 'none';

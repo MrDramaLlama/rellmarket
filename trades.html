@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade Requests — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">📈 Price History</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input
+            class="search-form__input"
+            type="search"
+            placeholder="Search Devil Fruits, Armor, Beli…"
+            aria-label="Search items"
+          />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <main class="page-main trades-page">
+    <div class="container">
+
+      <div class="trades-header">
+        <h1>🤝 Trade Requests</h1>
+        <p>Manage incoming and outgoing trade offers.</p>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="dashboard-tabs" role="tablist" aria-label="Trade tabs">
+        <button class="dashboard-tab is-active" role="tab" aria-selected="true" data-tab="incoming">
+          Incoming Requests <span class="trade-tab-badge" id="incoming-badge" hidden></span>
+        </button>
+        <button class="dashboard-tab" role="tab" aria-selected="false" data-tab="outgoing">
+          Outgoing Requests
+        </button>
+      </div>
+
+      <!-- Incoming panel -->
+      <div class="dashboard-panel is-active" id="panel-incoming" role="tabpanel">
+        <div class="trade-cards" id="incoming-cards"></div>
+        <div class="dashboard-empty" id="incoming-empty" hidden>
+          <div class="dashboard-empty__icon">📭</div>
+          <p class="dashboard-empty__title">No incoming trade requests</p>
+          <p class="dashboard-empty__sub">When someone sends you a trade offer it will appear here.</p>
+        </div>
+      </div>
+
+      <!-- Outgoing panel -->
+      <div class="dashboard-panel" id="panel-outgoing" role="tabpanel">
+        <div class="trade-cards" id="outgoing-cards"></div>
+        <div class="dashboard-empty" id="outgoing-empty" hidden>
+          <div class="dashboard-empty__icon">📤</div>
+          <p class="dashboard-empty__title">No outgoing trade requests</p>
+          <p class="dashboard-empty__sub">Requests you've sent will appear here.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Tab switching
+    document.querySelectorAll('.dashboard-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.dashboard-tab').forEach(t => {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+        const panel = document.getElementById('panel-' + tab.dataset.tab);
+        if (panel) panel.classList.add('is-active');
+      });
+    });
+
+    // ── Trades page logic ────────────────────────────────────────────────────
+    (async function initTradesPage() {
+      if (!document.getElementById('incoming-cards')) return;
+
+      const client = (typeof supabaseClient !== 'undefined')
+        ? supabaseClient
+        : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      const token = session.access_token;
+
+      function statusBadge(status) {
+        return `<span class="trade-status trade-status--${status}">${status}</span>`;
+      }
+
+      function timeAgo(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const m = Math.floor(diff / 60000);
+        if (m < 1)  return 'just now';
+        if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24) return `${h}h ago`;
+        return `${Math.floor(h / 24)}d ago`;
+      }
+
+      async function updateTradeStatus(id, status, cardEl) {
+        try {
+          const r = await fetch(`https://rellmarket.vercel.app/api/trades/update?id=${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ status }),
+          });
+          if (!r.ok) throw new Error((await r.json()).error);
+          // Update status badge in place and hide action buttons
+          const badgeEl = cardEl.querySelector('.trade-status');
+          if (badgeEl) { badgeEl.className = `trade-status trade-status--${status}`; badgeEl.textContent = status; }
+          cardEl.querySelector('.trade-card__actions')?.remove();
+          if (typeof showToast === 'function') showToast(`Trade ${status}.`);
+        } catch (err) {
+          if (typeof showToast === 'function') showToast('Error: ' + err.message);
+        }
+      }
+
+      function buildIncomingCard(t) {
+        const sender   = t.profiles?.roblox_username || t.profiles?.username || 'Unknown';
+        const itemWanted = t.listings?.item_name || '—';
+        const offerParts = [t.offered_item];
+        if (t.offered_beli > 0) offerParts.push(`${Number(t.offered_beli).toLocaleString()} Beli`);
+
+        const card = document.createElement('div');
+        card.className = 'trade-card';
+        card.innerHTML = `
+          <div class="trade-card__header">
+            <div>
+              <p class="trade-card__title">From <strong>${sender}</strong> for <strong>${itemWanted}</strong></p>
+              <p class="trade-card__meta">${timeAgo(t.created_at)}</p>
+            </div>
+            ${statusBadge(t.status)}
+          </div>
+          <div class="trade-card__offer">
+            Offering: <strong>${offerParts.join(' + ')}</strong>
+          </div>
+          ${t.message ? `<p class="trade-card__message">"${t.message}"</p>` : ''}
+          ${t.status === 'pending' ? `
+          <div class="trade-card__actions">
+            <button class="btn btn--accept">Accept</button>
+            <button class="btn btn--decline">Decline</button>
+          </div>` : ''}`;
+
+        if (t.status === 'pending') {
+          card.querySelector('.btn--accept')?.addEventListener('click', () => updateTradeStatus(t.id, 'accepted', card));
+          card.querySelector('.btn--decline')?.addEventListener('click', () => updateTradeStatus(t.id, 'declined', card));
+        }
+        return card;
+      }
+
+      function buildOutgoingCard(t) {
+        const itemWanted = t.listings?.item_name || '—';
+        const offerParts = [t.offered_item];
+        if (t.offered_beli > 0) offerParts.push(`${Number(t.offered_beli).toLocaleString()} Beli`);
+
+        const card = document.createElement('div');
+        card.className = 'trade-card';
+        card.innerHTML = `
+          <div class="trade-card__header">
+            <div>
+              <p class="trade-card__title">Request for <strong>${itemWanted}</strong></p>
+              <p class="trade-card__meta">${timeAgo(t.created_at)}</p>
+            </div>
+            ${statusBadge(t.status)}
+          </div>
+          <div class="trade-card__offer">
+            You offered: <strong>${offerParts.join(' + ')}</strong>
+          </div>
+          ${t.message ? `<p class="trade-card__message">"${t.message}"</p>` : ''}
+          ${t.status === 'pending' ? `
+          <div class="trade-card__actions">
+            <button class="btn btn--cancel-trade">Cancel</button>
+          </div>` : ''}`;
+
+        if (t.status === 'pending') {
+          card.querySelector('.btn--cancel-trade')?.addEventListener('click', () => updateTradeStatus(t.id, 'cancelled', card));
+        }
+        return card;
+      }
+
+      async function loadTrades(type) {
+        const container = document.getElementById(`${type}-cards`);
+        const emptyEl   = document.getElementById(`${type}-empty`);
+        container.innerHTML = '<p style="color:var(--color-muted);padding:1rem 0;">Loading…</p>';
+
+        try {
+          const r = await fetch(`https://rellmarket.vercel.app/api/trades/get?type=${type}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!r.ok) throw new Error('Failed to load');
+          const json = await r.json();
+          const trades = json.trades || [];
+
+          container.innerHTML = '';
+          if (trades.length === 0) {
+            emptyEl.hidden = false;
+            return;
+          }
+          emptyEl.hidden = true;
+          trades.forEach(t => container.appendChild(
+            type === 'incoming' ? buildIncomingCard(t) : buildOutgoingCard(t)
+          ));
+
+          // Update incoming badge on tab
+          if (type === 'incoming') {
+            const pending = trades.filter(t => t.status === 'pending').length;
+            const badge = document.getElementById('incoming-badge');
+            if (badge && pending > 0) {
+              badge.textContent = pending;
+              badge.hidden = false;
+            }
+          }
+        } catch (err) {
+          container.innerHTML = `<p style="color:#ef4444;padding:1rem 0;">Error: ${err.message}</p>`;
+        }
+      }
+
+      // Load both on page open; reload the other when its tab is first clicked
+      const loaded = { incoming: false, outgoing: false };
+      loadTrades('incoming');
+      loaded.incoming = true;
+
+      document.querySelectorAll('.dashboard-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const t = tab.dataset.tab;
+          if (!loaded[t]) { loadTrades(t); loaded[t] = true; }
+        });
+      });
+    })();
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>
