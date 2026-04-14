@@ -398,11 +398,40 @@ function initItemPage() {
   // Only runs on pages that have the item layout
   if (!document.getElementById('item-name-heading')) return;
 
-  const params = new URLSearchParams(window.location.search);
-  const id     = params.get('id') || 'gravity-fruit';
-  const item   = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[id] : null;
+  const params     = new URLSearchParams(window.location.search);
+  const id         = params.get('id') || 'gravity-fruit';
+  const listingId  = params.get('listing_id');
+  const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[id] : null;
 
-  if (!item) {
+  if (listingId) {
+    // Fetch the specific listing from the database
+    fetch(`https://rellmarket.vercel.app/api/listings/getone?id=${encodeURIComponent(listingId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        const l = json?.listing;
+        // Use ITEMS_DATA for image/type info if available, overlay live listing data
+        const base = staticItem || {};
+        populateItemPage({
+          name:        l?.item_name  || base.name  || id.replace(/-/g, ' '),
+          image:       base.image    || l?.image_url || '',
+          rarity:      base.rarity   || (l?.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : ''),
+          rarityClass: base.rarityClass || l?.rarity || 'common',
+          category:    base.category || (l?.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : ''),
+          type:        base.type     || l?.fruit_type || '',
+          description: l?.description || base.description || '',
+          seller:      l?.profiles?.roblox_username || l?.profiles?.username || base.seller || 'Trader',
+          price:       l?.price ? `${Number(l.price).toLocaleString()} Beli` : 'Make Offer',
+          priceSub:    l?.price_type === 'fixed' ? 'Fixed price' : 'Accepting offers',
+          rating:      base.rating      || '—',
+          reviewCount: base.reviewCount || 0,
+          id,
+        });
+      })
+      .catch(() => { if (staticItem) populateItemPage(staticItem); });
+    return;
+  }
+
+  if (!staticItem) {
     // Not in ITEMS_DATA — try fetching from API by item name derived from the id
     const searchName = id.replace(/-/g, ' ');
     fetch(`https://rellmarket.vercel.app/api/listings/get?search=${encodeURIComponent(searchName)}&limit=1`)
@@ -430,7 +459,7 @@ function initItemPage() {
     return;
   }
 
-  populateItemPage(item);
+  populateItemPage(staticItem);
 }
 
 function populateItemPage(item) {
@@ -1005,7 +1034,7 @@ function initFetchListings() {
           l.fruit_type || ''
         ].filter(Boolean).join(' · ');
 
-        const itemUrl = `item.html?id=${itemNameToId(l.item_name)}`;
+        const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
         return `
           <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
             <a href="${itemUrl}" class="listing-card__img-wrap">
