@@ -1,0 +1,111 @@
+'use strict';
+
+/**
+ * RellMarket — Devil Fruit item data
+ * Each key is the id used in the ?id= URL parameter on item.html.
+ */
+const ITEMS_DATA = {
+
+  'gravity-fruit': {
+    id:          'gravity-fruit',
+    name:        'Gravity Fruit',
+    image:       'assets/G-fruit.png',
+    rarity:      'Legendary',
+    rarityClass: 'legendary',
+    type:        'Logia',
+    category:    'Devil Fruit',
+    description: 'One of the rarest Devil Fruits in Rell Seas. The Gravity Fruit grants the user the ability to manipulate gravitational forces, making them nearly unstoppable in combat. A must-have for any serious player looking to dominate PvP.',
+    seller:      'GravityKing',
+    price:       'Make Offer',
+    priceSub:    'Seller accepts offers — submit yours below',
+    listed:      '2 days ago',
+    rating:      '4.8',
+    reviewCount: 24,
+  },
+
+  'flame-fruit': {
+    id:          'flame-fruit',
+    name:        'Flame Fruit',
+    image:       'assets/F-fruit.png',
+    rarity:      'Legendary',
+    rarityClass: 'legendary',
+    type:        'Logia',
+    category:    'Devil Fruit',
+    description: 'A powerful Logia-type Devil Fruit that transforms the user into living fire. Exceptional for both offense and area control, the Flame Fruit is one of the most coveted fruits in Rell Seas.',
+    seller:      'MagmaKing',
+    price:       'Make Offer',
+    priceSub:    'Seller accepts offers — submit yours below',
+    listed:      '1 day ago',
+    rating:      '4.9',
+    reviewCount: 31,
+  },
+
+  'barrier-fruit': {
+    id:          'barrier-fruit',
+    name:        'Barrier Fruit',
+    image:       'assets/B-Fruit.png',
+    rarity:      'Rare',
+    rarityClass: 'rare',
+    type:        'Paramecia',
+    category:    'Devil Fruit',
+    description: 'A Paramecia-type Devil Fruit that allows the user to create and control powerful invisible barriers. Excellent for defensive play styles and trapping opponents in combat.',
+    seller:      'ShieldMaster',
+    price:       '850,000 Beli',
+    priceSub:    'Fixed price listing',
+    listed:      '3 days ago',
+    rating:      '4.5',
+    reviewCount: 18,
+  },
+
+  'dragon-fruit': {
+    id:          'dragon-fruit',
+    name:        'Dragon Fruit',
+    image:       'assets/Ou-fruit.png',
+    rarity:      'Legendary',
+    rarityClass: 'legendary',
+    type:        'Zoan',
+    category:    'Devil Fruit',
+    description: 'An incredibly rare Mythical Zoan-type Devil Fruit that transforms the user into a fearsome dragon. Widely considered one of the most powerful and sought-after fruits in all of Rell Seas.',
+    seller:      'DragonLord',
+    price:       'Make Offer',
+    priceSub:    'Seller accepts offers — submit yours below',
+    listed:      '5 hours ago',
+    rating:      '5.0',
+    reviewCount: 47,
+  },
+
+  'allo-fruit': {
+    id:          'allo-fruit',
+    name:        'Allo Fruit',
+    image:       'assets/allo-fruit.png',
+    rarity:      'Rare',
+    rarityClass: 'rare',
+    type:        'Zoan',
+    category:    'Devil Fruit',
+    description: 'A Zoan-type Devil Fruit granting powerful transformation abilities. Rare and highly versatile in combat situations, making it a solid choice for players looking to expand their roster.',
+    seller:      'AlloTrader',
+    price:       '620,000 Beli',
+    priceSub:    'Fixed price listing',
+    listed:      '4 days ago',
+    rating:      '4.3',
+    reviewCount: 12,
+  },
+
+  'ice-fruit': {
+    id:          'ice-fruit',
+    name:        'Ice Fruit',
+    image:       'assets/I-fruit.png',
+    rarity:      'Rare',
+    rarityClass: 'rare',
+    type:        'Logia',
+    category:    'Devil Fruit',
+    description: 'A Logia-type Devil Fruit that transforms the user into ice and snow. Excellent for area control, freezing opponents in their tracks and dominating large-scale battles.',
+    seller:      'IceAdmiral',
+    price:       '700,000 Beli',
+    priceSub:    'Fixed price listing',
+    listed:      '2 days ago',
+    rating:      '4.6',
+    reviewCount: 22,
+  },
+
+};

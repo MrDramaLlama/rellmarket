@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RellMarket — Rell Seas Trading Marketplace</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <!-- Left: Logo + Nav dropdowns -->
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="#" class="nav-dd__item">📈 Price History</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <!-- Center: Search -->
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input
+            class="search-form__input"
+            type="search"
+            placeholder="Search Devil Fruits, Armor, Beli…"
+            aria-label="Search items"
+          />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <!-- Right: Action buttons -->
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="#" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CATEGORY PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <main class="page-main">
+    <div class="container">
+
+      <!-- ── Hero Carousel ── -->
+      <section class="hero-carousel" aria-label="Featured banner">
+
+        <!-- Slide 1 -->
+        <div class="carousel__slide carousel__slide--active carousel__slide--1">
+          <div class="carousel__content">
+            <h1 class="carousel__heading">The #1 Rell Seas<br/>Trading Marketplace</h1>
+            <p class="carousel__sub">Buy, sell and trade Devil Fruits, Armor, Beli and more — listed by real players every day.</p>
+            <div class="carousel__actions">
+              <a href="listings.html" class="btn btn--carousel-primary">Start Trading</a>
+              <a href="post-listing.html" class="btn btn--carousel-outline">Post a Listing</a>
+            </div>
+          </div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/G-fruit.png" class="carousel__art-main" alt="" />
+            <img src="assets/F-fruit.png" class="carousel__art-float carousel__art-float--1" alt="" />
+            <img src="assets/I-fruit.png" class="carousel__art-float carousel__art-float--2" alt="" />
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel__slide carousel__slide--2">
+          <div class="carousel__content">
+            <h1 class="carousel__heading">Got Fruits to Trade?</h1>
+            <p class="carousel__sub">Post your listing in seconds and reach thousands of Rell Seas traders.</p>
+            <div class="carousel__actions">
+              <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing</a>
+              <a href="listings.html" class="btn btn--carousel-outline">Browse Listings</a>
+            </div>
+          </div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/Ou-fruit.png" class="carousel__art-main" alt="" />
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel__slide carousel__slide--3">
+          <div class="carousel__content">
+            <h1 class="carousel__heading">Find Rare Devil Fruits</h1>
+            <p class="carousel__sub">Browse hundreds of listings from real players — Legendary, Rare and more.</p>
+            <div class="carousel__actions">
+              <a href="listings.html" class="btn btn--carousel-primary">Browse Now</a>
+              <a href="signup.html" class="btn btn--carousel-outline">Sign Up Free</a>
+            </div>
+          </div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/I-fruit.png" class="carousel__art-main" alt="" />
+          </div>
+        </div>
+
+        <!-- Prev / Next arrows -->
+        <button class="carousel__arrow carousel__arrow--prev" aria-label="Previous slide">&#8592;</button>
+        <button class="carousel__arrow carousel__arrow--next" aria-label="Next slide">&#8594;</button>
+
+        <!-- Dot indicators -->
+        <div class="carousel__dots" role="tablist" aria-label="Carousel slides">
+          <button class="carousel__dot carousel__dot--active" data-index="0" role="tab" aria-label="Slide 1" aria-selected="true"></button>
+          <button class="carousel__dot" data-index="1" role="tab" aria-label="Slide 2" aria-selected="false"></button>
+          <button class="carousel__dot" data-index="2" role="tab" aria-label="Slide 3" aria-selected="false"></button>
+        </div>
+
+      </section>
+      <!-- /hero-carousel -->
+
+      <!-- ── Two-Column Featured Sections ── -->
+      <div class="featured-row">
+
+        <!-- Most Traded Items -->
+        <section class="featured-col reveal" aria-labelledby="most-traded-title">
+          <div class="featured-col__header">
+            <h2 class="featured-col__title" id="most-traded-title">Most Traded Items 🔥</h2>
+            <a href="listings.html" class="featured-col__view-all">View All →</a>
+          </div>
+          <div class="mini-grid">
+
+            <article class="mini-card">
+              <a href="item.html?id=gravity-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/G-fruit.png" alt="Gravity Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=gravity-fruit" class="mini-card__name">Gravity Fruit</a>
+                <a href="item.html?id=gravity-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="item.html?id=flame-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/F-fruit.png" alt="Flame Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=flame-fruit" class="mini-card__name">Flame Fruit</a>
+                <a href="item.html?id=flame-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="item.html?id=barrier-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/B-Fruit.png" alt="Barrier Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=barrier-fruit" class="mini-card__name">Barrier Fruit</a>
+                <a href="item.html?id=barrier-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="item.html?id=dragon-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/Ou-fruit.png" alt="Dragon Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=dragon-fruit" class="mini-card__name">Dragon Fruit</a>
+                <a href="item.html?id=dragon-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- New Items -->
+        <section class="featured-col reveal" style="transition-delay:.12s" aria-labelledby="new-items-title">
+          <div class="featured-col__header">
+            <h2 class="featured-col__title" id="new-items-title">New Items ✨</h2>
+            <a href="listings.html" class="featured-col__view-all">View All →</a>
+          </div>
+          <div class="mini-grid">
+
+            <article class="mini-card">
+              <a href="item.html?id=allo-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/allo-fruit.png" alt="Allo Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=allo-fruit" class="mini-card__name">Allo Fruit</a>
+                <a href="item.html?id=allo-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="item.html?id=ice-fruit" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <img src="assets/I-fruit.png" alt="Ice Fruit" class="mini-card__img" />
+              </a>
+              <div class="mini-card__body">
+                <a href="item.html?id=ice-fruit" class="mini-card__name">Ice Fruit</a>
+                <a href="item.html?id=ice-fruit" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="listings.html" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <div class="mini-card__placeholder" style="--ph:#e8f4f8; font-size:2rem;">🛡️</div>
+              </a>
+              <div class="mini-card__body">
+                <a href="listings.html" class="mini-card__name">Warlord's Plate</a>
+                <a href="listings.html" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+            <article class="mini-card">
+              <a href="listings.html" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+                <div class="mini-card__placeholder" style="--ph:#fef9e7; font-size:2rem;">🪙</div>
+              </a>
+              <div class="mini-card__body">
+                <a href="listings.html" class="mini-card__name">500,000 Beli</a>
+                <a href="listings.html" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+      </div>
+      <!-- /featured-row -->
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

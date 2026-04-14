@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Listings — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <!-- Left: Logo + Nav dropdowns -->
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="#" class="nav-dd__item">📈 Price History</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <!-- Center: Search -->
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input
+            class="search-form__input"
+            type="search"
+            placeholder="Search Devil Fruits, Armor, Beli…"
+            aria-label="Search items"
+          />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <!-- Right: Action buttons -->
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CATEGORY PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       LISTINGS PAGE MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main listings-page">
+    <div class="container">
+      <div class="listings-layout">
+
+        <!-- ── Sidebar ── -->
+        <aside class="listings-sidebar" id="listings-sidebar" aria-label="Filters">
+
+          <div class="sidebar__header">
+            <h2 class="sidebar__title">Filters</h2>
+            <button class="sidebar__clear" id="sidebar-clear">Clear All</button>
+          </div>
+
+          <!-- Category -->
+          <div class="sidebar__group">
+            <h3 class="sidebar__group-title">Category</h3>
+            <ul class="sidebar__checklist">
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="fruit" checked />
+                  <span>🍎 Devil Fruits</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="armor" />
+                  <span>🛡️ Armor</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="weapon" />
+                  <span>⚔️ Weapons</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="beli" />
+                  <span>💰 Beli</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="sword" />
+                  <span>🗡️ Swords</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="item" />
+                  <span>📦 Items</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="category" value="service" />
+                  <span>🤝 Services</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Rarity -->
+          <div class="sidebar__group">
+            <h3 class="sidebar__group-title">Rarity</h3>
+            <ul class="sidebar__checklist">
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="rarity" value="legendary" checked />
+                  <span class="rarity-dot rarity-dot--legendary"></span>
+                  <span>Legendary</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="rarity" value="rare" checked />
+                  <span class="rarity-dot rarity-dot--rare"></span>
+                  <span>Rare</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="rarity" value="uncommon" />
+                  <span class="rarity-dot rarity-dot--uncommon"></span>
+                  <span>Uncommon</span>
+                </label>
+              </li>
+              <li>
+                <label class="sidebar__check-label">
+                  <input type="checkbox" name="rarity" value="common" />
+                  <span class="rarity-dot rarity-dot--common"></span>
+                  <span>Common</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <button class="btn btn--apply-filters btn--full">Apply Filters</button>
+
+        </aside>
+        <!-- /sidebar -->
+
+        <!-- ── Main listings area ── -->
+        <div class="listings-main">
+
+          <!-- Top bar -->
+          <div class="listings-topbar">
+            <p class="listings-topbar__count">Showing <strong>12</strong> listings</p>
+            <div class="listings-topbar__right">
+              <label for="sort-select" class="listings-topbar__sort-label">Sort by:</label>
+              <select class="listings-topbar__sort" id="sort-select" aria-label="Sort listings">
+                <option value="newest">Newest</option>
+                <option value="most-traded">Most Traded</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Listing cards grid -->
+          <div class="listing-grid" id="listing-grid">
+
+            <!-- ── Devil Fruits ── -->
+            <article class="listing-card" data-category="fruit" data-rarity="legendary" data-item-id="gravity-fruit">
+              <a href="item.html?id=gravity-fruit" class="listing-card__img-wrap">
+                <img src="assets/G-fruit.png" alt="Gravity Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--legendary">Legendary</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Logia</p>
+                <h3 class="listing-card__name">Gravity Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">GravityKing</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="fruit" data-rarity="legendary" data-item-id="flame-fruit">
+              <a href="item.html?id=flame-fruit" class="listing-card__img-wrap">
+                <img src="assets/F-fruit.png" alt="Flame Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--legendary">Legendary</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Logia</p>
+                <h3 class="listing-card__name">Flame Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">MagmaKing</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="fruit" data-rarity="rare" data-item-id="barrier-fruit">
+              <a href="item.html?id=barrier-fruit" class="listing-card__img-wrap">
+                <img src="assets/B-Fruit.png" alt="Barrier Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--rare">Rare</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Paramecia</p>
+                <h3 class="listing-card__name">Barrier Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">ShieldMaster</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">850,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="fruit" data-rarity="legendary" data-item-id="dragon-fruit">
+              <a href="item.html?id=dragon-fruit" class="listing-card__img-wrap">
+                <img src="assets/Ou-fruit.png" alt="Dragon Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--legendary">Legendary</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Zoan</p>
+                <h3 class="listing-card__name">Dragon Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">DragonLord</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="fruit" data-rarity="rare" data-item-id="allo-fruit">
+              <a href="item.html?id=allo-fruit" class="listing-card__img-wrap">
+                <img src="assets/allo-fruit.png" alt="Allo Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--rare">Rare</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Paramecia</p>
+                <h3 class="listing-card__name">Allo Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">AlloTrader</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">620,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="fruit" data-rarity="rare" data-item-id="ice-fruit">
+              <a href="item.html?id=ice-fruit" class="listing-card__img-wrap">
+                <img src="assets/I-fruit.png" alt="Ice Fruit" class="listing-card__img" />
+                <span class="listing-badge listing-badge--rare">Rare</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Devil Fruit · Logia</p>
+                <h3 class="listing-card__name">Ice Fruit</h3>
+                <p class="listing-card__seller">by <a href="#">IceAdmiral</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">700,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <!-- ── Armor ── -->
+            <article class="listing-card" data-category="armor" data-rarity="legendary">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#e0f2fe;">🪖</div>
+                <span class="listing-badge listing-badge--legendary">Legendary</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Armor · Coat</p>
+                <h3 class="listing-card__name">Admiral Coat</h3>
+                <p class="listing-card__seller">by <a href="#">NavyDog</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">1,200,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="armor" data-rarity="rare">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#d1fae5;">🛡️</div>
+                <span class="listing-badge listing-badge--rare">Rare</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Armor · Plate</p>
+                <h3 class="listing-card__name">Warlord's Plate</h3>
+                <p class="listing-card__seller">by <a href="#">SeaWarlord</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">480,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="armor" data-rarity="uncommon">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#ede9fe;">⚔️</div>
+                <span class="listing-badge listing-badge--uncommon">Uncommon</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Armor · Full Set</p>
+                <h3 class="listing-card__name">Marine Captain Set</h3>
+                <p class="listing-card__seller">by <a href="#">CapJustice</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price">210,000 Beli</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <!-- ── Beli ── -->
+            <article class="listing-card" data-category="beli" data-rarity="common">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#fef9c3;">💰</div>
+                <span class="listing-badge listing-badge--common">Currency</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Beli · Large Stack</p>
+                <h3 class="listing-card__name">1,000,000 Beli</h3>
+                <p class="listing-card__seller">by <a href="#">TreasureHunter</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="beli" data-rarity="common">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#fef3c7;">🪙</div>
+                <span class="listing-badge listing-badge--common">Currency</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Beli · Medium Stack</p>
+                <h3 class="listing-card__name">500,000 Beli</h3>
+                <p class="listing-card__seller">by <a href="#">GoldRoger99</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="listing-card" data-category="beli" data-rarity="common">
+              <a href="item.html" class="listing-card__img-wrap">
+                <div class="listing-card__placeholder" style="--ph:#fde68a;">💎</div>
+                <span class="listing-badge listing-badge--common">Currency</span>
+              </a>
+              <div class="listing-card__body">
+                <p class="listing-card__type">Beli · Small Stack</p>
+                <h3 class="listing-card__name">250,000 Beli</h3>
+                <p class="listing-card__seller">by <a href="#">PirateBank</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price listing-card__price--offer">Make Offer</span>
+                  <a href="#" class="btn btn--trade-card">Trade</a>
+                </div>
+              </div>
+            </article>
+
+          </div>
+          <!-- /listing-grid -->
+
+          <!-- Empty state -->
+          <div class="listing-empty" id="listing-empty" hidden>
+            <span class="listing-empty__icon">⚓</span>
+            <p class="listing-empty__title">No results found</p>
+            <p class="listing-empty__sub">No listings match your current filters.</p>
+            <button class="btn btn--empty-clear" id="listing-empty-clear">Clear Filters</button>
+          </div>
+
+        </div>
+        <!-- /listings-main -->
+
+      </div>
+      <!-- /listings-layout -->
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravity Fruit — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="#" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="#" class="nav-dd__item">📈 Price History</a>
+            </div>
+          </div>
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input
+            class="search-form__input"
+            type="search"
+            placeholder="Search Devil Fruits, Armor, Beli…"
+            aria-label="Search items"
+          />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="#" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="#" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CATEGORY PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ITEM PAGE MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main item-page">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="item-breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="listings.html">Listings</a>
+        <span aria-hidden="true">›</span>
+        <span id="item-breadcrumb-name">Gravity Fruit</span>
+      </nav>
+
+      <!-- Two-column layout -->
+      <div class="item-layout">
+
+        <!-- ── Left: Gallery ── -->
+        <div class="item-gallery">
+
+          <!-- Main image -->
+          <div class="item-gallery__main">
+            <span id="item-rarity-badge" class="item-gallery__badge listing-badge listing-badge--legendary">Legendary</span>
+            <img
+              src="assets/G-fruit.png"
+              alt="Gravity Fruit"
+              class="item-gallery__img"
+              id="gallery-main-img"
+            />
+          </div>
+
+          <!-- Thumbnails -->
+          <div class="item-gallery__thumbs">
+            <button class="item-gallery__thumb item-gallery__thumb--active" data-src="assets/G-fruit.png" aria-label="View 1">
+              <img src="assets/G-fruit.png" alt="" class="item-gallery__thumb-img" />
+            </button>
+            <button class="item-gallery__thumb" data-src="assets/G-fruit.png" aria-label="View 2">
+              <img src="assets/G-fruit.png" alt="" class="item-gallery__thumb-img" />
+            </button>
+            <button class="item-gallery__thumb" data-src="assets/G-fruit.png" aria-label="View 3">
+              <img src="assets/G-fruit.png" alt="" class="item-gallery__thumb-img" />
+            </button>
+          </div>
+
+        </div>
+        <!-- /gallery -->
+
+        <!-- ── Right: Details ── -->
+        <div class="item-details">
+
+          <!-- Type + Name -->
+          <div>
+            <p id="item-type-label" class="item-details__type">Devil Fruit · Logia</p>
+            <h1 id="item-name-heading" class="item-details__name">Gravity Fruit</h1>
+          </div>
+
+          <!-- Star rating -->
+          <div class="item-rating">
+            <span class="item-rating__stars" aria-hidden="true">★★★★★</span>
+            <span id="item-rating-score" class="item-rating__score">4.8</span>
+            <span id="item-rating-count" class="item-rating__count">(24 reviews)</span>
+          </div>
+
+          <!-- Description -->
+          <p id="item-description" class="item-details__desc">
+            One of the rarest Devil Fruits in Rell Seas. The Gravity Fruit grants the user the
+            ability to manipulate gravitational forces, making them nearly unstoppable in combat.
+            A must-have for any serious player looking to dominate PvP.
+          </p>
+
+          <!-- Seller -->
+          <div class="item-seller">
+            <div class="item-seller__avatar" aria-hidden="true">⚓</div>
+            <div class="item-seller__info">
+              <p class="item-seller__label">Seller</p>
+              <p id="item-seller-name" class="item-seller__name">GravityKing</p>
+            </div>
+            <span class="item-seller__badge">Trusted Seller ✓</span>
+          </div>
+
+          <!-- Price -->
+          <div class="item-price">
+            <p id="item-price-label" class="item-price__label">Make Offer</p>
+            <p id="item-price-sub" class="item-price__sub">Seller accepts offers — submit yours below</p>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="item-actions">
+            <a href="#" class="btn btn--request-trade">Request Trade</a>
+            <a href="#" class="btn btn--watchlist">Add to Watchlist ♡</a>
+          </div>
+
+          <!-- Stats row -->
+          <div class="item-stats" role="list">
+            <div class="item-stats__item" role="listitem">
+              <p class="item-stats__label">Rarity</p>
+              <p id="item-stat-rarity" class="item-stats__value item-stats__value--legendary">Legendary</p>
+            </div>
+            <div class="item-stats__item" role="listitem">
+              <p class="item-stats__label">Type</p>
+              <p id="item-stat-type" class="item-stats__value">Logia</p>
+            </div>
+            <div class="item-stats__item" role="listitem">
+              <p class="item-stats__label">Category</p>
+              <p class="item-stats__value">Devil Fruit</p>
+            </div>
+            <div class="item-stats__item" role="listitem">
+              <p class="item-stats__label">Listed</p>
+              <p class="item-stats__value">2 days ago</p>
+            </div>
+          </div>
+
+        </div>
+        <!-- /details -->
+
+      </div>
+      <!-- /item-layout -->
+
+      <!-- ── Similar Items ── -->
+      <section class="similar-section" aria-labelledby="similar-title">
+        <div class="similar-section__header">
+          <h2 class="similar-section__title" id="similar-title">Similar Items</h2>
+          <a href="listings.html" class="similar-section__link">View All →</a>
+        </div>
+
+        <div class="similar-grid">
+
+          <article class="mini-card">
+            <a href="item.html?id=flame-fruit" class="mini-card__img-wrap">
+              <img src="assets/F-fruit.png" alt="Flame Fruit" class="mini-card__img" />
+            </a>
+            <div class="mini-card__body">
+              <a href="item.html?id=flame-fruit" class="mini-card__name">Flame Fruit</a>
+              <a href="item.html?id=flame-fruit" class="btn btn--mini-trade">Trade</a>
+            </div>
+          </article>
+
+          <article class="mini-card">
+            <a href="item.html?id=barrier-fruit" class="mini-card__img-wrap">
+              <img src="assets/B-Fruit.png" alt="Barrier Fruit" class="mini-card__img" />
+            </a>
+            <div class="mini-card__body">
+              <a href="item.html?id=barrier-fruit" class="mini-card__name">Barrier Fruit</a>
+              <a href="item.html?id=barrier-fruit" class="btn btn--mini-trade">Trade</a>
+            </div>
+          </article>
+
+          <article class="mini-card">
+            <a href="item.html?id=dragon-fruit" class="mini-card__img-wrap">
+              <img src="assets/Ou-fruit.png" alt="Dragon Fruit" class="mini-card__img" />
+            </a>
+            <div class="mini-card__body">
+              <a href="item.html?id=dragon-fruit" class="mini-card__name">Dragon Fruit</a>
+              <a href="item.html?id=dragon-fruit" class="btn btn--mini-trade">Trade</a>
+            </div>
+          </article>
+
+          <article class="mini-card">
+            <a href="item.html?id=ice-fruit" class="mini-card__img-wrap">
+              <img src="assets/I-fruit.png" alt="Ice Fruit" class="mini-card__img" />
+            </a>
+            <div class="mini-card__body">
+              <a href="item.html?id=ice-fruit" class="mini-card__name">Ice Fruit</a>
+              <a href="item.html?id=ice-fruit" class="btn btn--mini-trade">Trade</a>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

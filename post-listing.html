@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post a Listing — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="#" class="nav-dd__item">📈 Price History</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input
+            class="search-form__input"
+            type="search"
+            placeholder="Search Devil Fruits, Armor, Beli…"
+            aria-label="Search items"
+          />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CATEGORY PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       POST LISTING MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main post-listing-page">
+    <div class="container">
+
+      <div class="post-listing-header">
+        <h1 class="post-listing-title">Post a Listing</h1>
+        <p class="post-listing-sub">List your item for the RellMarket community to trade.</p>
+      </div>
+
+      <div class="post-listing-layout">
+
+        <!-- ── Left: Form ── -->
+        <div class="post-form-col">
+          <form class="post-form" id="post-form" novalidate>
+
+            <!-- Item selector -->
+            <div class="form-group">
+              <label class="form-label" for="field-item">Item <span class="form-required">*</span></label>
+              <select class="form-input form-select" id="field-item">
+                <option value="">Select an item…</option>
+                <optgroup label="🍎 Devil Fruits">
+                  <option value="gravity-fruit">Gravity Fruit</option>
+                  <option value="flame-fruit">Flame Fruit</option>
+                  <option value="barrier-fruit">Barrier Fruit</option>
+                  <option value="dragon-fruit">Dragon Fruit</option>
+                  <option value="allo-fruit">Allo Fruit</option>
+                  <option value="ice-fruit">Ice Fruit</option>
+                </optgroup>
+                <optgroup label="🛡️ Armor">
+                  <option value="admiral-coat">Admiral Coat</option>
+                  <option value="warlords-plate">Warlord's Plate</option>
+                  <option value="marine-captain-set">Marine Captain Set</option>
+                </optgroup>
+                <optgroup label="💰 Beli">
+                  <option value="beli-1000000">1,000,000 Beli</option>
+                  <option value="beli-500000">500,000 Beli</option>
+                  <option value="beli-250000">250,000 Beli</option>
+                </optgroup>
+                <option value="other">Other / Unlisted Item</option>
+              </select>
+            </div>
+
+            <!-- Quantity -->
+            <div class="form-group">
+              <label class="form-label" for="field-qty">How many are you listing?</label>
+              <input
+                class="form-input form-input--qty"
+                type="number"
+                id="field-qty"
+                value="1"
+                min="1"
+                max="99"
+              />
+              <p class="form-hint form-hint--qty">Each item will be posted as a separate listing</p>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="field-category">Category <span class="form-required">*</span></label>
+              <select class="form-input form-select" id="field-category">
+                <option value="">Select a category…</option>
+                <option value="fruit">🍎 Devil Fruits</option>
+                <option value="armor">🛡️ Armor</option>
+                <option value="weapon">⚔️ Weapons</option>
+                <option value="beli">💰 Beli</option>
+                <option value="sword">🗡️ Swords</option>
+                <option value="item">📦 Items</option>
+                <option value="service">🤝 Services</option>
+              </select>
+            </div>
+
+            <!-- Rarity -->
+            <div class="form-group">
+              <label class="form-label" for="field-rarity">Rarity</label>
+              <select class="form-input form-select" id="field-rarity">
+                <option value="">Select rarity…</option>
+                <option value="legendary">Legendary</option>
+                <option value="rare">Rare</option>
+                <option value="uncommon">Uncommon</option>
+                <option value="common">Common</option>
+              </select>
+            </div>
+
+            <!-- Fruit Type (shown for Devil Fruits) -->
+            <div class="form-group" id="fruit-type-group">
+              <label class="form-label" for="field-type">Fruit Type</label>
+              <select class="form-input form-select" id="field-type">
+                <option value="">Select type…</option>
+                <option value="Logia">Logia</option>
+                <option value="Paramecia">Paramecia</option>
+                <option value="Zoan">Zoan</option>
+                <option value="N/A">N/A</option>
+              </select>
+            </div>
+
+            <!-- Price -->
+            <div class="form-group">
+              <label class="form-label">Price / Offer <span class="form-required">*</span></label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="price-type" value="offer" checked />
+                  <span class="radio-custom"></span>
+                  Accept offers only
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="price-type" value="fixed" />
+                  <span class="radio-custom"></span>
+                  Set a Beli price
+                </label>
+              </div>
+              <div class="beli-input-wrap" id="beli-input-wrap">
+                <span class="beli-input-prefix">🪙</span>
+                <input
+                  class="form-input beli-input"
+                  type="number"
+                  id="field-price"
+                  placeholder="e.g. 850000"
+                  min="0"
+                  step="1000"
+                />
+                <span class="beli-input-suffix">Beli</span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label class="form-label" for="field-desc">Description</label>
+              <textarea
+                class="form-input form-textarea"
+                id="field-desc"
+                rows="4"
+                placeholder="Describe your item — rarity, condition, why it's valuable…"
+                maxlength="400"
+              ></textarea>
+              <p class="form-hint"><span id="desc-count">0</span> / 400</p>
+            </div>
+
+            <!-- Image upload -->
+            <div class="form-group">
+              <label class="form-label">Image</label>
+              <div class="upload-area" id="upload-area" role="button" tabindex="0" aria-label="Upload image">
+                <div class="upload-area__inner" id="upload-inner">
+                  <span class="upload-area__icon" aria-hidden="true">🖼️</span>
+                  <p class="upload-area__text">Drag &amp; drop an image here, or <span class="upload-area__browse">click to browse</span></p>
+                  <p class="upload-area__hint">PNG, JPG, WEBP — max 4 MB</p>
+                </div>
+                <img class="upload-area__preview" id="upload-preview" src="" alt="Preview" />
+              </div>
+              <input type="file" id="upload-input" accept="image/png,image/jpeg,image/webp" style="display:none" />
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn--post-listing">＋ Post Listing</button>
+
+          </form>
+        </div>
+        <!-- /form col -->
+
+        <!-- ── Right: Live preview ── -->
+        <div class="post-preview-col">
+          <p class="post-preview-label">Preview</p>
+
+          <div id="preview-card-wrap">
+            <!-- Preview listing card — mirrors .listing-card structure -->
+            <article class="listing-card post-preview-card" id="preview-card">
+              <div class="listing-card__img-wrap">
+                <div class="post-preview-img-box" id="preview-img-box">
+                  <span class="post-preview-placeholder" id="preview-placeholder" aria-hidden="true">📦</span>
+                  <img class="listing-card__img post-preview-img" id="preview-img" src="" alt="" />
+                </div>
+                <span class="listing-badge" id="preview-badge"></span>
+              </div>
+              <div class="listing-card__body">
+                <p class="listing-card__type" id="preview-type">Category · Type</p>
+                <h3 class="listing-card__name" id="preview-name">Item Name</h3>
+                <p class="listing-card__seller">by <a href="#">You</a></p>
+                <div class="listing-card__footer">
+                  <span class="listing-card__price" id="preview-price">Make Offer</span>
+                  <span class="btn btn--trade-card">Trade</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Tips box -->
+          <div class="post-tips">
+            <h3 class="post-tips__title">💡 Listing Tips</h3>
+            <ul class="post-tips__list">
+              <li>Use a clear image with a plain background for best results.</li>
+              <li>Set a fair price by checking similar listings first.</li>
+              <li>Add a detailed description to attract more traders.</li>
+              <li>Legendary items get the most views — highlight rarity!</li>
+            </ul>
+          </div>
+
+        </div>
+        <!-- /preview col -->
+
+      </div>
+      <!-- /post-listing-layout -->
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
