@@ -703,7 +703,8 @@ function initPostListingForm() {
     setSelectValue(fieldRarity,   rarityVal);
     setSelectValue(fieldType,     typeVal);
 
-    // Lock rarity and type so user cannot override auto-filled values
+    // Lock category, rarity and type so user cannot override auto-filled values
+    lockField(fieldCategory);
     lockField(fieldRarity);
     lockField(fieldType);
 
@@ -725,6 +726,7 @@ function initPostListingForm() {
     setSelectValue(fieldCategory, '');
     setSelectValue(fieldRarity,   '');
     setSelectValue(fieldType,     '');
+    unlockField(fieldCategory);
     unlockField(fieldRarity);
     unlockField(fieldType);
     previewImg.src = '';
