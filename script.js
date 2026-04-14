@@ -1067,17 +1067,62 @@ function initTradeModal() {
   const modal      = document.getElementById('trade-modal');
   if (!requestBtn || !modal) return;
 
-  const closeBtn   = document.getElementById('trade-modal-close');
-  const cancelBtn  = document.getElementById('trade-modal-cancel');
-  const tradeForm  = document.getElementById('trade-form');
-  const offeredSel = document.getElementById('trade-offered-item');
-  const offeredBeli= document.getElementById('trade-offered-beli');
+  const closeBtn       = document.getElementById('trade-modal-close');
+  const cancelBtn      = document.getElementById('trade-modal-cancel');
+  const tradeForm      = document.getElementById('trade-form');
+  const offeredSel     = document.getElementById('trade-offered-item');
+  const offeredBeli    = document.getElementById('trade-offered-beli');
   const summaryOffer   = document.getElementById('trade-summary-offer');
   const summaryReceive = document.getElementById('trade-summary-receive');
-  const submitBtn  = document.getElementById('trade-submit-btn');
+  const submitBtn      = document.getElementById('trade-submit-btn');
+  const modalTitle     = document.getElementById('trade-modal-title');
+  const offerItemGroup = document.getElementById('trade-offer-item-group');
+  const beliLabel      = document.getElementById('trade-beli-label');
+
+  // ── Fixed-price mode: read from the price label rendered by populateItemPage ──
+  let isFixedPrice  = false;
+  let fixedPrice    = 0;
+
+  function detectPriceMode() {
+    const priceEl = document.getElementById('item-price-label');
+    const priceText = priceEl?.textContent || '';
+    // "Make Offer" means offer mode; anything else (e.g. "50,000 Beli") is fixed
+    isFixedPrice = priceText !== '' && priceText !== 'Make Offer';
+    if (isFixedPrice) {
+      // Parse numeric value — strip non-digit chars except decimal point
+      fixedPrice = parseInt(priceText.replace(/[^0-9]/g, ''), 10) || 0;
+    }
+  }
+
+  function applyPriceMode() {
+    if (isFixedPrice) {
+      // Hide item-offer dropdown; change labels and title for Beli purchase
+      if (offerItemGroup) offerItemGroup.style.display = 'none';
+      if (modalTitle) modalTitle.textContent = 'Buy with Beli';
+      if (beliLabel) beliLabel.innerHTML = 'Your Beli Offer';
+      if (offeredBeli) {
+        offeredBeli.value = fixedPrice || '';
+        offeredBeli.readOnly = true;
+      }
+      // Pre-fill summary
+      if (summaryOffer) summaryOffer.textContent = fixedPrice ? `${fixedPrice.toLocaleString()} Beli` : '—';
+    } else {
+      // Offer mode — restore defaults
+      if (offerItemGroup) offerItemGroup.style.display = '';
+      if (modalTitle) modalTitle.textContent = 'Request a Trade';
+      if (beliLabel) beliLabel.innerHTML = 'Add Beli <span class="trade-modal__optional">(optional)</span>';
+      if (offeredBeli) {
+        offeredBeli.value = '';
+        offeredBeli.readOnly = false;
+      }
+    }
+  }
 
   // ── Open / close ──
   function openModal() {
+    detectPriceMode();
+    applyPriceMode();
+
     // Sync "receive" side from current item name heading
     const itemName = document.getElementById('item-name-heading')?.textContent || '—';
     if (summaryReceive) summaryReceive.textContent = itemName;
@@ -1107,8 +1152,9 @@ function initTradeModal() {
   cancelBtn?.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-  // ── Live trade summary ──
+  // ── Live trade summary (offer mode only) ──
   function updateSummary() {
+    if (isFixedPrice) return; // summary already set by applyPriceMode
     const item = offeredSel.value || '—';
     const beli = Number(offeredBeli.value) || 0;
     const parts = [];
@@ -1124,7 +1170,7 @@ function initTradeModal() {
   tradeForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (!offeredSel.value) {
+    if (!isFixedPrice && !offeredSel.value) {
       showToast('Please select an item to offer.');
       return;
     }
@@ -1151,6 +1197,10 @@ function initTradeModal() {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending…';
 
+    // Fixed-price: override offered_item and offered_beli automatically
+    const offeredItem = isFixedPrice ? 'Beli' : offeredSel.value;
+    const offeredBeliVal = isFixedPrice ? fixedPrice : (Number(offeredBeli.value) || 0);
+
     try {
       const res = await fetch('https://rellmarket.vercel.app/api/trades/create', {
         method: 'POST',
@@ -1160,8 +1210,8 @@ function initTradeModal() {
         },
         body: JSON.stringify({
           listing_id:   listingId,
-          offered_item: offeredSel.value,
-          offered_beli: Number(offeredBeli.value) || 0,
+          offered_item: offeredItem,
+          offered_beli: offeredBeliVal,
           message:      document.getElementById('trade-message')?.value || null,
         }),
       });
