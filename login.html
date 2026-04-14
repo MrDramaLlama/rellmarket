@@ -133,36 +133,11 @@
       <h1 class="auth-card__heading">Welcome back</h1>
       <p class="auth-card__sub">Log in to your RellMarket account</p>
 
-      <form class="auth-form" id="login-form" novalidate>
-
-        <div class="auth-form__group">
-          <label class="auth-form__label" for="login-email">Email</label>
-          <input class="auth-form__input" type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
-        </div>
-
-        <div class="auth-form__group">
-          <div class="auth-form__label-row">
-            <label class="auth-form__label" for="login-password">Password</label>
-            <a href="#" class="auth-form__forgot">Forgot password?</a>
-          </div>
-          <input class="auth-form__input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
-        </div>
-
-        <button type="submit" class="btn btn--auth-primary">Log In</button>
-
-      </form>
-
-      <div class="auth-divider">
-        <span class="auth-divider__line"></span>
-        <span class="auth-divider__text">or</span>
-        <span class="auth-divider__line"></span>
-      </div>
-
       <div class="auth-oauth">
-        <button class="btn btn--oauth btn--oauth-roblox">
+        <a href="/api/auth/roblox" class="btn btn--oauth btn--oauth-roblox">
           <span class="btn__icon" aria-hidden="true">🎮</span>
           Continue with Roblox
-        </button>
+        </a>
         <button class="btn btn--oauth btn--oauth-discord">
           <span class="btn__icon" aria-hidden="true">💬</span>
           Continue with Discord
