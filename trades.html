@@ -240,15 +240,7 @@
         return `<span class="trade-status trade-status--${status}">${status}</span>`;
       }
 
-      function timeAgo(iso) {
-        const diff = Date.now() - new Date(iso).getTime();
-        const m = Math.floor(diff / 60000);
-        if (m < 1)  return 'just now';
-        if (m < 60) return `${m}m ago`;
-        const h = Math.floor(m / 60);
-        if (h < 24) return `${h}h ago`;
-        return `${Math.floor(h / 24)}d ago`;
-      }
+      // timeAgo is defined globally in script.js
 
       async function updateTradeStatus(id, status, cardEl) {
         try {

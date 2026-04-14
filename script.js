@@ -450,6 +450,7 @@ function initItemPage() {
           priceSub,
           rating:      staticItem?.rating      || '—',
           reviewCount: staticItem?.reviewCount || 0,
+          createdAt:   l.created_at || null,
           id,
         });
       })
@@ -490,10 +491,29 @@ function initItemPage() {
         priceSub:    '',
         rating:      '—',
         reviewCount: 0,
+        createdAt:   l.created_at || null,
         id,
       });
     })
     .catch(() => {});
+}
+
+// ─── Relative time helper ─────────────────────────────────────────────────────
+function timeAgo(dateString) {
+  const now = new Date();
+  const date = new Date(dateString);
+  const seconds = Math.floor((now - date) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
 }
 
 function populateItemPage(item) {
@@ -575,6 +595,9 @@ function populateItemPage(item) {
 
   const statType = document.getElementById('item-stat-type');
   if (statType) statType.textContent = item.type;
+
+  const statListed = document.getElementById('item-stat-listed');
+  if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
 
   // Similar items grid — show up to 4 other items from ITEMS_DATA, excluding current
   const similarGrid = document.querySelector('.similar-grid');
@@ -1524,7 +1547,7 @@ async function initMyListings() {
       ${imgHTML}
       <div class="my-listing-info">
         <p class="my-listing-name">${l.item_name}</p>
-        <p class="my-listing-meta">${[rarityLabel, priceText].filter(Boolean).join(' · ')}</p>
+        <p class="my-listing-meta">${[rarityLabel, priceText, l.created_at ? timeAgo(l.created_at) : ''].filter(Boolean).join(' · ')}</p>
       </div>
       <div class="my-listing-right">
         ${statusBadge}
