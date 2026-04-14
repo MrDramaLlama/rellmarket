@@ -1014,11 +1014,122 @@ function initSearchAutocomplete() {
 
 // ─── Trade request modal ──────────────────────────────────────────────────────
 function initTradeModal() {
-  const btn = document.querySelector('.btn--request-trade');
-  if (!btn) return;
-  btn.addEventListener('click', (e) => {
+  const requestBtn = document.querySelector('.btn--request-trade');
+  const modal      = document.getElementById('trade-modal');
+  if (!requestBtn || !modal) return;
+
+  const closeBtn   = document.getElementById('trade-modal-close');
+  const cancelBtn  = document.getElementById('trade-modal-cancel');
+  const tradeForm  = document.getElementById('trade-form');
+  const offeredSel = document.getElementById('trade-offered-item');
+  const offeredBeli= document.getElementById('trade-offered-beli');
+  const summaryOffer   = document.getElementById('trade-summary-offer');
+  const summaryReceive = document.getElementById('trade-summary-receive');
+  const submitBtn  = document.getElementById('trade-submit-btn');
+
+  // ── Open / close ──
+  function openModal() {
+    // Sync "receive" side from current item name heading
+    const itemName = document.getElementById('item-name-heading')?.textContent || '—';
+    if (summaryReceive) summaryReceive.textContent = itemName;
+    // Sync modal item preview
+    const modalItemName = document.getElementById('trade-modal-item-name');
+    if (modalItemName) modalItemName.textContent = itemName;
+    const modalItemImg = document.getElementById('trade-modal-item-img');
+    const mainImg = document.getElementById('gallery-main-img');
+    if (modalItemImg && mainImg?.src) modalItemImg.src = mainImg.src;
+    const modalBadge = document.getElementById('trade-modal-item-badge');
+    const pageBadge  = document.getElementById('item-rarity-badge');
+    if (modalBadge && pageBadge) {
+      modalBadge.textContent = pageBadge.textContent;
+      modalBadge.className   = pageBadge.className;
+    }
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  requestBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+  closeBtn?.addEventListener('click', closeModal);
+  cancelBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  // ── Live trade summary ──
+  function updateSummary() {
+    const item = offeredSel.value || '—';
+    const beli = Number(offeredBeli.value) || 0;
+    const parts = [];
+    if (item && item !== '—') parts.push(item);
+    if (beli > 0) parts.push(`${beli.toLocaleString()} Beli`);
+    if (summaryOffer) summaryOffer.textContent = parts.length ? parts.join(' + ') : '—';
+  }
+
+  offeredSel?.addEventListener('change', updateSummary);
+  offeredBeli?.addEventListener('input', updateSummary);
+
+  // ── Form submit ──
+  tradeForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    showToast('Trade requests coming soon! 🏴‍☠️');
+
+    if (!offeredSel.value) {
+      showToast('Please select an item to offer.');
+      return;
+    }
+
+    // Auth check
+    let token = null;
+    if (typeof supabaseClient !== 'undefined') {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      token = session?.access_token || null;
+    }
+    if (!token) {
+      showToast('Please log in to send trade requests');
+      setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+      return;
+    }
+
+    // Get listing_id from URL
+    const listingId = new URLSearchParams(window.location.search).get('listing_id');
+    if (!listingId) {
+      showToast('Could not identify this listing. Please try again.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch('https://rellmarket.vercel.app/api/trades/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          listing_id:   listingId,
+          offered_item: offeredSel.value,
+          offered_beli: Number(offeredBeli.value) || 0,
+          message:      document.getElementById('trade-message')?.value || null,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to send request');
+
+      showToast('Trade request sent! 🎉');
+      closeModal();
+      tradeForm.reset();
+      updateSummary();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Request 🏴‍☠️';
+    }
   });
 }
 

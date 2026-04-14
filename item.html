@@ -298,6 +298,102 @@
   </main>
 
   <!-- ═══════════════════════════════════════
+       TRADE REQUEST MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="trade-modal" role="dialog" aria-modal="true" aria-labelledby="trade-modal-title">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <h2 class="modal-title" id="trade-modal-title">Request a Trade</h2>
+        <button class="modal-close" id="trade-modal-close" aria-label="Close modal">✕</button>
+      </div>
+
+      <!-- Item being requested -->
+      <div class="trade-modal__item">
+        <img class="trade-modal__item-img" id="trade-modal-item-img" src="assets/G-fruit.png" alt="" />
+        <div class="trade-modal__item-info">
+          <span class="trade-modal__item-name" id="trade-modal-item-name">Gravity Fruit</span>
+          <span class="listing-badge listing-badge--legendary" id="trade-modal-item-badge">Legendary</span>
+        </div>
+      </div>
+
+      <p class="trade-modal__section-title">Your Offer</p>
+
+      <form id="trade-form" novalidate>
+
+        <!-- What you're offering -->
+        <div class="form-group">
+          <label class="form-label" for="trade-offered-item">
+            Item you're offering <span class="form-required">*</span>
+          </label>
+          <select class="form-input form-select" id="trade-offered-item">
+            <option value="">Select an item…</option>
+            <optgroup label="🍎 Devil Fruits">
+              <option value="Gravity Fruit">Gravity Fruit</option>
+              <option value="Flame Fruit">Flame Fruit</option>
+              <option value="Barrier Fruit">Barrier Fruit</option>
+              <option value="Dragon Fruit">Dragon Fruit</option>
+              <option value="Allo Fruit">Allo Fruit</option>
+              <option value="Ice Fruit">Ice Fruit</option>
+            </optgroup>
+            <optgroup label="🛡️ Armor">
+              <option value="Admiral Coat">Admiral Coat</option>
+              <option value="Warlord's Plate">Warlord's Plate</option>
+              <option value="Marine Captain Set">Marine Captain Set</option>
+            </optgroup>
+            <optgroup label="💰 Beli">
+              <option value="Beli">Beli (amount below)</option>
+            </optgroup>
+            <option value="Other">Other / Custom Item</option>
+          </select>
+        </div>
+
+        <!-- Beli add-on -->
+        <div class="form-group">
+          <label class="form-label" for="trade-offered-beli">
+            Add Beli <span class="trade-modal__optional">(optional)</span>
+          </label>
+          <div class="beli-input-wrap is-visible">
+            <span class="beli-input-prefix">🪙</span>
+            <input class="form-input beli-input" type="number" id="trade-offered-beli"
+              placeholder="0" min="0" step="1000" />
+            <span class="beli-input-suffix">Beli</span>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="form-group">
+          <label class="form-label" for="trade-message">
+            Message <span class="trade-modal__optional">(optional)</span>
+          </label>
+          <textarea class="form-input form-textarea" id="trade-message" rows="3"
+            placeholder="Introduce yourself, explain your offer…" maxlength="300"></textarea>
+        </div>
+
+        <!-- Trade summary -->
+        <div class="trade-summary">
+          <div class="trade-summary__side">
+            <p class="trade-summary__label">You offer</p>
+            <p class="trade-summary__value" id="trade-summary-offer">—</p>
+          </div>
+          <span class="trade-summary__arrow">⇄</span>
+          <div class="trade-summary__side">
+            <p class="trade-summary__label">You receive</p>
+            <p class="trade-summary__value" id="trade-summary-receive">—</p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button type="submit" class="btn btn--post-listing" id="trade-submit-btn">Send Request 🏴‍☠️</button>
+          <button type="button" class="btn--modal-cancel" id="trade-modal-cancel">Cancel</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
        FOOTER
   ════════════════════════════════════════ -->
   <footer class="footer">
