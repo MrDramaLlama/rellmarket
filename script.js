@@ -260,13 +260,13 @@ function initSortDropdown() {
   // Capture original DOM order once
   const originalOrder = Array.from(grid.querySelectorAll('.listing-card'));
 
-  // Extract numeric Beli price from a card; returns Infinity for "Make Offer"
+  // Extract numeric sort price from a card's data attribute.
+  // Returns Infinity for "Make Offer" / no-price listings so they always sort last.
   function getPrice(card) {
-    const priceEl = card.querySelector('.listing-card__price');
-    if (!priceEl) return Infinity;
-    const digits = priceEl.textContent.replace(/[^0-9]/g, '');
-    const n = parseInt(digits, 10);
-    return isNaN(n) ? Infinity : n;
+    const raw = card.dataset.sortPrice;
+    if (raw === undefined || raw === '') return Infinity;
+    const n = Number(raw);
+    return isNaN(n) || n <= 0 ? Infinity : n;
   }
 
   function applySort(order) {
@@ -1504,8 +1504,9 @@ function initFetchListings() {
       const cardUrl   = auction ? `auction.html?id=${auction.id}` : `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
       const curBid    = auction ? `${Number(auction.current_bid).toLocaleString()} Beli` : '—';
       const timeLeft  = auction ? auctionTimeLeft(auction.ends_at) : '';
+      const auctionSortPrice = auction ? (Number(auction.current_bid) || Number(auction.starting_price) || '') : '';
       return `
-        <article class="listing-card listing-card--auction" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+        <article class="listing-card listing-card--auction" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}" data-sort-price="${auctionSortPrice}">
           <a href="${cardUrl}" class="listing-card__img-wrap">
             ${imgHTML}
             ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
@@ -1534,8 +1535,9 @@ function initFetchListings() {
         ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
         : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
     const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
+    const standardSortPrice = (l.price && Number(l.price) > 0) ? Number(l.price) : '';
     return `
-      <article class="listing-card${isLooking ? ' listing-card--looking' : ''}" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+      <article class="listing-card${isLooking ? ' listing-card--looking' : ''}" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}" data-sort-price="${standardSortPrice}">
         <a href="${itemUrl}" class="listing-card__img-wrap">
           ${imgHTML}
           ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
