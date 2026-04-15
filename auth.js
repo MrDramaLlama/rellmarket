@@ -75,6 +75,7 @@ async function updateNavbar() {
 
       const wrapper = document.createElement('div');
       wrapper.className = 'nav-dd user-dd';
+      wrapper.style.position = 'relative';
       wrapper.innerHTML = `
         <button class="btn btn--login nav-dd__trigger user-dd__trigger" aria-haspopup="true">
           👤 ${name} <span class="nav-dd__chevron">▾</span>
@@ -90,6 +91,14 @@ async function updateNavbar() {
 
       loginBtn.parentNode.replaceChild(wrapper, loginBtn);
       wrapper.querySelector('.user-dd__logout').addEventListener('click', handleLogout);
+
+      // Toggle dropdown on trigger click; close on outside click
+      const trigger = wrapper.querySelector('.user-dd__trigger');
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        wrapper.classList.toggle('is-open');
+      });
+      document.addEventListener('click', () => wrapper.classList.remove('is-open'));
     }
   }
 }

@@ -2936,14 +2936,29 @@ body.page-out {
 /* ─── User account dropdown ──────────────────────────────────────────────── */
 .user-dd { position: relative; }
 
-/* Panel pinned to top-right of viewport */
+/* Panel drops below the trigger, right-aligned */
 .user-dd__panel {
-  position: fixed;
-  top: var(--nav-h);
-  right: 1.5rem;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
   left: auto;
-  min-width: 210px;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: .4rem 0;
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px) scale(.98);
   transform-origin: top right;
+  transition: opacity .15s, transform .15s;
+}
+.user-dd.is-open .user-dd__panel {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0) scale(1);
 }
 
 /* Log Out as a full-width button styled like a link */
