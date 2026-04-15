@@ -2936,11 +2936,12 @@ body.page-out {
 /* ─── User account dropdown ──────────────────────────────────────────────── */
 .user-dd { position: relative; }
 
-/* Panel opens right-aligned so it doesn't overflow off screen */
+/* Panel pinned to top-right of viewport */
 .user-dd__panel {
-  position: absolute !important;
-  left: auto !important;
-  right: 0 !important;
+  position: fixed;
+  top: var(--nav-h);
+  right: 1.5rem;
+  left: auto;
   min-width: 210px;
   transform-origin: top right;
 }
