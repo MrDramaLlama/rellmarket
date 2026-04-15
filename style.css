@@ -3489,3 +3489,234 @@ body.page-out {
     font-size: 1.5rem;
   }
 }
+
+/* ============================================================
+   ADMIN PANEL
+   ============================================================ */
+
+.admin-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.admin-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.admin-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.admin-header p {
+  font-size: .875rem;
+  color: var(--color-text-muted);
+}
+
+/* Stat cards */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.admin-stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+.admin-stat-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin-bottom: .35rem;
+}
+.admin-stat-card__label {
+  font-size: .8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  gap: .25rem;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+.admin-tab {
+  background: none;
+  border: none;
+  padding: .6rem 1.2rem;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.admin-tab:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+.admin-tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* Panels */
+.admin-panel {
+  display: none;
+}
+.admin-panel.active {
+  display: block;
+}
+
+/* Table */
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .875rem;
+}
+.admin-table th {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: .75rem;
+  letter-spacing: .05em;
+  padding: .75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  vertical-align: middle;
+}
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-table tr:hover td {
+  background: var(--color-surface);
+}
+
+/* Role badge */
+.admin-role-badge {
+  display: inline-block;
+  padding: .2em .6em;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.admin-role-badge--admin {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+.admin-role-badge--mod {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: #c4b5fd;
+}
+.admin-role-badge--banned {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+/* Action buttons inside table */
+.admin-actions {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.admin-btn {
+  padding: .3rem .75rem;
+  font-size: .8rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+.admin-btn:hover {
+  background: var(--color-bg);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.admin-btn--danger {
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+.admin-btn--danger:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+.admin-btn--success {
+  border-color: #6ee7b7;
+  color: #059669;
+}
+.admin-btn--success:hover {
+  background: #d1fae5;
+  border-color: #059669;
+  color: #059669;
+}
+
+/* Access-denied state */
+.admin-denied {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+}
+.admin-denied h2 {
+  font-size: 1.5rem;
+  margin-bottom: .5rem;
+  color: #dc2626;
+}
+
+/* Empty state inside tables */
+.admin-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+  font-size: .9rem;
+}
+
+@media (max-width: 700px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-tabs {
+    overflow-x: auto;
+    gap: 0;
+  }
+  .admin-tab {
+    padding: .5rem .9rem;
+    font-size: .8rem;
+    white-space: nowrap;
+  }
+}

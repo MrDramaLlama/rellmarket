@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">🤝 Trade Requests</a>
+            </div>
+          </div>
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input class="search-form__input" type="search" placeholder="Search Devil Fruits, Armor, Beli…" aria-label="Search items" />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CATEGORY PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ADMIN MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main admin-page">
+    <div class="container">
+
+      <!-- Access denied state (shown before auth check completes or on failure) -->
+      <div id="admin-denied" hidden>
+        <div class="admin-denied">
+          <p class="admin-denied__icon">🚫</p>
+          <h1 class="admin-denied__title">Access Denied</h1>
+          <p class="admin-denied__sub">You don't have permission to view this page.</p>
+          <a href="index.html" class="btn btn--primary">Go Home</a>
+        </div>
+      </div>
+
+      <!-- Admin content (hidden until auth passes) -->
+      <div id="admin-content" hidden>
+
+        <div class="admin-header">
+          <h1 class="admin-header__title">⚙️ Admin Panel</h1>
+          <p class="admin-header__sub">RellMarket moderation dashboard</p>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="admin-stats" id="admin-stats">
+          <div class="admin-stat-card">
+            <p class="admin-stat-card__label">Total Listings</p>
+            <p class="admin-stat-card__value" id="stat-total-listings">—</p>
+          </div>
+          <div class="admin-stat-card">
+            <p class="admin-stat-card__label">Total Users</p>
+            <p class="admin-stat-card__value" id="stat-total-users">—</p>
+          </div>
+          <div class="admin-stat-card">
+            <p class="admin-stat-card__label">Total Trades</p>
+            <p class="admin-stat-card__value" id="stat-total-trades">—</p>
+          </div>
+          <div class="admin-stat-card admin-stat-card--alert">
+            <p class="admin-stat-card__label">Reports to Review</p>
+            <p class="admin-stat-card__value" id="stat-total-reports">—</p>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="admin-tabs" role="tablist">
+          <button class="admin-tab is-active" data-tab="overview" role="tab">Overview</button>
+          <button class="admin-tab" data-tab="listings" role="tab">Listings</button>
+          <button class="admin-tab" data-tab="users" role="tab">Users</button>
+          <button class="admin-tab" data-tab="reports" role="tab">Reports</button>
+        </div>
+
+        <!-- ── Overview tab ── -->
+        <div class="admin-panel is-active" id="tab-overview">
+          <p class="admin-panel__hint">Select a tab above to manage listings, users, or reports.</p>
+        </div>
+
+        <!-- ── Listings tab ── -->
+        <div class="admin-panel" id="tab-listings" hidden>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="listings-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Seller</th>
+                  <th>Price</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="listings-tbody">
+                <tr><td colspan="5" class="admin-table__loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Users tab ── -->
+        <div class="admin-panel" id="tab-users" hidden>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="users-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Roblox</th>
+                  <th>Discord</th>
+                  <th>Role</th>
+                  <th>Trades</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="6" class="admin-table__loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Reports tab ── -->
+        <div class="admin-panel" id="tab-reports" hidden>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="reports-table">
+              <thead>
+                <tr>
+                  <th>Reporter</th>
+                  <th>Listing</th>
+                  <th>Reason</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reports-tbody">
+                <tr><td colspan="5" class="admin-table__loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <!-- /admin-content -->
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+
+  <script>
+    (async function initAdminPage() {
+      const BASE = 'https://rellmarket.vercel.app';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // ── Auth check ──
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      const token = session.access_token;
+
+      const authHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      const checkRes = await fetch(`${BASE}/api/admin/check`, { headers: authHeaders });
+      if (!checkRes.ok) {
+        document.getElementById('admin-denied').hidden = false;
+        return;
+      }
+      document.getElementById('admin-content').hidden = false;
+
+      // ── Helpers ──
+      function fmt(dateStr) {
+        return dateStr ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+      }
+
+      async function adminAction(action, target_id, rowEl) {
+        if (!confirm(`Action: ${action} on ${target_id}?`)) return;
+        try {
+          const r = await fetch(`${BASE}/api/admin/action`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ action, target_id })
+          });
+          if (!r.ok) throw new Error((await r.json()).error);
+          rowEl?.remove();
+          if (typeof showToast === 'function') showToast('Done ✅');
+        } catch (e) {
+          if (typeof showToast === 'function') showToast('Error: ' + e.message);
+        }
+      }
+
+      // ── Load stats ──
+      async function loadStats() {
+        const r = await fetch(`${BASE}/api/admin/stats`, { headers: authHeaders });
+        const json = await r.json();
+        document.getElementById('stat-total-listings').textContent = json.totalListings ?? '—';
+        document.getElementById('stat-total-users').textContent    = json.totalUsers    ?? '—';
+        document.getElementById('stat-total-trades').textContent   = json.totalTrades   ?? '—';
+        document.getElementById('stat-total-reports').textContent  = json.totalReports  ?? '—';
+      }
+
+      // ── Load listings ──
+      async function loadListings() {
+        const tbody = document.getElementById('listings-tbody');
+        const r = await fetch(`${BASE}/api/admin/listings`, { headers: authHeaders });
+        const json = await r.json();
+        const listings = json.listings || [];
+        if (!listings.length) { tbody.innerHTML = '<tr><td colspan="5">No listings found.</td></tr>'; return; }
+        tbody.innerHTML = '';
+        listings.forEach(l => {
+          const seller = l.profiles?.roblox_username || l.profiles?.username || '—';
+          const price  = l.price_type === 'fixed' ? `${Number(l.price).toLocaleString()} Beli` : 'Offer';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><a href="item.html?id=${l.item_name.toLowerCase().replace(/\s+/g,'-')}&listing_id=${l.id}" target="_blank">${l.item_name}</a></td>
+            <td><a href="profile.html?username=${encodeURIComponent(seller)}" target="_blank">${seller}</a></td>
+            <td>${price}</td>
+            <td>${fmt(l.created_at)}</td>
+            <td><button class="btn admin-btn admin-btn--danger">Delete</button></td>`;
+          tr.querySelector('.admin-btn--danger').addEventListener('click', () => adminAction('delete_listing', l.id, tr));
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ── Load users ──
+      async function loadUsers() {
+        const tbody = document.getElementById('users-tbody');
+        const r = await fetch(`${BASE}/api/admin/users`, { headers: authHeaders });
+        const json = await r.json();
+        const users = json.users || [];
+        if (!users.length) { tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>'; return; }
+        tbody.innerHTML = '';
+        users.forEach(u => {
+          const displayName = u.roblox_username || u.username || '—';
+          const roleBadge   = u.role ? `<span class="admin-role-badge admin-role-badge--${u.role}">${u.role}</span>` : '—';
+          const trusted     = u.is_trusted ? '🛡️' : '';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><a href="profile.html?username=${encodeURIComponent(displayName)}" target="_blank">${displayName} ${trusted}</a></td>
+            <td>${u.roblox_id || '—'}</td>
+            <td>${u.discord_username || '—'}</td>
+            <td>${roleBadge}</td>
+            <td>${u.completed_trades || 0}</td>
+            <td class="admin-actions">
+              <button class="btn admin-btn admin-btn--danger btn-ban">Ban</button>
+              ${u.is_trusted
+                ? `<button class="btn admin-btn btn-untrust">Remove Trusted</button>`
+                : `<button class="btn admin-btn btn-trust">Make Trusted</button>`}
+              <button class="btn admin-btn btn-mod">Make Mod</button>
+            </td>`;
+          tr.querySelector('.btn-ban').addEventListener('click',   () => adminAction('ban_user',       u.id, tr));
+          tr.querySelector('.btn-trust, .btn-untrust')?.addEventListener('click', () =>
+            adminAction(u.is_trusted ? 'remove_trusted' : 'make_trusted', u.id, tr));
+          tr.querySelector('.btn-mod').addEventListener('click',   () => adminAction('make_mod',       u.id, tr));
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ── Load reports ──
+      async function loadReports() {
+        const tbody = document.getElementById('reports-tbody');
+        // Fetch reports with joined data using Supabase directly (service key not available client-side,
+        // so we call the admin/listings endpoint and cross-reference, or use a simple select via the
+        // authed client with RLS bypassed by admin check already done)
+        const { data: reports, error } = await client
+          .from('reports')
+          .select('*, profiles!reporter_id(username, roblox_username), listings(item_name)')
+          .order('created_at', { ascending: false });
+
+        if (error || !reports?.length) {
+          tbody.innerHTML = '<tr><td colspan="5">No reports found.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        reports.forEach(rep => {
+          const reporter = rep.profiles?.roblox_username || rep.profiles?.username || '—';
+          const listing  = rep.listings?.item_name || '—';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${reporter}</td>
+            <td>${listing}</td>
+            <td>${rep.reason}</td>
+            <td>${fmt(rep.created_at)}</td>
+            <td class="admin-actions">
+              <button class="btn admin-btn btn-dismiss">Dismiss</button>
+              <button class="btn admin-btn admin-btn--danger btn-del-listing">Delete Listing</button>
+            </td>`;
+          tr.querySelector('.btn-dismiss').addEventListener('click', async () => {
+            await client.from('reports').delete().eq('id', rep.id);
+            tr.remove();
+            if (typeof showToast === 'function') showToast('Report dismissed.');
+          });
+          tr.querySelector('.btn-del-listing').addEventListener('click', async () => {
+            if (!confirm('Delete this listing and dismiss the report?')) return;
+            await adminAction('delete_listing', rep.listing_id, null);
+            await client.from('reports').delete().eq('id', rep.id);
+            tr.remove();
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ── Tab switching ──
+      const loaded = { overview: true, listings: false, users: false, reports: false };
+
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', async () => {
+          document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('is-active'));
+          document.querySelectorAll('.admin-panel').forEach(p => p.hidden = true);
+          tab.classList.add('is-active');
+          const name = tab.dataset.tab;
+          const panel = document.getElementById(`tab-${name}`);
+          if (panel) panel.hidden = false;
+
+          if (!loaded[name]) {
+            loaded[name] = true;
+            if (name === 'listings') await loadListings();
+            if (name === 'users')    await loadUsers();
+            if (name === 'reports')  await loadReports();
+          }
+        });
+      });
+
+      // ── Initial load ──
+      loadStats();
+    })();
+  </script>
+
+</body>
+</html>
