@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initWatchlistPage();
   initFetchListings();
   initHomepageMiniGrids();
+  initCategoryGrid();
+  initFeaturedTraders();
   initMyListings();
   initMoreMenu();
 });
@@ -1712,6 +1714,70 @@ function initHomepageMiniGrids() {
     fillScrollRow(auctionsRow,   auctionsJson?.listings || []);
     fillScrollRow(lookingForRow, lookingJson?.listings  || []);
   });
+}
+
+// ─── Homepage: Browse by Category ────────────────────────────────────────────
+function initCategoryGrid() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+
+  const categories = ['fruit', 'armor', 'weapon', 'beli', 'sword', 'item', 'service'];
+  const base = 'https://rellmarket.vercel.app/api/listings/get';
+
+  Promise.all(
+    categories.map(cat =>
+      fetch(`${base}?count_only=true&category=${cat}`)
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
+    )
+  ).then(results => {
+    results.forEach((json, i) => {
+      const el = document.getElementById(`cat-count-${categories[i]}`);
+      if (!el) return;
+      const n = json?.count ?? 0;
+      el.textContent = `${n.toLocaleString()} listing${n !== 1 ? 's' : ''}`;
+    });
+  });
+}
+
+// ─── Homepage: Featured Traders ───────────────────────────────────────────────
+function initFeaturedTraders() {
+  const section = document.getElementById('featured-traders-section');
+  const row     = document.getElementById('featured-traders-row');
+  if (!section || !row) return;
+
+  fetch('https://rellmarket.vercel.app/api/traders/featured')
+    .then(r => r.ok ? r.json() : null)
+    .catch(() => null)
+    .then(json => {
+      const traders = json?.traders || [];
+      if (traders.length === 0) return; // section stays hidden
+
+      section.hidden = false;
+      row.innerHTML = traders.map(t => {
+        const name    = t.roblox_username || t.username || 'Trader';
+        const avatar  = t.avatar_url
+          ? `<img src="${t.avatar_url}" alt="${name}" class="trader-card__avatar" />`
+          : `<div class="trader-card__avatar trader-card__avatar--fallback">👤</div>`;
+        const badges  = [
+          t.is_verified ? `<span class="badge badge--verified">✔ Verified</span>` : '',
+          t.is_trusted  ? `<span class="badge badge--trusted">⭐ Trusted</span>`  : '',
+        ].filter(Boolean).join('');
+        const count   = t.listing_count || 0;
+        return `
+          <article class="trader-card">
+            <a href="profile.html?username=${encodeURIComponent(name)}" class="trader-card__avatar-wrap">
+              ${avatar}
+            </a>
+            <div class="trader-card__body">
+              <a href="profile.html?username=${encodeURIComponent(name)}" class="trader-card__name">${name}</a>
+              ${badges ? `<div class="trader-card__badges">${badges}</div>` : ''}
+              <p class="trader-card__listings">${count} active listing${count !== 1 ? 's' : ''}</p>
+              <a href="profile.html?username=${encodeURIComponent(name)}" class="btn btn--ghost trader-card__btn">View Profile</a>
+            </div>
+          </article>`;
+      }).join('');
+    });
 }
 
 // ─── My Listings dashboard ───────────────────────────────────────────────────

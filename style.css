@@ -4655,3 +4655,124 @@ body.page-out {
   border-color: var(--teal-700);
   color: #fff;
 }
+
+/* ── Browse by Category grid ────────────────────────────────────── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .75rem;
+}
+@media (max-width: 900px) {
+  .category-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 560px) {
+  .category-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: 1.1rem .5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  text-decoration: none;
+  color: var(--color-heading);
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+  text-align: center;
+}
+.category-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+}
+.category-card__emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+.category-card__name {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.category-card__count {
+  font-size: .72rem;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+/* ── Featured Traders ────────────────────────────────────────────── */
+.trader-card {
+  flex: 0 0 180px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem .85rem 1rem;
+  gap: .5rem;
+  transition: box-shadow .2s, transform .2s;
+  text-align: center;
+}
+.trader-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,.1);
+  transform: translateY(-2px);
+}
+.trader-card__avatar-wrap { display: block; }
+.trader-card__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+.trader-card__avatar--fallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--teal-50);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+.trader-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  width: 100%;
+}
+.trader-card__name {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.trader-card__name:hover { color: var(--color-primary); }
+.trader-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .25rem;
+}
+.trader-card__listings {
+  font-size: .75rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+.trader-card__btn {
+  font-size: .78rem;
+  padding: .35rem .85rem;
+  margin-top: .15rem;
+  width: 100%;
+}

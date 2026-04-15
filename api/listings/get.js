@@ -3,9 +3,23 @@ const { createClient } = require('@supabase/supabase-js');
 module.exports = async function handler(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-  const { category, rarity, search, user_id, sort, listing_type, price_type, limit = 20, offset = 0 } = req.query;
+  const { category, rarity, search, user_id, sort, listing_type, price_type, count_only, limit = 20, offset = 0 } = req.query;
   const pageLimit  = Number(limit);
   const pageOffset = Number(offset);
+
+  // count_only=true: return just the count for this filter set (used for category grid)
+  if (count_only === 'true') {
+    let countQuery = supabase
+      .from('listings')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
+    if (category && category !== 'all') countQuery = countQuery.eq('category', category);
+    if (listing_type === 'looking') countQuery = countQuery.eq('listing_type', 'looking');
+    else if (!listing_type) countQuery = countQuery.or('listing_type.eq.selling,listing_type.is.null');
+    const { count, error: countError } = await countQuery;
+    if (countError) return res.status(500).json({ error: countError.message });
+    return res.status(200).json({ count: count || 0 });
+  }
 
   const selectFields = sort === 'popular'
     ? '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at), trade_requests(count)'
