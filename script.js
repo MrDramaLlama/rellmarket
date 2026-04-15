@@ -616,6 +616,10 @@ function populateItemPage(item) {
   const statListed = document.getElementById('item-stat-listed');
   if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
 
+  // Reveal the page now that real data is in place
+  const itemMain = document.querySelector('main.item-page');
+  if (itemMain) itemMain.style.visibility = 'visible';
+
   // Dispatch event so the inline price-history chart script can react
   document.dispatchEvent(new CustomEvent('rellmarket:item-loaded', { detail: { itemName: item.name } }));
 
