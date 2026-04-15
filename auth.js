@@ -78,7 +78,7 @@ async function updateNavbar() {
       wrapper.style.position = 'relative';
       wrapper.innerHTML = `
         <button class="btn btn--login nav-dd__trigger user-dd__trigger" aria-haspopup="true">
-          👤 ${name} <span class="nav-dd__chevron">▾</span>
+          <span class="nav-dd__chevron">▾</span>
         </button>
         <div class="nav-dd__panel user-dd__panel">
           <a href="profile.html?username=${encodeURIComponent(name)}" class="nav-dd__item">👤 My Profile</a>
@@ -90,6 +90,24 @@ async function updateNavbar() {
         </div>`;
 
       loginBtn.parentNode.replaceChild(wrapper, loginBtn);
+
+      // Build trigger button content: avatar (or fallback emoji) + name + chevron
+      const trigger = wrapper.querySelector('.user-dd__trigger');
+      const chevron = trigger.querySelector('.nav-dd__chevron');
+      if (profile?.avatar_url) {
+        const avatar = document.createElement('img');
+        avatar.src = profile.avatar_url;
+        avatar.alt = name;
+        avatar.style.cssText = 'width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:6px;vertical-align:middle;';
+        trigger.insertBefore(avatar, chevron);
+      } else {
+        const fallback = document.createElement('span');
+        fallback.textContent = '👤 ';
+        trigger.insertBefore(fallback, chevron);
+      }
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = name;
+      trigger.insertBefore(nameSpan, chevron);
 
       if (profile?.role === 'admin') {
         const adminItem = document.createElement('a');
@@ -103,7 +121,6 @@ async function updateNavbar() {
       wrapper.querySelector('.user-dd__logout').addEventListener('click', handleLogout);
 
       // Toggle dropdown on trigger click; close on outside click
-      const trigger = wrapper.querySelector('.user-dd__trigger');
       trigger.addEventListener('click', (e) => {
         e.stopPropagation();
         wrapper.classList.toggle('is-open');
