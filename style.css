@@ -2932,6 +2932,39 @@ body.page-out {
   border-radius: 999px;
   text-transform: capitalize;
 }
+/* ─── User account dropdown ──────────────────────────────────────────────── */
+.user-dd { position: relative; }
+
+/* Panel opens right-aligned so it doesn't overflow off screen */
+.user-dd__panel {
+  left: auto;
+  right: 0;
+  min-width: 210px;
+  transform-origin: top right;
+}
+
+/* Log Out as a full-width button styled like a link */
+.nav-dd__item--btn {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: .875rem;
+  color: var(--color-text);
+}
+.nav-dd__item--btn:hover {
+  background: var(--teal-50);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* Badge inside dropdown trade requests row */
+.user-dd__panel .nav-trade-badge {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
 /* Navbar pending-trade badge */
 @keyframes badge-pulse {
   0%, 100% { transform: scale(1); }

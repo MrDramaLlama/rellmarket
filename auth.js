@@ -54,46 +54,43 @@ async function updateNavbar() {
       .single();
     const name = profile?.roblox_username || profile?.username || 'Account';
 
-    if (loginBtn) {
-      loginBtn.textContent = `👤 ${name}`;
-      loginBtn.href = `profile.html?username=${encodeURIComponent(name)}`;
-      // Remove any existing click listeners by cloning the element
-      const newBtn = loginBtn.cloneNode(true);
-      loginBtn.parentNode.replaceChild(newBtn, loginBtn);
-    }
     if (signupBtn) signupBtn.style.display = 'none';
 
-    // Add logout button separately next to the username
-    const navbar = document.querySelector('.navbar__right');
-    if (navbar && !navbar.querySelector('.btn--logout')) {
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'btn btn--ghost btn--logout';
-      logoutBtn.textContent = 'Log Out';
-      logoutBtn.addEventListener('click', handleLogout);
-      navbar.appendChild(logoutBtn);
-    }
-
-    // Check pending trades
+    // Check pending trades then build the user dropdown
+    let pending = 0;
     try {
       const token = (await supabaseClient.auth.getSession()).data.session?.access_token;
       const res = await fetch('https://rellmarket.vercel.app/api/trades/get?type=incoming', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
-      const pending = (json.trades || []).filter(t => t.status === 'pending').length;
-      if (pending > 0) {
-        const activeBtn = document.querySelector('.btn--login');
-        if (activeBtn) {
-          // Redirect to trades page when there are pending requests
-          activeBtn.href = 'trades.html';
-          activeBtn.title = `You have ${pending} pending trade request${pending !== 1 ? 's' : ''}`;
-          const badge = document.createElement('span');
-          badge.className = 'nav-trade-badge';
-          badge.textContent = pending;
-          activeBtn.appendChild(badge);
-        }
-      }
+      pending = (json.trades || []).filter(t => t.status === 'pending').length;
     } catch (e) {}
+
+    // Replace the login button with a dropdown wrapper
+    if (loginBtn) {
+      const tradesBadgeHTML = pending > 0
+        ? `<span class="nav-trade-badge">${pending}</span>`
+        : '';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'nav-dd user-dd';
+      wrapper.innerHTML = `
+        <button class="btn btn--login nav-dd__trigger user-dd__trigger" aria-haspopup="true">
+          👤 ${name} <span class="nav-dd__chevron">▾</span>
+        </button>
+        <div class="nav-dd__panel user-dd__panel">
+          <a href="profile.html?username=${encodeURIComponent(name)}" class="nav-dd__item">👤 My Profile</a>
+          <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+          <a href="trades.html" class="nav-dd__item">🤝 Trade Requests ${tradesBadgeHTML}</a>
+          <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+          <div class="nav-dd__divider"></div>
+          <button class="nav-dd__item nav-dd__item--btn user-dd__logout">🚪 Log Out</button>
+        </div>`;
+
+      loginBtn.parentNode.replaceChild(wrapper, loginBtn);
+      wrapper.querySelector('.user-dd__logout').addEventListener('click', handleLogout);
+    }
   }
 }
 
