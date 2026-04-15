@@ -456,6 +456,8 @@ function initItemPage() {
           reviewCount: staticItem?.reviewCount || 0,
           createdAt:   l.created_at || null,
           id,
+          listingId,
+          categoryRaw: l.category || '',
         });
       })
       .catch(() => {
@@ -497,6 +499,8 @@ function initItemPage() {
         reviewCount: 0,
         createdAt:   l.created_at || null,
         id,
+        listingId:   l.id,
+        categoryRaw: l.category || '',
       });
     })
     .catch(() => {});
@@ -617,22 +621,56 @@ function populateItemPage(item) {
   // Dispatch event so the inline price-history chart script can react
   document.dispatchEvent(new CustomEvent('rellmarket:item-loaded', { detail: { itemName: item.name } }));
 
-  // Similar items grid — show up to 4 other items from ITEMS_DATA, excluding current
-  const similarGrid = document.querySelector('.similar-grid');
-  if (similarGrid && typeof ITEMS_DATA !== 'undefined') {
-    const currentId = item.id || itemNameToId(item.name);
-    const others = Object.values(ITEMS_DATA).filter(i => i.id !== currentId).slice(0, 4);
-    similarGrid.innerHTML = others.map(i => `
-      <article class="mini-card">
-        <a href="item.html?id=${i.id}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
-          <img src="${i.image}" alt="${i.name}" class="mini-card__img" />
-        </a>
-        <div class="mini-card__body">
-          <a href="item.html?id=${i.id}" class="mini-card__name">${i.name}</a>
-          <a href="item.html?id=${i.id}" class="btn btn--mini-trade">Trade</a>
-        </div>
-      </article>`).join('');
-  }
+  // Similar items grid — real listings from the API, same category, excluding current
+  (async function loadSimilarItems() {
+    const similarSection = document.querySelector('.similar-section');
+    const similarGrid    = document.querySelector('.similar-grid');
+    if (!similarSection || !similarGrid) return;
+
+    const category = item.categoryRaw;
+    if (!category) { similarSection.hidden = true; return; }
+
+    try {
+      const params = new URLSearchParams({ category, limit: '5', listing_type: 'selling' });
+      const res  = await fetch(`/api/listings/get?${params}`);
+      if (!res.ok) throw new Error('fetch failed');
+      const { listings } = await res.json();
+
+      // Exclude the current listing
+      const others = listings.filter(l => String(l.id) !== String(item.listingId)).slice(0, 4);
+
+      if (others.length === 0) { similarSection.hidden = true; return; }
+
+      similarGrid.innerHTML = others.map(l => {
+        const slug    = itemNameToId(l.item_name);
+        const url     = `item.html?id=${slug}&listing_id=${l.id}`;
+        const seller  = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+        const price   = l.price_type === 'offer'
+          ? 'Make Offer'
+          : `${Number(l.price).toLocaleString()} Beli`;
+        const imgHTML = l.image_url
+          ? `<img src="${l.image_url}" alt="${l.item_name}" class="mini-card__img" />`
+          : `<div class="mini-card__placeholder">📦</div>`;
+
+        return `
+          <article class="mini-card">
+            <a href="${url}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+              ${imgHTML}
+            </a>
+            <div class="mini-card__body">
+              <a href="${url}" class="mini-card__name">${l.item_name}</a>
+              <p class="mini-card__seller">${seller}</p>
+              <div class="mini-card__footer">
+                <span class="mini-card__price">${price}</span>
+                <a href="${url}" class="btn btn--mini-trade">Trade</a>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    } catch (_) {
+      similarSection.hidden = true;
+    }
+  })();
 }
 
 // ─── Item page: gallery thumbnail switcher ────────────────────────────────────

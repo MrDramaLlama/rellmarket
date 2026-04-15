@@ -856,6 +856,30 @@ button { font-family: var(--font); cursor: pointer; }
 }
 .mini-card__name:hover { color: var(--color-primary); text-decoration: none; }
 
+.mini-card__seller {
+  font-size: .7rem;
+  color: var(--color-muted);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .25rem;
+  margin-top: auto;
+}
+
+.mini-card__price {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  white-space: nowrap;
+}
+
 /* ══════════════════════════════════════════════
    FOOTER
 ══════════════════════════════════════════════ */
