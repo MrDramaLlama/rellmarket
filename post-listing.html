@@ -238,7 +238,13 @@
                   <span class="radio-custom"></span>
                   Set a Beli price
                 </label>
+                <label class="radio-label">
+                  <input type="radio" name="price-type" value="auction" />
+                  <span class="radio-custom"></span>
+                  Start an Auction
+                </label>
               </div>
+              <!-- Fixed price input -->
               <div class="beli-input-wrap" id="beli-input-wrap">
                 <span class="beli-input-prefix">🪙</span>
                 <input
@@ -250,6 +256,38 @@
                   step="1000"
                 />
                 <span class="beli-input-suffix">Beli</span>
+              </div>
+              <!-- Auction fields -->
+              <div class="auction-fields-wrap" id="auction-fields-wrap">
+                <div class="auction-field-row">
+                  <div class="form-group form-group--inline">
+                    <label class="form-label" for="field-auction-start">Starting Price <span class="form-required">*</span></label>
+                    <div class="beli-input-wrap beli-input-wrap--always">
+                      <span class="beli-input-prefix">🪙</span>
+                      <input class="form-input beli-input" type="number" id="field-auction-start" placeholder="e.g. 100000" min="0" step="1000" />
+                      <span class="beli-input-suffix">Beli</span>
+                    </div>
+                  </div>
+                  <div class="form-group form-group--inline">
+                    <label class="form-label" for="field-auction-increment">Min Increment <span class="form-required">*</span></label>
+                    <div class="beli-input-wrap beli-input-wrap--always">
+                      <span class="beli-input-prefix">🪙</span>
+                      <input class="form-input beli-input" type="number" id="field-auction-increment" placeholder="e.g. 10000" min="1000" step="1000" value="10000" />
+                      <span class="beli-input-suffix">Beli</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="field-auction-duration">Auction Duration <span class="form-required">*</span></label>
+                  <select class="form-input form-select" id="field-auction-duration">
+                    <option value="1">1 hour</option>
+                    <option value="6">6 hours</option>
+                    <option value="12">12 hours</option>
+                    <option value="24" selected>24 hours</option>
+                    <option value="48">48 hours</option>
+                    <option value="72">72 hours</option>
+                  </select>
+                </div>
               </div>
             </div>
 

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auction — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">🤝 Trade Requests</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input class="search-form__input" type="search" placeholder="Search Devil Fruits, Armor, Beli…" aria-label="Search items" />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       AUCTION MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main auction-page">
+    <div class="container">
+
+      <!-- Loading state -->
+      <div id="auction-loading" class="auction-state-msg">Loading auction…</div>
+
+      <!-- Error state -->
+      <div id="auction-error" class="auction-state-msg auction-state-msg--error" hidden>
+        <span class="auction-state-msg__icon">⚠️</span>
+        <p id="auction-error-text">Auction not found.</p>
+        <a href="listings.html" class="btn">Back to Listings</a>
+      </div>
+
+      <!-- Auction content -->
+      <div id="auction-content" class="auction-layout" hidden>
+
+        <!-- ── Left column: item info + timer ── -->
+        <div class="auction-left">
+
+          <div class="auction-item-card">
+            <div class="auction-item-img-wrap" id="auction-img-wrap">
+              <span class="auction-item-placeholder" id="auction-placeholder">📦</span>
+              <img id="auction-img" class="auction-item-img" src="" alt="" hidden />
+            </div>
+            <div class="auction-item-info">
+              <p class="auction-item-type" id="auction-item-type"></p>
+              <h1 class="auction-item-name" id="auction-item-name">—</h1>
+              <div class="auction-item-badges">
+                <span class="listing-badge" id="auction-rarity-badge" hidden></span>
+              </div>
+              <p class="auction-item-seller">Listed by <a href="#" id="auction-seller-link" class="auction-seller-link"></a></p>
+            </div>
+          </div>
+
+          <!-- Countdown timer -->
+          <div class="auction-timer-card" id="auction-timer-card">
+            <p class="auction-timer-label">⏱ Time Remaining</p>
+            <div class="auction-timer" id="auction-timer">
+              <span class="auction-timer__seg" id="timer-days"></span>
+              <span class="auction-timer__seg" id="timer-hours"></span>
+              <span class="auction-timer__seg" id="timer-mins"></span>
+              <span class="auction-timer__seg" id="timer-secs"></span>
+            </div>
+          </div>
+
+          <!-- Ended banner -->
+          <div class="auction-ended-card" id="auction-ended-card" hidden>
+            <p class="auction-ended-card__title">🔨 Auction Ended</p>
+            <p class="auction-ended-card__winner" id="auction-ended-winner"></p>
+          </div>
+
+        </div>
+        <!-- /auction-left -->
+
+        <!-- ── Right column: bidding + history ── -->
+        <div class="auction-right">
+
+          <!-- Current bid display -->
+          <div class="auction-current-bid-card">
+            <div class="auction-current-bid-card__row">
+              <span class="auction-current-bid-card__label">Current Bid</span>
+              <span class="auction-current-bid-card__amount" id="auction-current-bid">—</span>
+            </div>
+            <p class="auction-current-bid-card__bidder" id="auction-current-bidder"></p>
+            <p class="auction-current-bid-card__starting" id="auction-starting-info"></p>
+          </div>
+
+          <!-- Bid form (hidden once auction ends) -->
+          <div class="auction-bid-section" id="auction-bid-section">
+            <p class="auction-bid-min-hint" id="auction-bid-min-hint"></p>
+            <div class="auction-bid-input-row">
+              <span class="beli-input-prefix">🪙</span>
+              <input
+                type="number"
+                id="auction-bid-amount"
+                class="form-input auction-bid-input"
+                placeholder="Enter your bid…"
+                min="0"
+                step="1000"
+              />
+              <span class="beli-input-suffix">Beli</span>
+            </div>
+            <button class="btn btn--place-bid" id="auction-place-bid-btn">🔨 Place Bid</button>
+          </div>
+
+          <!-- Bid history -->
+          <div class="auction-history">
+            <h3 class="auction-history__title">Bid History</h3>
+            <ul class="auction-history__list" id="auction-history-list">
+              <li class="auction-history__empty">No bids yet — be the first!</li>
+            </ul>
+          </div>
+
+        </div>
+        <!-- /auction-right -->
+
+      </div>
+      <!-- /auction-layout -->
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    (async function initAuctionPage() {
+      const params    = new URLSearchParams(location.search);
+      const auctionId = params.get('id');
+      const listingId = params.get('listing_id');
+
+      const loadingEl = document.getElementById('auction-loading');
+      const errorEl   = document.getElementById('auction-error');
+      const errorText = document.getElementById('auction-error-text');
+      const contentEl = document.getElementById('auction-content');
+
+      function showError(msg) {
+        loadingEl.hidden = true;
+        errorText.textContent = msg || 'Auction not found.';
+        errorEl.hidden = false;
+      }
+
+      if (!auctionId && !listingId) {
+        showError('No auction specified.');
+        return;
+      }
+
+      // ── Fetch auction data ──
+      const qs  = auctionId ? `auction_id=${auctionId}` : `listing_id=${listingId}`;
+      let res;
+      try {
+        res = await fetch(`/api/auctions/get?${qs}`);
+      } catch (e) {
+        showError('Network error loading auction.');
+        return;
+      }
+
+      if (!res.ok) {
+        showError('Auction not found.');
+        return;
+      }
+
+      const { auction, bids } = await res.json();
+      const listing = auction.listings;
+      const profile = listing?.profiles;
+
+      // ── Populate item info ──
+      document.title = `${listing?.item_name || 'Auction'} — RellMarket`;
+
+      document.getElementById('auction-item-name').textContent = listing?.item_name || '—';
+
+      const typeEl = document.getElementById('auction-item-type');
+      const parts  = [listing?.category, listing?.fruit_type].filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1));
+      typeEl.textContent = parts.join(' · ');
+
+      const rarityBadge = document.getElementById('auction-rarity-badge');
+      if (listing?.rarity) {
+        rarityBadge.textContent = listing.rarity.charAt(0).toUpperCase() + listing.rarity.slice(1);
+        rarityBadge.className   = `listing-badge listing-badge--${listing.rarity}`;
+        rarityBadge.hidden      = false;
+      }
+
+      const sellerName = profile?.roblox_username || profile?.username || 'Trader';
+      const sellerLink = document.getElementById('auction-seller-link');
+      sellerLink.textContent = sellerName;
+      sellerLink.href = `profile.html?username=${encodeURIComponent(sellerName)}`;
+
+      if (listing?.image_url) {
+        const img = document.getElementById('auction-img');
+        img.src     = listing.image_url;
+        img.alt     = listing.item_name;
+        img.hidden  = false;
+        document.getElementById('auction-placeholder').hidden = true;
+      }
+
+      // ── Current bid ──
+      function updateBidDisplay(currentBid, bidder) {
+        document.getElementById('auction-current-bid').textContent =
+          `${Number(currentBid).toLocaleString()} Beli`;
+        const bidderEl = document.getElementById('auction-current-bidder');
+        bidderEl.textContent = bidder ? `Highest bidder: ${bidder}` : '';
+      }
+
+      const currentBidder = auction.profiles?.roblox_username || auction.profiles?.username || null;
+      updateBidDisplay(auction.current_bid || auction.starting_price, currentBidder);
+
+      document.getElementById('auction-starting-info').textContent =
+        `Starting price: ${Number(auction.starting_price).toLocaleString()} Beli · Min increment: ${Number(auction.min_increment).toLocaleString()} Beli`;
+
+      // ── Bid history ──
+      function renderBids(bidList) {
+        const listEl = document.getElementById('auction-history-list');
+        if (!bidList || bidList.length === 0) {
+          listEl.innerHTML = '<li class="auction-history__empty">No bids yet — be the first!</li>';
+          return;
+        }
+        listEl.innerHTML = bidList.map(b => {
+          const bidder  = b.profiles?.roblox_username || b.profiles?.username || 'Trader';
+          const amount  = Number(b.amount).toLocaleString();
+          const when    = typeof timeAgo === 'function' ? timeAgo(b.created_at) : '';
+          return `<li class="auction-history__item">
+            <span class="auction-history__bidder">${bidder}</span>
+            <span class="auction-history__amount">${amount} Beli</span>
+            <span class="auction-history__time">${when}</span>
+          </li>`;
+        }).join('');
+      }
+      renderBids(bids);
+
+      // ── Countdown timer ──
+      const endsAt   = new Date(auction.ends_at);
+      const isEnded  = endsAt <= new Date();
+
+      function updateTimer() {
+        const diff = endsAt - Date.now();
+        if (diff <= 0) {
+          clearInterval(timerInterval);
+          showEndedState();
+          return;
+        }
+        const totalSecs = Math.floor(diff / 1000);
+        const d = Math.floor(totalSecs / 86400);
+        const h = Math.floor((totalSecs % 86400) / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+
+        const pad = n => String(n).padStart(2, '0');
+        const segs = [];
+        if (d > 0) segs.push(`<span class="auction-timer__unit"><strong>${d}</strong><small>d</small></span>`);
+        segs.push(`<span class="auction-timer__unit"><strong>${pad(h)}</strong><small>h</small></span>`);
+        segs.push(`<span class="auction-timer__unit"><strong>${pad(m)}</strong><small>m</small></span>`);
+        segs.push(`<span class="auction-timer__unit"><strong>${pad(s)}</strong><small>s</small></span>`);
+        document.getElementById('auction-timer').innerHTML = segs.join('<span class="auction-timer__colon">:</span>');
+      }
+
+      function showEndedState() {
+        document.getElementById('auction-timer-card').hidden = true;
+        document.getElementById('auction-ended-card').hidden = false;
+        document.getElementById('auction-bid-section').hidden = true;
+
+        const winnerEl = document.getElementById('auction-ended-winner');
+        if (currentBidder) {
+          winnerEl.textContent = `Won by ${currentBidder} for ${Number(auction.current_bid).toLocaleString()} Beli`;
+        } else {
+          winnerEl.textContent = 'No bids were placed.';
+        }
+      }
+
+      let timerInterval;
+      if (isEnded) {
+        showEndedState();
+      } else {
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+
+      // ── Bid form ──
+      function updateMinHint(currentBid) {
+        const minBid = Number(currentBid) + Number(auction.min_increment);
+        document.getElementById('auction-bid-min-hint').textContent =
+          `Minimum bid: ${minBid.toLocaleString()} Beli`;
+        document.getElementById('auction-bid-amount').min = minBid;
+        document.getElementById('auction-bid-amount').placeholder = `e.g. ${minBid.toLocaleString()}`;
+      }
+      updateMinHint(auction.current_bid || auction.starting_price);
+
+      document.getElementById('auction-place-bid-btn').addEventListener('click', async () => {
+        const amountInput = document.getElementById('auction-bid-amount');
+        const amount      = Number(amountInput.value);
+        const btn         = document.getElementById('auction-place-bid-btn');
+
+        if (!amount || amount <= 0) {
+          showToast('Please enter a valid bid amount.');
+          return;
+        }
+
+        // Auth check
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) {
+          showToast('You must be logged in to bid.');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        btn.disabled    = true;
+        btn.textContent = 'Placing bid…';
+
+        try {
+          const res = await fetch('/api/auctions/bid', {
+            method:  'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ auction_id: auction.id, amount }),
+          });
+
+          const json = await res.json();
+          if (!res.ok) {
+            showToast('Error: ' + (json.error || 'Failed to place bid'));
+            return;
+          }
+
+          // Update display
+          const meProfile = await client.from('profiles').select('roblox_username, username').eq('id', session.user.id).single();
+          const meName    = meProfile.data?.roblox_username || meProfile.data?.username || 'You';
+          updateBidDisplay(json.current_bid, meName);
+          updateMinHint(json.current_bid);
+          amountInput.value = '';
+
+          // Re-fetch bids
+          const bidsRes  = await fetch(`/api/auctions/get?auction_id=${auction.id}`);
+          const bidsJson = await bidsRes.json();
+          renderBids(bidsJson.bids);
+
+          showToast('Bid placed! 🔨');
+        } catch (e) {
+          showToast('Error placing bid.');
+        } finally {
+          btn.disabled    = false;
+          btn.textContent = '🔨 Place Bid';
+        }
+      });
+
+      // ── Show content ──
+      loadingEl.hidden = true;
+      contentEl.hidden = false;
+    })();
+  </script>
+</body>
+</html>

@@ -650,9 +650,13 @@ function initPostListingForm() {
   const fieldType     = document.getElementById('field-type');
   const fieldDesc     = document.getElementById('field-desc');
   const fieldPrice    = document.getElementById('field-price');
-  const priceRadios   = form.querySelectorAll('input[name="price-type"]');
-  const beliWrap      = document.getElementById('beli-input-wrap');
-  const fruitTypeGrp  = document.getElementById('fruit-type-group');
+  const priceRadios        = form.querySelectorAll('input[name="price-type"]');
+  const beliWrap           = document.getElementById('beli-input-wrap');
+  const auctionWrap        = document.getElementById('auction-fields-wrap');
+  const fieldAuctionStart  = document.getElementById('field-auction-start');
+  const fieldAuctionIncr   = document.getElementById('field-auction-increment');
+  const fieldAuctionDur    = document.getElementById('field-auction-duration');
+  const fruitTypeGrp       = document.getElementById('fruit-type-group');
   const descCount     = document.getElementById('desc-count');
 
   // Preview refs
@@ -804,6 +808,10 @@ function initPostListingForm() {
     if (priceType === 'offer') {
       previewPrice.textContent = 'Make Offer';
       previewPrice.className   = 'listing-card__price listing-card__price--offer';
+    } else if (priceType === 'auction') {
+      const startAmt = fieldAuctionStart?.value ? Number(fieldAuctionStart.value).toLocaleString() + ' Beli' : '— Beli';
+      previewPrice.textContent = '🔨 Auction — ' + startAmt;
+      previewPrice.className   = 'listing-card__price listing-card__price--auction';
     } else {
       const amount = fieldPrice.value ? Number(fieldPrice.value).toLocaleString() + ' Beli' : '— Beli';
       previewPrice.textContent = amount;
@@ -811,13 +819,14 @@ function initPostListingForm() {
     }
   }
 
-  // Show/hide Beli input based on radio selection
-  priceRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      beliWrap.classList.toggle('is-visible', radio.value === 'fixed' && radio.checked);
-      updatePreview();
-    });
-  });
+  // Show/hide Beli / auction inputs based on radio selection
+  function applyPriceRadio() {
+    const priceType = form.querySelector('input[name="price-type"]:checked').value;
+    beliWrap.classList.toggle('is-visible', priceType === 'fixed');
+    if (auctionWrap) auctionWrap.classList.toggle('is-visible', priceType === 'auction');
+    updatePreview();
+  }
+  priceRadios.forEach(radio => radio.addEventListener('change', applyPriceRadio));
 
   // Description character counter
   fieldDesc.addEventListener('input', () => {
@@ -825,7 +834,7 @@ function initPostListingForm() {
   });
 
   // Live preview on field changes
-  [fieldQty, fieldCategory, fieldRarity, fieldType, fieldPrice].forEach(el => {
+  [fieldQty, fieldCategory, fieldRarity, fieldType, fieldPrice, fieldAuctionStart].filter(Boolean).forEach(el => {
     el.addEventListener('input', updatePreview);
     el.addEventListener('change', updatePreview);
   });
@@ -879,6 +888,12 @@ function initPostListingForm() {
     } else {
       clearFieldError(fieldPrice);
     }
+    if (priceType === 'auction' && fieldAuctionStart && !fieldAuctionStart.value) {
+      showFieldError(fieldAuctionStart, 'Please enter a starting price.');
+      valid = false;
+    } else if (fieldAuctionStart) {
+      clearFieldError(fieldAuctionStart);
+    }
 
     if (!valid) return;
 
@@ -898,12 +913,15 @@ function initPostListingForm() {
         ? fieldItem.options[fieldItem.selectedIndex].text
         : '';
 
+      const startingPrice = priceType === 'auction' && fieldAuctionStart?.value
+        ? Number(fieldAuctionStart.value) : null;
+
       const payload = {
         item_name:   itemText,
         category:    fieldCategory.value,
         rarity:      fieldRarity.value || null,
         fruit_type:  fieldType.value   || null,
-        price:       fieldPrice.value  ? Number(fieldPrice.value) : null,
+        price:       priceType === 'fixed' && fieldPrice.value ? Number(fieldPrice.value) : (startingPrice || null),
         price_type:  priceType,
         description: fieldDesc.value   || null,
         image_url:   (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
@@ -921,9 +939,30 @@ function initPostListingForm() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to post listing');
 
+      // If auction, create the auction record then redirect
+      if (priceType === 'auction' && json.listing?.id) {
+        submitBtn.textContent = 'Starting auction…';
+        const auctionRes = await fetch('/api/auctions/create', {
+          method:  'POST',
+          headers,
+          body: JSON.stringify({
+            listing_id:     json.listing.id,
+            starting_price: startingPrice,
+            min_increment:  fieldAuctionIncr?.value ? Number(fieldAuctionIncr.value) : 10000,
+            duration_hours: fieldAuctionDur?.value  ? Number(fieldAuctionDur.value)  : 24,
+          }),
+        });
+        const auctionJson = await auctionRes.json();
+        if (!auctionRes.ok) throw new Error(auctionJson.error || 'Failed to create auction');
+        showToast('Auction started! 🔨');
+        setTimeout(() => { window.location.href = `auction.html?id=${auctionJson.auction.id}`; }, 800);
+        return;
+      }
+
       showToast('Listing posted! 🎉');
       form.reset();
       beliWrap.classList.remove('is-visible');
+      if (auctionWrap) auctionWrap.classList.remove('is-visible');
       previewImg.src = '';
       previewImgBox.classList.remove('has-image');
       updatePreview();
@@ -1275,20 +1314,60 @@ function initFetchListings() {
   const loadMoreBtn  = document.getElementById('load-more-btn');
   const countEl      = document.getElementById('listings-count');
 
+  function auctionTimeLeft(endsAt) {
+    const diff = new Date(endsAt) - Date.now();
+    if (diff <= 0) return 'Ended';
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    if (h >= 48) return `${Math.floor(h / 24)}d left`;
+    if (h >= 1)  return `${h}h ${m}m left`;
+    return `${m}m left`;
+  }
+
   function buildCardHTML(l) {
-    const seller     = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+    const seller      = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
     const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : 'listing-badge--common';
     const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
-    const priceHTML  = l.price
-      ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
-      : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
-    const imgHTML    = l.image_url
+    const imgHTML     = l.image_url
       ? `<img src="${l.image_url}" alt="${l.item_name}" class="listing-card__img" />`
       : `<div class="listing-card__placeholder" style="--ph:#f0fdfa;">📦</div>`;
-    const typeLabel  = [
+    const typeLabel   = [
       l.category ? l.category.charAt(0).toUpperCase() + l.category.slice(1) : '',
       l.fruit_type || ''
     ].filter(Boolean).join(' · ');
+
+    // Auction listing
+    if (l.price_type === 'auction') {
+      const auction   = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
+      const cardUrl   = auction ? `auction.html?id=${auction.id}` : `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
+      const curBid    = auction ? `${Number(auction.current_bid).toLocaleString()} Beli` : '—';
+      const timeLeft  = auction ? auctionTimeLeft(auction.ends_at) : '';
+      return `
+        <article class="listing-card listing-card--auction" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+          <a href="${cardUrl}" class="listing-card__img-wrap">
+            ${imgHTML}
+            ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
+            <span class="listing-badge listing-badge--auction">🔨 Auction</span>
+          </a>
+          <div class="listing-card__body">
+            <p class="listing-card__type">${typeLabel}</p>
+            <h3 class="listing-card__name"><a href="${cardUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
+            <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
+            <div class="listing-card__footer listing-card__footer--auction">
+              <div class="listing-card__auction-info">
+                <span class="listing-card__auction-bid">${curBid}</span>
+                <span class="listing-card__auction-time">${timeLeft}</span>
+              </div>
+              <a href="${cardUrl}" class="btn btn--trade-card btn--bid-card">Bid</a>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    // Standard listing
+    const priceHTML = l.price
+      ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
+      : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
     const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
     return `
       <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">

@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
 
   let query = supabase
     .from('listings')
-    .select('*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted)')
+    .select('*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at)')
     .order('created_at', { ascending: false })
     .range(pageOffset, pageOffset + pageLimit - 1);
 
