@@ -371,6 +371,7 @@ button { font-family: var(--font); cursor: pointer; }
   align-items: center;
   gap: .4rem;
   flex-shrink: 0;
+  position: relative;
   margin-left: auto;
 }
 
@@ -2937,8 +2938,9 @@ body.page-out {
 
 /* Panel opens right-aligned so it doesn't overflow off screen */
 .user-dd__panel {
-  left: auto;
-  right: 0;
+  position: absolute !important;
+  left: auto !important;
+  right: 0 !important;
   min-width: 210px;
   transform-origin: top right;
 }
