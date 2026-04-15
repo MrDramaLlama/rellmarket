@@ -134,7 +134,12 @@ async function updateNavbar() {
           <div class="nav-notif__list">${notifItemsHTML}</div>
         </div>`;
 
-      wrapper.parentNode.insertBefore(bellWrapper, wrapper);
+      const moreBtn = document.querySelector('.btn--more');
+      if (moreBtn) {
+        moreBtn.insertAdjacentElement('afterend', bellWrapper);
+      } else {
+        wrapper.parentNode.insertBefore(bellWrapper, wrapper);
+      }
 
       const bellTrigger = bellWrapper.querySelector('.nav-bell__trigger');
       bellTrigger.addEventListener('click', (e) => {
