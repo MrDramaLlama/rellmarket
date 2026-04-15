@@ -599,6 +599,9 @@ function populateItemPage(item) {
   const statListed = document.getElementById('item-stat-listed');
   if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
 
+  // Dispatch event so the inline price-history chart script can react
+  document.dispatchEvent(new CustomEvent('rellmarket:item-loaded', { detail: { itemName: item.name } }));
+
   // Similar items grid — show up to 4 other items from ITEMS_DATA, excluding current
   const similarGrid = document.querySelector('.similar-grid');
   if (similarGrid && typeof ITEMS_DATA !== 'undefined') {

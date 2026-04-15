@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Price History — RellMarket</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Marketplace <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="prices.html" class="nav-dd__item">📈 Price History</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">🤝 Trade Requests</a>
+            </div>
+          </div>
+
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">
+              Community <span class="nav-dd__chevron">▾</span>
+            </button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input class="search-form__input" type="search" placeholder="Search Devil Fruits, Armor, Beli…" aria-label="Search items" />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <button class="btn btn--more" aria-label="More options">⋮</button>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       PILL BAR
+  ════════════════════════════════════════ -->
+  <div class="pill-bar" id="pill-bar">
+    <div class="pill-bar__track">
+      <button class="pill pill--active" data-filter="all">All</button>
+      <button class="pill" data-filter="fruit">🍎 Devil Fruits</button>
+      <button class="pill" data-filter="armor">🛡️ Armor</button>
+      <button class="pill" data-filter="weapon">⚔️ Weapons</button>
+      <button class="pill" data-filter="beli">💰 Beli</button>
+      <button class="pill" data-filter="sword">🗡️ Swords</button>
+      <button class="pill" data-filter="item">📦 Items</button>
+      <button class="pill" data-filter="service">🤝 Services</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ANNOUNCEMENT BANNER
+  ════════════════════════════════════════ -->
+  <div class="announcement" id="announcement" role="note">
+    <button class="announcement__close" id="announcement-close" aria-label="Dismiss announcement">×</button>
+    <div class="announcement__body">
+      <a href="#" class="announcement__link">
+        🏴‍☠️ Join our Discord for the latest Rell Seas trading updates and exclusive giveaways!
+      </a>
+    </div>
+    <span class="announcement__chevron" aria-hidden="true">›</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PRICE HISTORY MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main prices-page">
+    <div class="container">
+
+      <!-- Page header -->
+      <div class="prices-header">
+        <h1 class="prices-title">📈 Price History</h1>
+        <p class="prices-sub">Real trade prices recorded from completed transactions.</p>
+      </div>
+
+      <!-- Item cards grid -->
+      <div class="price-items-grid" id="price-items-grid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Detail section — shown when item is selected -->
+      <div class="price-detail" id="price-detail" hidden>
+
+        <div class="price-detail__header">
+          <div class="price-detail__title-row">
+            <img class="price-detail__img" id="price-detail-img" src="" alt="" />
+            <h2 class="price-detail__name" id="price-detail-name"></h2>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="prices-stats" id="prices-stats">
+          <div class="prices-stat-card">
+            <p class="prices-stat-card__label">Avg Price</p>
+            <p class="prices-stat-card__value" id="stat-avg">—</p>
+          </div>
+          <div class="prices-stat-card">
+            <p class="prices-stat-card__label">All-Time High</p>
+            <p class="prices-stat-card__value prices-stat-card__value--high" id="stat-ath">—</p>
+          </div>
+          <div class="prices-stat-card">
+            <p class="prices-stat-card__label">All-Time Low</p>
+            <p class="prices-stat-card__value prices-stat-card__value--low" id="stat-atl">—</p>
+          </div>
+          <div class="prices-stat-card">
+            <p class="prices-stat-card__label">Total Trades</p>
+            <p class="prices-stat-card__value" id="stat-trades">—</p>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="prices-chart-card">
+          <div class="prices-chart-wrap" id="prices-chart-wrap">
+            <canvas id="prices-chart"></canvas>
+          </div>
+          <div class="prices-chart-empty" id="prices-chart-empty" hidden>
+            <span>📉</span>
+            <p>No trades recorded yet for this item.</p>
+          </div>
+        </div>
+
+        <!-- Trade history table -->
+        <div class="prices-table-card">
+          <h3 class="prices-table-title">Trade History</h3>
+          <div class="prices-table-wrap">
+            <table class="prices-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Price (Beli)</th>
+                  <th>Change</th>
+                  <th>Buyer</th>
+                  <th>Seller</th>
+                </tr>
+              </thead>
+              <tbody id="prices-table-body">
+                <tr><td colspan="5" class="prices-table-empty">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <!-- /price-detail -->
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+  <script>
+  (function initPricesPage() {
+
+    // ── All 6 fruits from ITEMS_DATA ──
+    const FRUITS = [
+      'gravity-fruit', 'flame-fruit', 'barrier-fruit',
+      'dragon-fruit', 'allo-fruit', 'ice-fruit',
+    ];
+
+    const grid       = document.getElementById('price-items-grid');
+    const detail     = document.getElementById('price-detail');
+    const tableBody  = document.getElementById('prices-table-body');
+    const chartWrap  = document.getElementById('prices-chart-wrap');
+    const chartEmpty = document.getElementById('prices-chart-empty');
+
+    const statAvg    = document.getElementById('stat-avg');
+    const statAth    = document.getElementById('stat-ath');
+    const statAtl    = document.getElementById('stat-atl');
+    const statTrades = document.getElementById('stat-trades');
+
+    let activeItemName = null;
+    let chart = null;
+
+    function fmt(n) { return Number(n).toLocaleString() + ' Beli'; }
+
+    // ── Build item overview cards ──
+    function buildGrid(allStats) {
+      // allStats is array of price_stats rows keyed by item_name
+      const statsMap = {};
+      (allStats || []).forEach(s => { statsMap[s.item_name] = s; });
+
+      grid.innerHTML = FRUITS.map(id => {
+        const item = ITEMS_DATA[id];
+        if (!item) return '';
+        const s = statsMap[item.name];
+
+        // 7-day change — computed server-side or null
+        let changeHTML = '<span class="price-item-card__change price-item-card__change--none">No data</span>';
+        if (s) {
+          // Use price_7d_change_pct if available, else just show total trades
+          if (s.price_7d_change_pct != null) {
+            const pct  = Number(s.price_7d_change_pct);
+            const sign = pct >= 0 ? '▲' : '▼';
+            const cls  = pct >= 0 ? 'price-item-card__change--up' : 'price-item-card__change--down';
+            changeHTML = `<span class="price-item-card__change ${cls}">${sign} ${Math.abs(pct).toFixed(1)}%</span>`;
+          } else {
+            changeHTML = '<span class="price-item-card__change price-item-card__change--none">—</span>';
+          }
+        }
+
+        const priceText  = s?.last_price  ? fmt(s.last_price) : (s?.avg_price ? fmt(s.avg_price) : '—');
+        const tradesText = s?.total_trades ? `${s.total_trades} trade${s.total_trades !== 1 ? 's' : ''}` : '0 trades';
+
+        return `
+          <button class="price-item-card" data-item-name="${item.name}" aria-label="View ${item.name} price history">
+            <div class="price-item-card__img-wrap">
+              <img src="${item.image}" alt="${item.name}" class="price-item-card__img" />
+            </div>
+            <p class="price-item-card__name">${item.name}</p>
+            <p class="price-item-card__price">${priceText}</p>
+            ${changeHTML}
+            <p class="price-item-card__trades">${tradesText}</p>
+          </button>`;
+      }).join('');
+
+      // Wire up card clicks
+      grid.querySelectorAll('.price-item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const name = card.dataset.itemName;
+          grid.querySelectorAll('.price-item-card').forEach(c => c.classList.remove('price-item-card--active'));
+          card.classList.add('price-item-card--active');
+          loadDetail(name);
+        });
+      });
+
+      // Auto-select from URL param or first item
+      const urlItem = new URLSearchParams(location.search).get('item');
+      const toSelect = urlItem || ITEMS_DATA[FRUITS[0]]?.name;
+      if (toSelect) {
+        const target = grid.querySelector(`[data-item-name="${CSS.escape(toSelect)}"]`);
+        if (target) target.click();
+        else grid.querySelector('.price-item-card')?.click();
+      }
+    }
+
+    // ── Load detail for selected item ──
+    async function loadDetail(itemName) {
+      if (activeItemName === itemName) {
+        detail.hidden = false;
+        detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+      }
+      activeItemName = itemName;
+
+      // Update header
+      const item = Object.values(ITEMS_DATA).find(i => i.name === itemName);
+      document.getElementById('price-detail-name').textContent = itemName;
+      const detailImg = document.getElementById('price-detail-img');
+      detailImg.src = item?.image || '';
+      detailImg.alt = itemName;
+      detailImg.hidden = !item?.image;
+
+      // Reset
+      [statAvg, statAth, statAtl, statTrades].forEach(el => el.textContent = '…');
+      tableBody.innerHTML = '<tr><td colspan="5" class="prices-table-empty">Loading…</td></tr>';
+      chartWrap.hidden  = false;
+      chartEmpty.hidden = true;
+      detail.hidden = false;
+      detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      try {
+        const res = await fetch(`/api/prices/get?item_name=${encodeURIComponent(itemName)}`);
+        if (!res.ok) throw new Error('API error');
+        const { prices, stats } = await res.json();
+
+        // Render stats from price_stats table
+        if (stats) {
+          statAvg.textContent    = stats.avg_price    ? fmt(Math.round(stats.avg_price))  : '—';
+          statAth.textContent    = stats.all_time_high ? fmt(stats.all_time_high) : '—';
+          statAtl.textContent    = stats.all_time_low  ? fmt(stats.all_time_low)  : '—';
+          statTrades.textContent = stats.total_trades  ? String(stats.total_trades) : '0';
+        } else {
+          // Compute from prices array as fallback
+          if (prices && prices.length > 0) {
+            const vals = prices.map(p => p.price);
+            statAvg.textContent    = fmt(Math.round(vals.reduce((a, b) => a + b, 0) / vals.length));
+            statAth.textContent    = fmt(Math.max(...vals));
+            statAtl.textContent    = fmt(Math.min(...vals));
+            statTrades.textContent = String(prices.length);
+          } else {
+            [statAvg, statAth, statAtl, statTrades].forEach(el => el.textContent = '—');
+          }
+        }
+
+        if (!prices || prices.length === 0) {
+          chartWrap.hidden  = true;
+          chartEmpty.hidden = false;
+          if (chart) { chart.destroy(); chart = null; }
+          tableBody.innerHTML = '<tr><td colspan="5" class="prices-table-empty">No trades recorded yet.</td></tr>';
+          return;
+        }
+
+        renderChart(prices, itemName);
+        renderTable(prices);
+
+      } catch (e) {
+        chartWrap.hidden  = true;
+        chartEmpty.hidden = false;
+        tableBody.innerHTML = '<tr><td colspan="5" class="prices-table-empty">Failed to load data.</td></tr>';
+        [statAvg, statAth, statAtl, statTrades].forEach(el => el.textContent = '—');
+      }
+    }
+
+    function renderChart(prices, itemName) {
+      const labels = prices.map(p =>
+        new Date(p.recorded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+      );
+      const data = prices.map(p => p.price);
+
+      if (chart) { chart.destroy(); chart = null; }
+
+      const ctx = document.getElementById('prices-chart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: itemName,
+            data,
+            borderColor:      '#14b8a6',
+            backgroundColor:  'rgba(20, 184, 166, 0.08)',
+            borderWidth:      2.5,
+            pointRadius:      4,
+            pointHoverRadius: 6,
+            tension:          0.35,
+            fill:             true,
+          }]
+        },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ' ' + Number(ctx.parsed.y).toLocaleString() + ' Beli',
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid:  { color: 'rgba(0,0,0,0.04)' },
+              ticks: { maxRotation: 45, font: { size: 11 } },
+            },
+            y: {
+              grid:  { color: 'rgba(0,0,0,0.04)' },
+              ticks: { font: { size: 11 }, callback: v => Number(v).toLocaleString() }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable(prices) {
+      const sorted = [...prices].reverse();
+      tableBody.innerHTML = sorted.map((p, i) => {
+        const prev   = sorted[i + 1];
+        const change = prev ? p.price - prev.price : null;
+        const changeHTML = change === null
+          ? '—'
+          : change > 0
+            ? `<span class="prices-table-change prices-table-change--up">▲ ${change.toLocaleString()}</span>`
+            : change < 0
+              ? `<span class="prices-table-change prices-table-change--down">▼ ${Math.abs(change).toLocaleString()}</span>`
+              : '—';
+
+        const dateStr = new Date(p.recorded_at).toLocaleString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        const buyer  = p.buyer?.roblox_username  || p.buyer?.username  || '—';
+        const seller = p.seller?.roblox_username || p.seller?.username || '—';
+
+        return `<tr>
+          <td>${dateStr}</td>
+          <td class="prices-table-price">${Number(p.price).toLocaleString()}</td>
+          <td>${changeHTML}</td>
+          <td><a href="profile.html?username=${encodeURIComponent(buyer)}" class="prices-table-user">${buyer}</a></td>
+          <td><a href="profile.html?username=${encodeURIComponent(seller)}" class="prices-table-user">${seller}</a></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ── Init: load all stats then build grid ──
+    (async () => {
+      let allStats = [];
+      try {
+        const res = await fetch('/api/prices/all');
+        if (res.ok) {
+          const json = await res.json();
+          allStats = json.stats || [];
+        }
+      } catch (_) {}
+      buildGrid(allStats);
+    })();
+
+  })();
+  </script>
+</body>
+</html>

@@ -44,5 +44,23 @@ module.exports = async function handler(req, res) {
     await supabase.from('profiles').update(updates).eq('id', userId);
   }
 
+  // Record price to price_history if listing had a fixed price
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('item_name, price, price_type')
+    .eq('id', trade.listing_id)
+    .single();
+
+  if (listing && listing.price) {
+    await supabase.from('price_history').insert({
+      item_name:  listing.item_name,
+      price:      listing.price,
+      trade_id,
+      seller_id:  user.id,
+      buyer_id:   trade.sender_id,
+      listing_id: trade.listing_id,
+    });
+  }
+
   return res.status(200).json({ success: true });
 }

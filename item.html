@@ -6,6 +6,7 @@
   <title>Gravity Fruit — RellMarket</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="config.js"></script>
 </head>
 <body>
@@ -29,6 +30,7 @@
             </button>
             <div class="nav-dd__panel">
               <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="prices.html" class="nav-dd__item">📈 Price History</a>
               <a href="#" class="nav-dd__item">＋ Post a Listing</a>
               <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
               <div class="nav-dd__divider"></div>
@@ -246,6 +248,18 @@
 
       </div>
       <!-- /item-layout -->
+
+      <!-- ── Price History ── -->
+      <section class="item-price-history" id="item-price-history" hidden>
+        <div class="item-price-history__header">
+          <h2 class="item-price-history__title">📈 Price History</h2>
+          <a id="item-price-history-link" href="prices.html" class="item-price-history__full-link">View full chart →</a>
+        </div>
+        <div class="item-price-history__chart-wrap">
+          <canvas id="item-price-chart"></canvas>
+        </div>
+        <p class="item-price-history__empty" id="item-price-history-empty" hidden>No price data available for this item yet.</p>
+      </section>
 
       <!-- ── Similar Items ── -->
       <section class="similar-section" aria-labelledby="similar-title">
@@ -492,5 +506,75 @@
   <script src="items-data.js"></script>
   <script src="script.js"></script>
   <script src="auth.js"></script>
+  <script>
+    // Price history mini-chart for item page
+    document.addEventListener('rellmarket:item-loaded', async function(e) {
+      const itemName = e.detail.itemName;
+      if (!itemName) return;
+
+      const section  = document.getElementById('item-price-history');
+      const empty    = document.getElementById('item-price-history-empty');
+      const canvas   = document.getElementById('item-price-chart');
+      const fullLink = document.getElementById('item-price-history-link');
+
+      if (fullLink) fullLink.href = `prices.html?item=${encodeURIComponent(itemName)}`;
+
+      try {
+        const res = await fetch(`/api/prices/get?item_name=${encodeURIComponent(itemName)}`);
+        if (!res.ok) return;
+        const { prices } = await res.json();
+
+        section.hidden = false;
+
+        if (!prices || prices.length === 0) {
+          canvas.hidden = true;
+          empty.textContent = 'No trades recorded yet.';
+          empty.hidden = false;
+          return;
+        }
+
+        const labels = prices.map(p =>
+          new Date(p.recorded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+        );
+        const data = prices.map(p => p.price);
+
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              data,
+              borderColor:      '#14b8a6',
+              backgroundColor:  'rgba(20,184,166,0.08)',
+              borderWidth:      2,
+              pointRadius:      3,
+              pointHoverRadius: 5,
+              tension:          0.35,
+              fill:             true,
+            }]
+          },
+          options: {
+            responsive:          true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => ' ' + Number(ctx.parsed.y).toLocaleString() + ' Beli',
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+              y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 }, callback: v => Number(v).toLocaleString() } }
+            }
+          }
+        });
+      } catch (_) {
+        // silently fail — price history is non-critical
+      }
+    });
+  </script>
 </body>
 </html>
