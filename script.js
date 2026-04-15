@@ -962,13 +962,40 @@ function initPostListingForm() {
         return;
       }
 
-      showToast('Listing posted! 🎉');
-      form.reset();
-      beliWrap.classList.remove('is-visible');
-      if (auctionWrap) auctionWrap.classList.remove('is-visible');
-      previewImg.src = '';
-      previewImgBox.classList.remove('has-image');
-      updatePreview();
+      // Build item URL
+      const itemId  = fieldItem.value && fieldItem.value !== 'other' ? fieldItem.value : itemText.toLowerCase().replace(/\s+/g, '-');
+      const itemUrl = `item.html?id=${itemId}&listing_id=${json.listing?.id}`;
+      const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
+
+      // Populate success state
+      const successEl = document.getElementById('post-success');
+      document.getElementById('post-success-item').innerHTML = staticItem?.image
+        ? `<img src="${staticItem.image}" alt="${itemText}" class="post-success__item-img" /><p class="post-success__item-name">${itemText}</p>`
+        : `<p class="post-success__item-name">${itemText}</p>`;
+
+      document.getElementById('post-success-view-btn').href = itemUrl;
+
+      const copyBtn = document.getElementById('post-success-copy-btn');
+      const fullUrl = `${location.origin}/${itemUrl}`;
+      copyBtn.onclick = async () => {
+        try { await navigator.clipboard.writeText(fullUrl); } catch (e) {}
+        copyBtn.textContent = 'Copied! ✅';
+        setTimeout(() => { copyBtn.textContent = '🔗 Copy Link'; }, 2000);
+      };
+
+      document.getElementById('post-success-another-btn').onclick = () => {
+        successEl.hidden = true;
+        form.hidden = false;
+        form.reset();
+        beliWrap.classList.remove('is-visible');
+        if (auctionWrap) auctionWrap.classList.remove('is-visible');
+        previewImg.src = '';
+        previewImgBox.classList.remove('has-image');
+        updatePreview();
+      };
+
+      form.hidden = true;
+      successEl.hidden = false;
     } catch (err) {
       showToast('Error: ' + err.message);
     } finally {

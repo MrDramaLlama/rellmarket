@@ -4407,6 +4407,69 @@ body.page-out {
   text-align: center;
 }
 
+/* ── Post Listing Success State ─────────────────────────────────── */
+.post-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  gap: 1.25rem;
+}
+.post-success__emoji {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+.post-success__heading {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+.post-success__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+.post-success__item-img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: var(--radius);
+  background: var(--color-surface-2, rgba(255,255,255,.04));
+  padding: .5rem;
+}
+.post-success__item-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--teal-400);
+}
+.post-success__actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.post-success__share {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.25rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+}
+.post-success__share-label {
+  font-size: .85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.post-success__copy-btn {
+  font-size: .85rem;
+  padding: .45rem 1rem;
+}
+
 /* ── Edit Profile Modal ─────────────────────────────────────────── */
 .profile-card__bio--empty {
   color: var(--color-muted, #6b7280);
