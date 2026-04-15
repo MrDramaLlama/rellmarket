@@ -541,7 +541,7 @@ function populateItemPage(item) {
   const thumbStrip = document.querySelector('.item-gallery__thumbs');
   if (thumbStrip) {
     const hasMultiple = Array.isArray(item.images) && item.images.length >= 2;
-    thumbStrip.hidden = !hasMultiple;
+    thumbStrip.style.display = hasMultiple ? 'flex' : 'none';
     if (hasMultiple) {
       const thumbBtns = thumbStrip.querySelectorAll('.item-gallery__thumb');
       thumbBtns.forEach((btn, i) => {
