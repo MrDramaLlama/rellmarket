@@ -634,13 +634,13 @@ function populateItemPage(item) {
     const itemGuestMsg = document.getElementById('item-guest-msg');
 
     if (loggedIn) {
-      if (itemActions)  itemActions.hidden  = false;
-      if (itemReport)   itemReport.hidden   = false;
-      if (itemGuestMsg) itemGuestMsg.hidden = true;
+      if (itemActions)  itemActions.style.display  = 'grid';
+      if (itemReport)   itemReport.style.display   = 'block';
+      if (itemGuestMsg) itemGuestMsg.style.display = 'none';
     } else {
-      if (itemActions)  itemActions.hidden  = true;
-      if (itemReport)   itemReport.hidden   = true;
-      if (itemGuestMsg) itemGuestMsg.hidden = false;
+      if (itemActions)  itemActions.style.display  = 'none';
+      if (itemReport)   itemReport.style.display   = 'none';
+      if (itemGuestMsg) itemGuestMsg.style.display = 'block';
     }
 
     // Reveal the page now that both data and auth state are set
