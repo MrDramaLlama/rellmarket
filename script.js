@@ -38,6 +38,11 @@ function setFooterYear() {
   if (el) el.textContent = new Date().getFullYear();
 }
 
+// ─── Global dropdown coordinator ─────────────────────────────────────────────
+window.closeAllDropdowns = function () {
+  document.querySelectorAll('.nav-dd.is-open').forEach(dd => dd.classList.remove('is-open'));
+};
+
 // ─── More (⋮) menu ────────────────────────────────────────────────────────────
 function initMoreMenu() {
   const moreDd = document.querySelector('.more-dd');
@@ -46,7 +51,9 @@ function initMoreMenu() {
 
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    moreDd.classList.toggle('is-open');
+    const wasOpen = moreDd.classList.contains('is-open');
+    window.closeAllDropdowns();
+    if (!wasOpen) moreDd.classList.add('is-open');
   });
 
   document.addEventListener('click', () => moreDd.classList.remove('is-open'));

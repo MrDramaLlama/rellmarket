@@ -144,8 +144,9 @@ async function updateNavbar() {
       const bellTrigger = bellWrapper.querySelector('.nav-bell__trigger');
       bellTrigger.addEventListener('click', (e) => {
         e.stopPropagation();
-        bellWrapper.classList.toggle('is-open');
-        wrapper.classList.remove('is-open');
+        const wasOpen = bellWrapper.classList.contains('is-open');
+        if (window.closeAllDropdowns) window.closeAllDropdowns();
+        if (!wasOpen) bellWrapper.classList.add('is-open');
       });
 
       bellWrapper.querySelector('.nav-notif__mark-read').addEventListener('click', async (e) => {
@@ -196,7 +197,9 @@ async function updateNavbar() {
       // Toggle dropdown on trigger click; close on outside click
       trigger.addEventListener('click', (e) => {
         e.stopPropagation();
-        wrapper.classList.toggle('is-open');
+        const wasOpen = wrapper.classList.contains('is-open');
+        if (window.closeAllDropdowns) window.closeAllDropdowns();
+        if (!wasOpen) wrapper.classList.add('is-open');
       });
       document.addEventListener('click', () => wrapper.classList.remove('is-open'));
     }
