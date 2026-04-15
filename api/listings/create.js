@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
-  const { item_name, category, rarity, fruit_type, price, price_type, description, image_url } = req.body;
+  const { item_name, category, rarity, fruit_type, price, price_type, listing_type, description, image_url } = req.body;
   if (!item_name || !category) return res.status(400).json({ error: 'Missing required fields' });
 
   const { data, error } = await supabase.from('listings').insert({
@@ -23,6 +23,7 @@ module.exports = async function handler(req, res) {
     fruit_type,
     price: price || null,
     price_type: price_type || 'offer',
+    listing_type: listing_type || 'selling',
     description,
     image_url,
     is_active: true

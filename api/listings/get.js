@@ -3,7 +3,7 @@ const { createClient } = require('@supabase/supabase-js');
 module.exports = async function handler(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-  const { category, rarity, search, user_id, sort, limit = 20, offset = 0 } = req.query;
+  const { category, rarity, search, user_id, sort, listing_type, price_type, limit = 20, offset = 0 } = req.query;
   const pageLimit  = Number(limit);
   const pageOffset = Number(offset);
 
@@ -33,6 +33,16 @@ module.exports = async function handler(req, res) {
   if (category && category !== 'all') query = query.eq('category', category);
   if (rarity) query = query.eq('rarity', rarity);
   if (search) query = query.ilike('item_name', `%${search}%`);
+
+  // Listing type filter
+  if (listing_type === 'looking') {
+    query = query.eq('listing_type', 'looking');
+  } else if (listing_type === 'selling') {
+    query = query.or('listing_type.eq.selling,listing_type.is.null');
+  }
+
+  // Price type filter (e.g. price_type=auction for auctions section)
+  if (price_type) query = query.eq('price_type', price_type);
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });

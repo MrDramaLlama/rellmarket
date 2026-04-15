@@ -156,6 +156,23 @@
         <div class="post-form-col">
           <form class="post-form" id="post-form" novalidate>
 
+            <!-- Listing Type -->
+            <div class="form-group">
+              <label class="form-label">Listing Type <span class="form-required">*</span></label>
+              <div class="radio-group radio-group--listing-type">
+                <label class="radio-label">
+                  <input type="radio" name="listing-type" value="selling" checked />
+                  <span class="radio-custom"></span>
+                  🏷️ I'm Selling / Trading
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="listing-type" value="looking" />
+                  <span class="radio-custom"></span>
+                  🔍 I'm Looking For
+                </label>
+              </div>
+            </div>
+
             <!-- Item selector -->
             <div class="form-group">
               <label class="form-label" for="field-item">Item <span class="form-required">*</span></label>
@@ -237,7 +254,7 @@
             </div>
 
             <!-- Price -->
-            <div class="form-group">
+            <div class="form-group" id="price-group">
               <label class="form-label">Price / Offer <span class="form-required">*</span></label>
               <div class="radio-group">
                 <label class="radio-label">

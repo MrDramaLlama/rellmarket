@@ -4478,3 +4478,180 @@ body.page-out {
   font-weight: 400;
   opacity: .55;
 }
+
+/* ── Homepage scroll-row sections ───────────────────────────────── */
+.home-row {
+  margin-top: 2.5rem;
+}
+.home-row__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.home-row__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0;
+}
+.home-scroll-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: .75rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.home-scroll-row::-webkit-scrollbar { height: 4px; }
+.home-scroll-row::-webkit-scrollbar-track { background: transparent; }
+.home-scroll-row::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* ── Scroll card ───────────────────────────────────────────────── */
+.scroll-card {
+  flex: 0 0 160px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+  display: flex;
+  flex-direction: column;
+}
+.scroll-card:hover {
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,.1));
+  transform: translateY(-2px);
+}
+.scroll-card--placeholder { opacity: .55; }
+
+.scroll-card__img-wrap {
+  position: relative;
+  display: block;
+  height: 120px;
+  background: var(--teal-50);
+  overflow: hidden;
+}
+.scroll-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: .5rem;
+}
+.scroll-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+.scroll-card__badge {
+  position: absolute;
+  top: .4rem;
+  left: .4rem;
+  font-size: .65rem;
+  padding: .15rem .4rem;
+}
+.scroll-card__body {
+  padding: .6rem .7rem .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  flex: 1;
+}
+.scroll-card__name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.scroll-card__name:hover { color: var(--color-primary); }
+.scroll-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.scroll-card__price {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.scroll-card__price--offer  { color: var(--color-muted); font-style: italic; }
+.scroll-card__price--auction { color: #d97706; }
+.scroll-card__price--wanted { color: var(--teal-600); }
+.scroll-card__time {
+  font-size: .7rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ── Looking For badge ─────────────────────────────────────────── */
+.listing-badge--looking {
+  background: var(--teal-100);
+  color: var(--teal-700);
+  border: 1px solid var(--teal-400);
+}
+.listing-card--looking .listing-card__img-wrap {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+}
+
+/* ── Listing type radio group ──────────────────────────────────── */
+.radio-group--listing-type {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.radio-group--listing-type .radio-label {
+  flex: 1;
+  min-width: 140px;
+  padding: .65rem .85rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-weight: 500;
+}
+.radio-group--listing-type .radio-label:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--teal-50);
+}
+
+/* ── Listings type toggle ──────────────────────────────────────── */
+.listings-type-toggle {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.listings-type-btn {
+  padding: .5rem 1.1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.listings-type-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.listings-type-btn--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+.listings-type-btn--active:hover {
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+  color: #fff;
+}

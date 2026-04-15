@@ -677,6 +677,8 @@ function initPostListingForm() {
   const fieldDesc     = document.getElementById('field-desc');
   const fieldPrice    = document.getElementById('field-price');
   const priceRadios        = form.querySelectorAll('input[name="price-type"]');
+  const listingTypeRadios  = form.querySelectorAll('input[name="listing-type"]');
+  const priceGroup         = document.getElementById('price-group');
   const beliWrap           = document.getElementById('beli-input-wrap');
   const auctionWrap        = document.getElementById('auction-fields-wrap');
   const fieldAuctionStart  = document.getElementById('field-auction-start');
@@ -854,6 +856,13 @@ function initPostListingForm() {
   }
   priceRadios.forEach(radio => radio.addEventListener('change', applyPriceRadio));
 
+  // Show/hide price group based on listing type
+  function applyListingType() {
+    const listingType = form.querySelector('input[name="listing-type"]:checked')?.value;
+    if (priceGroup) priceGroup.style.display = listingType === 'looking' ? 'none' : '';
+  }
+  listingTypeRadios.forEach(radio => radio.addEventListener('change', applyListingType));
+
   // Description character counter
   fieldDesc.addEventListener('input', () => {
     descCount.textContent = fieldDesc.value.length;
@@ -942,15 +951,18 @@ function initPostListingForm() {
       const startingPrice = priceType === 'auction' && fieldAuctionStart?.value
         ? Number(fieldAuctionStart.value) : null;
 
+      const listingType = form.querySelector('input[name="listing-type"]:checked')?.value || 'selling';
+
       const payload = {
-        item_name:   itemText,
-        category:    fieldCategory.value,
-        rarity:      fieldRarity.value || null,
-        fruit_type:  fieldType.value   || null,
-        price:       priceType === 'fixed' && fieldPrice.value ? Number(fieldPrice.value) : (startingPrice || null),
-        price_type:  priceType,
-        description: fieldDesc.value   || null,
-        image_url:   (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
+        item_name:    itemText,
+        category:     fieldCategory.value,
+        rarity:       fieldRarity.value || null,
+        fruit_type:   fieldType.value   || null,
+        price:        listingType === 'looking' ? null : (priceType === 'fixed' && fieldPrice.value ? Number(fieldPrice.value) : (startingPrice || null)),
+        price_type:   listingType === 'looking' ? 'offer' : priceType,
+        listing_type: listingType,
+        description:  fieldDesc.value   || null,
+        image_url:    (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
       };
 
       const headers = { 'Content-Type': 'application/json' };
@@ -1375,10 +1387,34 @@ function initFetchListings() {
   let totalLoaded   = 0;
   let isFetching    = false;
 
+  // Listing type toggle: default to 'selling', but honour ?type= URL param
+  const urlTypeParam = new URLSearchParams(location.search).get('type');
+  let activeListingType = (urlTypeParam === 'looking') ? 'looking' : 'selling';
+
   const emptyState  = document.getElementById('listing-empty');
   const loadMoreWrap = document.getElementById('load-more-wrap');
   const loadMoreBtn  = document.getElementById('load-more-btn');
   const countEl      = document.getElementById('listings-count');
+
+  // Sync toggle button active state on init
+  document.querySelectorAll('.listings-type-btn').forEach(btn => {
+    btn.classList.toggle('listings-type-btn--active', btn.dataset.type === activeListingType);
+  });
+
+  // Wire type toggle buttons
+  document.querySelectorAll('.listings-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.type === activeListingType) return;
+      activeListingType = btn.dataset.type;
+      document.querySelectorAll('.listings-type-btn').forEach(b =>
+        b.classList.toggle('listings-type-btn--active', b.dataset.type === activeListingType)
+      );
+      totalLoaded = 0;
+      currentOffset = 0;
+      grid.innerHTML = '';
+      fetchPage(0);
+    });
+  });
 
   function auctionTimeLeft(endsAt) {
     const diff = new Date(endsAt) - Date.now();
@@ -1431,15 +1467,19 @@ function initFetchListings() {
     }
 
     // Standard listing
-    const priceHTML = l.price
-      ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
-      : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
+    const isLooking = l.listing_type === 'looking';
+    const priceHTML = isLooking
+      ? `<span class="listing-card__price listing-card__price--offer">Wanted</span>`
+      : l.price
+        ? `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`
+        : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
     const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
     return `
-      <article class="listing-card" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
+      <article class="listing-card${isLooking ? ' listing-card--looking' : ''}" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}">
         <a href="${itemUrl}" class="listing-card__img-wrap">
           ${imgHTML}
           ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
+          ${isLooking ? `<span class="listing-badge listing-badge--looking">🔍 Looking For</span>` : ''}
         </a>
         <div class="listing-card__body">
           <p class="listing-card__type">${typeLabel}</p>
@@ -1447,7 +1487,7 @@ function initFetchListings() {
           <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
           <div class="listing-card__footer">
             ${priceHTML}
-            <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
+            <a href="${itemUrl}" class="btn btn--trade-card">${isLooking ? 'Offer' : 'Trade'}</a>
           </div>
         </div>
       </article>`;
@@ -1472,7 +1512,7 @@ function initFetchListings() {
       loadMoreBtn.textContent = '';
     }
 
-    fetch(`https://rellmarket.vercel.app/api/listings/get?limit=${PAGE_SIZE}&offset=${offset}`)
+    fetch(`https://rellmarket.vercel.app/api/listings/get?limit=${PAGE_SIZE}&offset=${offset}&listing_type=${activeListingType}`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -1583,6 +1623,94 @@ function initHomepageMiniGrids() {
   ]).then(([popularJson, newJson]) => {
     fillGrid(mostTradedGrid, popularJson?.listings || []);
     fillGrid(newItemsGrid,   newJson?.listings   || []);
+  });
+
+  // ── Scroll-row sections ──────────────────────────────────────────────────────
+  const latestRow     = document.getElementById('latest-listed-row');
+  const auctionsRow   = document.getElementById('auctions-soon-row');
+  const lookingForRow = document.getElementById('looking-for-row');
+
+  if (!latestRow && !auctionsRow && !lookingForRow) return;
+
+  function auctionTimeLeft(endsAt) {
+    const diff = new Date(endsAt) - Date.now();
+    if (diff <= 0) return 'Ended';
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    if (h >= 48) return `${Math.floor(h / 24)}d left`;
+    if (h >= 1)  return `${h}h ${m}m left`;
+    return `${m}m left`;
+  }
+
+  function buildScrollCard(l) {
+    const itemId  = itemNameToId(l.item_name);
+    const itemUrl = `item.html?id=${itemId}&listing_id=${l.id}`;
+    const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
+    const imgSrc = staticItem?.image || l.image_url || '';
+    const imgHTML = imgSrc
+      ? `<img src="${imgSrc}" alt="${l.item_name}" class="scroll-card__img" />`
+      : `<div class="scroll-card__placeholder">📦</div>`;
+    const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : '';
+    const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
+
+    const isLooking = l.listing_type === 'looking';
+    let priceHTML;
+    if (isLooking) {
+      priceHTML = `<span class="scroll-card__price scroll-card__price--wanted">Wanted</span>`;
+    } else if (l.price_type === 'auction') {
+      const auction = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
+      const curBid  = auction ? `${Number(auction.current_bid || auction.starting_price).toLocaleString()} Beli` : '—';
+      const timeLeft = auction ? auctionTimeLeft(auction.ends_at) : '';
+      priceHTML = `<span class="scroll-card__price scroll-card__price--auction">🔨 ${curBid}</span>
+                   <span class="scroll-card__time">${timeLeft}</span>`;
+    } else if (l.price) {
+      priceHTML = `<span class="scroll-card__price">${Number(l.price).toLocaleString()} Beli</span>`;
+    } else {
+      priceHTML = `<span class="scroll-card__price scroll-card__price--offer">Make Offer</span>`;
+    }
+
+    return `
+      <article class="scroll-card">
+        <a href="${itemUrl}" class="scroll-card__img-wrap">
+          ${imgHTML}
+          ${rarityLabel ? `<span class="listing-badge ${rarityClass} scroll-card__badge">${rarityLabel}</span>` : ''}
+          ${isLooking ? `<span class="listing-badge listing-badge--looking scroll-card__badge">🔍</span>` : ''}
+        </a>
+        <div class="scroll-card__body">
+          <a href="${itemUrl}" class="scroll-card__name">${l.item_name}</a>
+          <div class="scroll-card__meta">${priceHTML}</div>
+        </div>
+      </article>`;
+  }
+
+  const scrollPlaceholder = `
+    <article class="scroll-card scroll-card--placeholder">
+      <div class="scroll-card__img-wrap" aria-hidden="true">
+        <div class="scroll-card__placeholder">📦</div>
+      </div>
+      <div class="scroll-card__body">
+        <span class="scroll-card__name">Be the first!</span>
+        <a href="post-listing.html" class="scroll-card__meta" style="color:var(--color-accent);font-size:.8rem;">+ Add Listing</a>
+      </div>
+    </article>`;
+
+  function fillScrollRow(row, listings) {
+    if (!row) return;
+    if (listings.length === 0) {
+      row.innerHTML = Array(4).fill(scrollPlaceholder).join('');
+      return;
+    }
+    row.innerHTML = listings.map(buildScrollCard).join('');
+  }
+
+  Promise.all([
+    latestRow   ? fetch(`${base}?limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
+    auctionsRow ? fetch(`${base}?price_type=auction&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
+    lookingForRow ? fetch(`${base}?listing_type=looking&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
+  ]).then(([latestJson, auctionsJson, lookingJson]) => {
+    fillScrollRow(latestRow,     latestJson?.listings   || []);
+    fillScrollRow(auctionsRow,   auctionsJson?.listings || []);
+    fillScrollRow(lookingForRow, lookingJson?.listings  || []);
   });
 }
 
