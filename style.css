@@ -3189,15 +3189,23 @@ body.page-out {
   margin: 0 0 .2rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: .4rem;
   flex-wrap: wrap;
 }
-.profile-roblox-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
+.roblox-badge {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #e8321a;
+  border-radius: 4px;
+  padding: .15rem .4rem;
+  vertical-align: middle;
   flex-shrink: 0;
-  opacity: .75;
+  line-height: 1.4;
 }
 
 .profile-card__roblox {
