@@ -537,21 +537,19 @@ function populateItemPage(item) {
   const mainImg = document.getElementById('gallery-main-img');
   if (mainImg) { mainImg.src = item.image; mainImg.alt = item.name; }
 
-  // Thumbnails — hide the strip when there is only one image
+  // Thumbnail strip — only show when the listing has 2 or more images
   const thumbStrip = document.querySelector('.item-gallery__thumbs');
-  const images = (item.images && item.images.length > 1) ? item.images : [item.image].filter(Boolean);
   if (thumbStrip) {
-    if (images.length <= 1) {
-      thumbStrip.hidden = true;
-    } else {
-      thumbStrip.hidden = false;
+    const hasMultiple = Array.isArray(item.images) && item.images.length >= 2;
+    thumbStrip.hidden = !hasMultiple;
+    if (hasMultiple) {
       const thumbBtns = thumbStrip.querySelectorAll('.item-gallery__thumb');
       thumbBtns.forEach((btn, i) => {
-        const src = images[i] || images[0];
+        const src = item.images[i] || item.images[0];
         btn.dataset.src = src;
+        btn.hidden = !item.images[i];
         const img = btn.querySelector('.item-gallery__thumb-img');
         if (img) img.src = src;
-        btn.hidden = !images[i];
       });
     }
   }
