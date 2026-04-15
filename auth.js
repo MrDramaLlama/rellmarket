@@ -92,6 +92,8 @@ async function updateNavbar() {
       loginBtn.parentNode.replaceChild(wrapper, loginBtn);
 
       // Build trigger button content: avatar (or fallback emoji) + name + chevron
+      console.log('Profile data:', profile);
+      console.log('Avatar URL:', profile?.avatar_url);
       const trigger = wrapper.querySelector('.user-dd__trigger');
       const chevron = trigger.querySelector('.nav-dd__chevron');
       if (profile?.avatar_url) {
