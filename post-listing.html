@@ -359,14 +359,15 @@
       <div class="post-success" id="post-success">
         <div class="post-success__emoji">🎉</div>
         <h2 class="post-success__heading">Listing Posted!</h2>
-        <div id="post-success-item"></div>
+        <img class="post-success__img" id="post-success-img" src="" alt="" />
+        <p class="post-success__name" id="post-success-name"></p>
         <div class="post-success__actions">
-          <a id="post-success-view-btn" href="#" class="btn btn--request-trade">View Your Listing</a>
-          <button id="post-success-another-btn" class="btn btn--ghost">Post Another</button>
+          <a class="btn btn--request-trade" id="post-success-view">View Your Listing</a>
+          <button class="btn btn--watchlist" id="post-success-another">Post Another</button>
         </div>
-        <div class="post-success__share">
-          <p class="post-success__share-label">Share your listing!</p>
-          <button id="post-success-copy-btn" class="btn btn--ghost post-success__copy-btn">🔗 Copy Link</button>
+        <div style="margin-top:.5rem;">
+          <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:.5rem;">Share your listing!</p>
+          <button class="btn btn--ghost" id="post-success-copy">🔗 Copy Link</button>
         </div>
       </div>
 

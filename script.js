@@ -967,36 +967,48 @@ function initPostListingForm() {
       const itemUrl = `item.html?id=${itemId}&listing_id=${json.listing?.id}`;
       const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
 
+      // Hide columns, show success
+      const formCol    = document.querySelector('.post-form-col');
+      const previewCol = document.querySelector('.post-preview-col');
+      const successDiv = document.querySelector('.post-success');
+
+      if (formCol)    formCol.style.display    = 'none';
+      if (previewCol) previewCol.style.display = 'none';
+      if (successDiv) successDiv.classList.add('is-visible');
+
       // Populate success state
-      const successEl = document.getElementById('post-success');
-      const layoutEl  = document.getElementById('post-listing-layout');
-      document.getElementById('post-success-item').innerHTML = staticItem?.image
-        ? `<img src="${staticItem.image}" alt="${itemText}" class="post-success__img" /><p class="post-success__name">${itemText}</p>`
-        : `<p class="post-success__name">${itemText}</p>`;
+      const imgEl     = document.getElementById('post-success-img');
+      const nameEl    = document.getElementById('post-success-name');
+      const viewEl    = document.getElementById('post-success-view');
+      const copyEl    = document.getElementById('post-success-copy');
+      const anotherEl = document.getElementById('post-success-another');
 
-      document.getElementById('post-success-view-btn').href = itemUrl;
+      if (imgEl)  { imgEl.src = staticItem?.image || ''; imgEl.style.display = staticItem?.image ? '' : 'none'; }
+      if (nameEl) nameEl.textContent = itemText;
+      if (viewEl) viewEl.href = itemUrl;
 
-      const copyBtn = document.getElementById('post-success-copy-btn');
-      const fullUrl = `${location.origin}/${itemUrl}`;
-      copyBtn.onclick = async () => {
-        try { await navigator.clipboard.writeText(fullUrl); } catch (e) {}
-        copyBtn.textContent = 'Copied! ✅';
-        setTimeout(() => { copyBtn.textContent = '🔗 Copy Link'; }, 2000);
-      };
+      if (copyEl) {
+        const fullUrl = `${location.origin}/${itemUrl}`;
+        copyEl.onclick = async () => {
+          try { await navigator.clipboard.writeText(fullUrl); } catch (e) {}
+          copyEl.textContent = 'Copied! ✅';
+          setTimeout(() => { copyEl.textContent = '🔗 Copy Link'; }, 2000);
+        };
+      }
 
-      document.getElementById('post-success-another-btn').onclick = () => {
-        successEl.classList.remove('is-visible');
-        layoutEl.hidden = false;
-        form.reset();
-        beliWrap.classList.remove('is-visible');
-        if (auctionWrap) auctionWrap.classList.remove('is-visible');
-        previewImg.src = '';
-        previewImgBox.classList.remove('has-image');
-        updatePreview();
-      };
-
-      layoutEl.hidden = true;
-      successEl.classList.add('is-visible');
+      if (anotherEl) {
+        anotherEl.onclick = () => {
+          if (successDiv) successDiv.classList.remove('is-visible');
+          if (formCol)    formCol.style.display    = '';
+          if (previewCol) previewCol.style.display = '';
+          form.reset();
+          beliWrap.classList.remove('is-visible');
+          if (auctionWrap) auctionWrap.classList.remove('is-visible');
+          previewImg.src = '';
+          previewImgBox.classList.remove('has-image');
+          updatePreview();
+        };
+      }
     } catch (err) {
       showToast('Error: ' + err.message);
     } finally {
