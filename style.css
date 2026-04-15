@@ -511,7 +511,19 @@ button { font-family: var(--font); cursor: pointer; }
    ANNOUNCEMENT BANNER
 ══════════════════════════════════════════════ */
 .announcement {
-  background: linear-gradient(90deg, var(--navy-900) 0%, var(--teal-700) 100%);
+  background-color: var(--teal-600);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255,255,255,0.05) 10px,
+    rgba(255,255,255,0.05) 20px
+  );
+  margin: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  max-width: var(--max-w);
+  margin-inline: auto;
+  width: calc(100% - 3rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
