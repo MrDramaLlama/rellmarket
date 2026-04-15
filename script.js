@@ -969,9 +969,10 @@ function initPostListingForm() {
 
       // Populate success state
       const successEl = document.getElementById('post-success');
+      const layoutEl  = document.getElementById('post-listing-layout');
       document.getElementById('post-success-item').innerHTML = staticItem?.image
-        ? `<img src="${staticItem.image}" alt="${itemText}" class="post-success__item-img" /><p class="post-success__item-name">${itemText}</p>`
-        : `<p class="post-success__item-name">${itemText}</p>`;
+        ? `<img src="${staticItem.image}" alt="${itemText}" class="post-success__img" /><p class="post-success__name">${itemText}</p>`
+        : `<p class="post-success__name">${itemText}</p>`;
 
       document.getElementById('post-success-view-btn').href = itemUrl;
 
@@ -984,8 +985,8 @@ function initPostListingForm() {
       };
 
       document.getElementById('post-success-another-btn').onclick = () => {
-        successEl.hidden = true;
-        form.hidden = false;
+        successEl.classList.remove('is-visible');
+        layoutEl.hidden = false;
         form.reset();
         beliWrap.classList.remove('is-visible');
         if (auctionWrap) auctionWrap.classList.remove('is-visible');
@@ -994,8 +995,8 @@ function initPostListingForm() {
         updatePreview();
       };
 
-      form.hidden = true;
-      successEl.hidden = false;
+      layoutEl.hidden = true;
+      successEl.classList.add('is-visible');
     } catch (err) {
       showToast('Error: ' + err.message);
     } finally {

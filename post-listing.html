@@ -139,7 +139,7 @@
         <p class="post-listing-sub">List your item for the RellMarket community to trade.</p>
       </div>
 
-      <div class="post-listing-layout">
+      <div class="post-listing-layout" id="post-listing-layout">
 
         <!-- ── Left: Form ── -->
         <div class="post-form-col">
@@ -309,21 +309,6 @@
             <button type="submit" class="btn btn--post-listing">＋ Post Listing</button>
 
           </form>
-          <!-- Success state (shown after posting) -->
-          <div class="post-success" id="post-success" hidden>
-            <div class="post-success__emoji">🎉</div>
-            <h2 class="post-success__heading">Listing Posted!</h2>
-            <div class="post-success__item" id="post-success-item"></div>
-            <div class="post-success__actions">
-              <a id="post-success-view-btn" href="#" class="btn btn--request-trade">View Your Listing</a>
-              <button id="post-success-another-btn" class="btn btn--ghost">Post Another</button>
-            </div>
-            <div class="post-success__share">
-              <p class="post-success__share-label">Share your listing!</p>
-              <button id="post-success-copy-btn" class="btn btn--ghost post-success__copy-btn">🔗 Copy Link</button>
-            </div>
-          </div>
-
         </div>
         <!-- /form col -->
 
@@ -369,6 +354,21 @@
 
       </div>
       <!-- /post-listing-layout -->
+
+      <!-- Success state — full-width, outside the two-column layout -->
+      <div class="post-success" id="post-success">
+        <div class="post-success__emoji">🎉</div>
+        <h2 class="post-success__heading">Listing Posted!</h2>
+        <div id="post-success-item"></div>
+        <div class="post-success__actions">
+          <a id="post-success-view-btn" href="#" class="btn btn--request-trade">View Your Listing</a>
+          <button id="post-success-another-btn" class="btn btn--ghost">Post Another</button>
+        </div>
+        <div class="post-success__share">
+          <p class="post-success__share-label">Share your listing!</p>
+          <button id="post-success-copy-btn" class="btn btn--ghost post-success__copy-btn">🔗 Copy Link</button>
+        </div>
+      </div>
 
     </div>
   </main>
