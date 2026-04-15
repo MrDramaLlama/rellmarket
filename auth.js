@@ -49,7 +49,7 @@ async function updateNavbar() {
   if (user) {
     const { data: profile } = await supabaseClient
       .from('profiles')
-      .select('roblox_username, username, role')
+      .select('roblox_username, username, avatar_url, role')
       .eq('id', user.id)
       .single();
     const name = profile?.roblox_username || profile?.username || 'Account';
