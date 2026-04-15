@@ -82,10 +82,16 @@ async function updateNavbar() {
       const json = await res.json();
       const pending = (json.trades || []).filter(t => t.status === 'pending').length;
       if (pending > 0) {
-        const badge = document.createElement('span');
-        badge.className = 'nav-trade-badge';
-        badge.textContent = pending;
-        document.querySelector('.btn--login')?.appendChild(badge);
+        const activeBtn = document.querySelector('.btn--login');
+        if (activeBtn) {
+          // Redirect to trades page when there are pending requests
+          activeBtn.href = 'trades.html';
+          activeBtn.title = `You have ${pending} pending trade request${pending !== 1 ? 's' : ''}`;
+          const badge = document.createElement('span');
+          badge.className = 'nav-trade-badge';
+          badge.textContent = pending;
+          activeBtn.appendChild(badge);
+        }
       }
     } catch (e) {}
   }

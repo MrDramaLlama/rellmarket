@@ -2933,7 +2933,13 @@ body.page-out {
   text-transform: capitalize;
 }
 /* Navbar pending-trade badge */
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.25); }
+}
+
 .nav-trade-badge {
+  animation: badge-pulse 2s ease-in-out infinite;
   display: inline-flex;
   align-items: center;
   justify-content: center;

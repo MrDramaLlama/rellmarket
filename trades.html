@@ -377,13 +377,16 @@
             type === 'incoming' ? buildIncomingCard(t) : buildOutgoingCard(t)
           ));
 
-          // Update incoming badge on tab
+          // Update incoming badge on tab and page title
           if (type === 'incoming') {
             const pending = trades.filter(t => t.status === 'pending').length;
             const badge = document.getElementById('incoming-badge');
             if (badge && pending > 0) {
               badge.textContent = pending;
               badge.hidden = false;
+            }
+            if (pending > 0) {
+              document.title = `Trade Requests (${pending}) — RellMarket`;
             }
           }
         } catch (err) {
