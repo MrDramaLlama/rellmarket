@@ -3,15 +3,24 @@ const { createClient } = require('@supabase/supabase-js');
 module.exports = async function handler(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-  const { category, rarity, search, user_id, limit = 20, offset = 0 } = req.query;
+  const { category, rarity, search, user_id, sort, limit = 20, offset = 0 } = req.query;
   const pageLimit  = Number(limit);
   const pageOffset = Number(offset);
 
+  const selectFields = sort === 'popular'
+    ? '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at), trade_requests(count)'
+    : '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at)';
+
   let query = supabase
     .from('listings')
-    .select('*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at)')
-    .order('created_at', { ascending: false })
+    .select(selectFields)
     .range(pageOffset, pageOffset + pageLimit - 1);
+
+  if (sort === 'popular') {
+    query = query.order('count', { referencedTable: 'trade_requests', ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
 
   // When fetching a specific user's listings, show all (including inactive)
   // Otherwise only show active listings for the public feed

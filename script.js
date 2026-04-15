@@ -1495,21 +1495,32 @@ function initHomepageMiniGrids() {
       </article>`;
   }
 
-  // Fetch first 8 listings — first 4 go to "Most Traded", next 4 to "New Items"
-  fetch('https://rellmarket.vercel.app/api/listings/get?limit=8')
-    .then(r => r.ok ? r.json() : null)
-    .then(json => {
-      const listings = json?.listings || [];
-      if (mostTradedGrid) {
-        const cards = listings.slice(0, 4).map(buildMiniCard).join('');
-        if (cards) mostTradedGrid.innerHTML = cards;
-      }
-      if (newItemsGrid) {
-        const cards = listings.slice(4, 8).map(buildMiniCard).join('');
-        if (cards) newItemsGrid.innerHTML = cards;
-      }
-    })
-    .catch(() => {});
+  const placeholderCard = `
+    <article class="mini-card mini-card--placeholder">
+      <div class="mini-card__img-wrap" aria-hidden="true">
+        <div class="mini-card__placeholder" style="font-size:2rem;">📦</div>
+      </div>
+      <div class="mini-card__body">
+        <span class="mini-card__name">Be the first to list!</span>
+        <a href="post-listing.html" class="btn btn--mini-trade">+ Add Listing</a>
+      </div>
+    </article>`;
+
+  function fillGrid(grid, listings) {
+    if (!grid) return;
+    const cards = listings.slice(0, 4).map(buildMiniCard);
+    while (cards.length < 4) cards.push(placeholderCard);
+    grid.innerHTML = cards.join('');
+  }
+
+  const base = 'https://rellmarket.vercel.app/api/listings/get';
+  Promise.all([
+    fetch(`${base}?sort=popular&limit=4`).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(`${base}?limit=4`).then(r => r.ok ? r.json() : null).catch(() => null)
+  ]).then(([popularJson, newJson]) => {
+    fillGrid(mostTradedGrid, popularJson?.listings || []);
+    fillGrid(newItemsGrid,   newJson?.listings   || []);
+  });
 }
 
 // ─── My Listings dashboard ───────────────────────────────────────────────────
