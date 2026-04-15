@@ -311,21 +311,68 @@
         </div>
       </section>
 
-      <!-- ── Trending Carousel ── -->
-      <section class="home-row reveal" id="trending-section" style="transition-delay:.1s">
-        <div class="home-row__header">
-          <h2 class="home-row__title">🔥 Hot Right Now</h2>
-          <a href="listings.html?sort=most-traded" class="featured-col__view-all">View All →</a>
-        </div>
-        <div class="trending-carousel" id="trending-carousel">
-          <button class="trending-carousel__arrow trending-carousel__arrow--prev" id="trending-prev" aria-label="Previous">&#8592;</button>
-          <div class="trending-carousel__viewport">
-            <div class="trending-carousel__track" id="trending-track"></div>
+      <!-- ── Promo Carousel ── -->
+      <section class="hero-carousel hero-carousel--promo reveal" aria-label="Promotions" style="transition-delay:.1s">
+
+        <!-- Slide 1 -->
+        <div class="carousel__slide carousel__slide--active carousel__slide--p1">
+          <div class="carousel__content">
+            <h2 class="carousel__heading">Trade Smarter,<br/>Not Harder</h2>
+            <p class="carousel__sub">Set up price alerts, track market trends, and never miss a deal again.</p>
+            <div class="carousel__actions">
+              <a href="listings.html" class="btn btn--carousel-primary">Browse Listings</a>
+              <a href="prices.html" class="btn btn--carousel-outline">Price History</a>
+            </div>
           </div>
-          <button class="trending-carousel__arrow trending-carousel__arrow--next" id="trending-next" aria-label="Next">&#8594;</button>
-          <div class="trending-carousel__dots" id="trending-dots"></div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/I-fruit.png" class="carousel__art-main" alt="" />
+            <img src="assets/G-fruit.png" class="carousel__art-float carousel__art-float--1" alt="" />
+          </div>
         </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel__slide carousel__slide--p2">
+          <div class="carousel__content">
+            <h2 class="carousel__heading">Auctions Live<br/>Right Now 🔨</h2>
+            <p class="carousel__sub">Bid on rare items before time runs out — new auctions added every day.</p>
+            <div class="carousel__actions">
+              <a href="listings.html" class="btn btn--carousel-primary">See Auctions</a>
+              <a href="post-listing.html" class="btn btn--carousel-outline">Start an Auction</a>
+            </div>
+          </div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/Ou-fruit.png" class="carousel__art-main" alt="" />
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel__slide carousel__slide--p3">
+          <div class="carousel__content">
+            <h2 class="carousel__heading">Looking for<br/>Something Rare?</h2>
+            <p class="carousel__sub">Post a "Looking For" listing and let traders come to you.</p>
+            <div class="carousel__actions">
+              <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing</a>
+              <a href="listings.html?type=looking" class="btn btn--carousel-outline">Browse Requests</a>
+            </div>
+          </div>
+          <div class="carousel__art" aria-hidden="true">
+            <img src="assets/F-fruit.png" class="carousel__art-main" alt="" />
+          </div>
+        </div>
+
+        <!-- Prev / Next arrows -->
+        <button class="carousel__arrow carousel__arrow--prev" aria-label="Previous slide">&#8592;</button>
+        <button class="carousel__arrow carousel__arrow--next" aria-label="Next slide">&#8594;</button>
+
+        <!-- Dot indicators -->
+        <div class="carousel__dots" role="tablist" aria-label="Promo carousel slides">
+          <button class="carousel__dot carousel__dot--active" data-index="0" role="tab" aria-label="Slide 1" aria-selected="true"></button>
+          <button class="carousel__dot" data-index="1" role="tab" aria-label="Slide 2" aria-selected="false"></button>
+          <button class="carousel__dot" data-index="2" role="tab" aria-label="Slide 3" aria-selected="false"></button>
+        </div>
+
       </section>
+      <!-- /promo-carousel -->
 
       <!-- ── Featured Traders ── -->
       <section class="home-row reveal" id="featured-traders-section" hidden style="transition-delay:.12s">

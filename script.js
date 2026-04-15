@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initWatchlistPage();
   initFetchListings();
   initHomepageMiniGrids();
-  initTrendingCarousel();
   initCategoryGrid();
   initFeaturedTraders();
   initMyListings();
@@ -144,70 +143,49 @@ function initAnnouncement() {
   }
 }
 
-// ─── Hero carousel ────────────────────────────────────────────────────────────
+// ─── Hero carousel (initialises every .hero-carousel on the page) ────────────
 function initCarouselDots() {
-  const carousel = document.querySelector('.hero-carousel');
-  if (!carousel) return;
+  document.querySelectorAll('.hero-carousel').forEach(carousel => {
+    const slides = Array.from(carousel.querySelectorAll('.carousel__slide'));
+    const dots   = Array.from(carousel.querySelectorAll('.carousel__dot'));
+    if (!slides.length || !dots.length) return;
 
-  const slides = Array.from(carousel.querySelectorAll('.carousel__slide'));
-  const dots   = Array.from(carousel.querySelectorAll('.carousel__dot'));
-  if (!slides.length || !dots.length) return;
+    let current = 0;
+    let timer;
 
-  let current = 0;
-  let timer;
+    function goTo(index) {
+      slides[current].classList.remove('carousel__slide--active');
+      dots[current].classList.remove('carousel__dot--active');
+      dots[current].setAttribute('aria-selected', 'false');
 
-  function goTo(index) {
-    // Deactivate current
-    slides[current].classList.remove('carousel__slide--active');
-    dots[current].classList.remove('carousel__dot--active');
-    dots[current].setAttribute('aria-selected', 'false');
+      current = index;
 
-    current = index;
+      slides[current].classList.add('carousel__slide--active');
+      dots[current].classList.add('carousel__dot--active');
+      dots[current].setAttribute('aria-selected', 'true');
+    }
 
-    // Activate new
-    slides[current].classList.add('carousel__slide--active');
-    dots[current].classList.add('carousel__dot--active');
-    dots[current].setAttribute('aria-selected', 'true');
-  }
+    function advance() { goTo((current + 1) % slides.length); }
 
-  function advance() {
-    goTo((current + 1) % slides.length);
-  }
+    function startTimer() { clearInterval(timer); timer = setInterval(advance, 5000); }
 
-  function startTimer() {
-    clearInterval(timer);
-    timer = setInterval(advance, 5000);
-  }
-
-  // Dot click
-  dots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      goTo(parseInt(dot.dataset.index, 10));
-      startTimer();
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        goTo(parseInt(dot.dataset.index, 10));
+        startTimer();
+      });
     });
+
+    const prevBtn = carousel.querySelector('.carousel__arrow--prev');
+    const nextBtn = carousel.querySelector('.carousel__arrow--next');
+    if (prevBtn) prevBtn.addEventListener('click', () => { goTo((current - 1 + slides.length) % slides.length); startTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { goTo((current + 1) % slides.length); startTimer(); });
+
+    carousel.addEventListener('mouseenter', () => clearInterval(timer));
+    carousel.addEventListener('mouseleave', startTimer);
+
+    startTimer();
   });
-
-  // Arrow buttons
-  const prevBtn = carousel.querySelector('.carousel__arrow--prev');
-  const nextBtn = carousel.querySelector('.carousel__arrow--next');
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      goTo((current - 1 + slides.length) % slides.length);
-      startTimer();
-    });
-  }
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      goTo((current + 1) % slides.length);
-      startTimer();
-    });
-  }
-
-  // Pause auto-advance while hovering
-  carousel.addEventListener('mouseenter', () => clearInterval(timer));
-  carousel.addEventListener('mouseleave', startTimer);
-
-  startTimer();
 }
 
 // ─── Listings sidebar: mobile toggle ─────────────────────────────────────────
@@ -1715,129 +1693,6 @@ function initHomepageMiniGrids() {
     fillScrollRow(auctionsRow,   auctionsJson?.listings || []);
     fillScrollRow(lookingForRow, lookingJson?.listings  || []);
   });
-}
-
-// ─── Homepage: Trending Carousel ─────────────────────────────────────────────
-function initTrendingCarousel() {
-  const section  = document.getElementById('trending-section');
-  const track    = document.getElementById('trending-track');
-  const dotsWrap = document.getElementById('trending-dots');
-  const prevBtn  = document.getElementById('trending-prev');
-  const nextBtn  = document.getElementById('trending-next');
-  if (!track) return;
-
-  const base = 'https://rellmarket.vercel.app/api/listings/get';
-  fetch(`${base}?sort=popular&limit=9`)
-    .then(r => r.ok ? r.json() : null)
-    .catch(() => null)
-    .then(json => {
-      const listings = json?.listings || [];
-      if (!listings.length) { if (section) section.hidden = true; return; }
-
-      // Determine how many cards fit per page based on viewport
-      function perPage() {
-        if (window.innerWidth >= 900) return 3;
-        if (window.innerWidth >= 560) return 2;
-        return 1;
-      }
-
-      // Build cards
-      track.innerHTML = listings.map(l => {
-        const itemId  = itemNameToId(l.item_name);
-        const itemUrl = `item.html?id=${itemId}&listing_id=${l.id}`;
-        const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
-        const imgSrc  = staticItem?.image || l.image_url || '';
-        const imgHTML = imgSrc
-          ? `<img src="${imgSrc}" alt="${l.item_name}" class="tc-card__img" />`
-          : `<div class="tc-card__placeholder">📦</div>`;
-        const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
-        const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : '';
-        const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
-        let priceText;
-        if (l.price_type === 'auction') {
-          const auction = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
-          priceText = auction ? `🔨 ${Number(auction.current_bid || auction.starting_price).toLocaleString()} Beli` : '🔨 Auction';
-        } else if (l.price) {
-          priceText = `${Number(l.price).toLocaleString()} Beli`;
-        } else {
-          priceText = 'Make Offer';
-        }
-        return `
-          <article class="tc-card">
-            <a href="${itemUrl}" class="tc-card__img-wrap">
-              ${imgHTML}
-              ${rarityLabel ? `<span class="listing-badge ${rarityClass} tc-card__badge">${rarityLabel}</span>` : ''}
-            </a>
-            <div class="tc-card__body">
-              <a href="${itemUrl}" class="tc-card__name">${l.item_name}</a>
-              <p class="tc-card__seller">by ${seller}</p>
-              <div class="tc-card__footer">
-                <span class="tc-card__price">${priceText}</span>
-                <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
-              </div>
-            </div>
-          </article>`;
-      }).join('');
-
-      const cards = Array.from(track.querySelectorAll('.tc-card'));
-      let current = 0;
-      let pp = perPage();
-      let total = Math.ceil(cards.length / pp);
-      let autoTimer = null;
-
-      function buildDots() {
-        pp    = perPage();
-        total = Math.ceil(cards.length / pp);
-        dotsWrap.innerHTML = Array.from({ length: total }, (_, i) =>
-          `<button class="trending-carousel__dot${i === 0 ? ' is-active' : ''}" data-index="${i}" aria-label="Page ${i + 1}"></button>`
-        ).join('');
-        dotsWrap.querySelectorAll('.trending-carousel__dot').forEach(dot => {
-          dot.addEventListener('click', () => goTo(Number(dot.dataset.index)));
-        });
-      }
-
-      function goTo(idx) {
-        pp    = perPage();
-        total = Math.ceil(cards.length / pp);
-        current = (idx + total) % total;
-
-        // Translate track
-        const cardW = track.parentElement.offsetWidth / pp;
-        track.style.transform = `translateX(-${current * pp * cardW}px)`;
-
-        // Sync dots
-        dotsWrap.querySelectorAll('.trending-carousel__dot').forEach((d, i) =>
-          d.classList.toggle('is-active', i === current)
-        );
-
-        // Show/hide arrows at boundaries
-        if (prevBtn) prevBtn.style.opacity = current === 0 ? '0.3' : '';
-        if (nextBtn) nextBtn.style.opacity = current === total - 1 ? '0.3' : '';
-      }
-
-      function startAuto() {
-        stopAuto();
-        autoTimer = setInterval(() => goTo(current + 1 < total ? current + 1 : 0), 5000);
-      }
-      function stopAuto() { clearInterval(autoTimer); }
-
-      buildDots();
-      goTo(0);
-      startAuto();
-
-      if (prevBtn) prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
-      if (nextBtn) nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
-
-      track.parentElement.addEventListener('mouseenter', stopAuto);
-      track.parentElement.addEventListener('mouseleave', startAuto);
-
-      // Rebuild on resize
-      let resizeTimer;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => { buildDots(); goTo(current); }, 150);
-      });
-    });
 }
 
 // ─── Homepage: Browse by Category ────────────────────────────────────────────

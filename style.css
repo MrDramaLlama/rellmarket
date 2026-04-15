@@ -4656,6 +4656,44 @@ body.page-out {
   color: #fff;
 }
 
+/* ── Promo carousel (second hero-style carousel) ────────────────── */
+.hero-carousel--promo {
+  margin-top: 2.5rem;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+}
+/* Slightly shorter than the main hero */
+.hero-carousel--promo .carousel__slide {
+  min-height: 240px;
+  padding: 2rem 2.5rem;
+}
+@media (max-width: 640px) {
+  .hero-carousel--promo .carousel__slide { padding: 1.5rem; min-height: 200px; }
+}
+.hero-carousel--promo .carousel__heading {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+}
+
+/* Promo slide backgrounds — each a distinct colour scheme */
+.carousel__slide--p1 {
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(245,158,11,.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(13,148,136,.2) 0%, transparent 50%),
+    linear-gradient(130deg, var(--navy-950) 0%, #1a2e4a 45%, #0f4c3a 100%);
+}
+.carousel__slide--p2 {
+  background:
+    radial-gradient(ellipse at 20% 70%, rgba(220,38,38,.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 20%, rgba(251,191,36,.15) 0%, transparent 45%),
+    linear-gradient(130deg, var(--navy-950) 0%, #2d1b1b 50%, #4a1010 100%);
+}
+.carousel__slide--p3 {
+  background:
+    radial-gradient(ellipse at 20% 60%, rgba(13,148,136,.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%, rgba(45,212,191,.15) 0%, transparent 45%),
+    linear-gradient(130deg, var(--navy-950) 0%, var(--navy-800) 55%, var(--teal-700) 100%);
+}
+
 /* ── Browse by Category grid ────────────────────────────────────── */
 .category-grid {
   display: grid;
