@@ -202,7 +202,7 @@ button { font-family: var(--font); cursor: pointer; }
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 300;
+  z-index: 1000;
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-xs);
@@ -284,7 +284,7 @@ button { font-family: var(--font); cursor: pointer; }
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   padding: .4rem 0;
-  z-index: 400;
+  z-index: 1001;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-6px) scale(.98);
@@ -456,7 +456,7 @@ button { font-family: var(--font); cursor: pointer; }
 .pill-bar {
   position: sticky;
   top: var(--nav-h);
-  z-index: 290;
+  z-index: 999;
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
 }
@@ -1367,6 +1367,7 @@ button { font-family: var(--font); cursor: pointer; }
   gap: .75rem;
   position: sticky;
   top: calc(var(--nav-h) + var(--pill-h) + 1.5rem);
+  z-index: 0;
 }
 
 .item-gallery__main {
@@ -2137,7 +2138,7 @@ body.page-out {
   position: fixed;
   bottom: 5.5rem;
   right: 2rem;
-  z-index: 1000;
+  z-index: 1100;
   background: var(--navy-900);
   color: #fff;
   padding: .65rem 1.2rem;
@@ -2930,7 +2931,7 @@ body.page-out {
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   padding: .4rem 0;
-  z-index: 400;
+  z-index: 1001;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-6px) scale(.98);
