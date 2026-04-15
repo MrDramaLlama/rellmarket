@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — RellMarket</title>
+  <meta name="description" content="RellMarket's privacy policy — what data we collect, how we use it, and your rights." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    .info-hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+    }
+    .info-hero__emoji { font-size: 3rem; display: block; margin-bottom: .75rem; }
+    .info-hero__title {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--color-heading);
+      margin: 0 0 .75rem;
+    }
+    .info-hero__sub {
+      font-size: 1.05rem;
+      color: var(--color-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+    .info-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 0 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .info-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg, 12px);
+      padding: 1.75rem 2rem;
+    }
+    .info-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-heading);
+      margin: 0 0 .85rem;
+    }
+    .info-card p {
+      color: var(--color-muted);
+      line-height: 1.75;
+      margin: 0 0 .75rem;
+      font-size: .95rem;
+    }
+    .info-card p:last-child { margin: 0; }
+    .info-card ul {
+      padding-left: 1.25rem;
+      margin: .5rem 0 .75rem;
+      color: var(--color-muted);
+      font-size: .95rem;
+      line-height: 1.75;
+    }
+    .info-card ul li { margin-bottom: .25rem; }
+    .info-card strong { color: var(--color-heading); }
+    .info-updated {
+      font-size: .8rem;
+      color: var(--color-muted);
+      margin-top: .5rem;
+    }
+    .info-disclaimer {
+      font-size: .82rem;
+      color: var(--color-muted);
+      border-top: 1px solid var(--color-border);
+      padding-top: .85rem;
+      margin-top: .75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">Marketplace <span class="nav-dd__chevron">▾</span></button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="prices.html" class="nav-dd__item">📈 Price History</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">🤝 Trade Requests</a>
+            </div>
+          </div>
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">Community <span class="nav-dd__chevron">▾</span></button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input class="search-form__input" type="search" placeholder="Search Devil Fruits, Armor, Beli…" aria-label="Search items" />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <div class="nav-dd more-dd">
+          <button class="btn btn--more nav-dd__trigger" aria-label="More options">⋮</button>
+          <div class="nav-dd__panel more-dd__panel">
+            <a href="about.html" class="nav-dd__item">📰 News &amp; Updates</a>
+            <a href="safety-tips.html" class="nav-dd__item">🔒 Safety Tips</a>
+            <a href="how-it-works.html" class="nav-dd__item">❓ How It Works</a>
+            <a href="#" class="nav-dd__item">📧 Contact Us</a>
+            <div class="nav-dd__divider"></div>
+            <a href="terms-of-service.html" class="nav-dd__item">📜 Terms of Service</a>
+            <a href="privacy-policy.html" class="nav-dd__item">🔐 Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main">
+    <div class="container">
+
+      <div class="info-hero">
+        <span class="info-hero__emoji">🔐</span>
+        <h1 class="info-hero__title">Privacy Policy</h1>
+        <p class="info-hero__sub">We keep this simple and honest. Here's exactly what data we collect, why, and what you can do about it.</p>
+      </div>
+
+      <div class="info-body">
+
+        <div class="info-card">
+          <h2 class="info-card__title">👤 What Information We Collect</h2>
+          <p>When you create an account or use RellMarket, we may store the following:</p>
+          <ul>
+            <li><strong>Email address</strong> — used to create and log into your account, and to send account-related emails (e.g. email verification).</li>
+            <li><strong>Username</strong> — the display name you choose when signing up.</li>
+            <li><strong>Roblox username</strong> — if you choose to add it to your profile. This is optional and publicly visible.</li>
+            <li><strong>Discord username</strong> — if you link your Discord account via OAuth. This is optional.</li>
+            <li><strong>Profile information</strong> — your avatar URL and bio if you add them.</li>
+            <li><strong>Listings</strong> — all listings you post, including item name, price, description, and images.</li>
+            <li><strong>Trade requests</strong> — records of trades you've sent or received.</li>
+            <li><strong>Auction bids</strong> — bids placed on auction listings.</li>
+            <li><strong>Notifications</strong> — in-platform notifications about your trades and activity.</li>
+          </ul>
+          <p>We do <strong>not</strong> collect payment information, your Roblox password, or any other sensitive personal data.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🔧 How We Use Your Data</h2>
+          <p>Everything we collect is used solely to run the RellMarket marketplace. Specifically:</p>
+          <ul>
+            <li>Your email lets you log in and receive account emails.</li>
+            <li>Your username and Roblox username are shown on your public profile and listings so other traders know who they're dealing with.</li>
+            <li>Your listings and trade history are stored so the marketplace can function and so traders can see your track record.</li>
+            <li>Notifications use your user ID to send in-platform alerts about your activity.</li>
+          </ul>
+          <p>We do <strong>not</strong> sell your data to third parties, use it for advertising, or share it with anyone outside of running this platform.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🗄️ Where Data is Stored</h2>
+          <p>RellMarket's database is hosted on <strong>Supabase</strong>, a secure cloud database platform. Your data is stored on their servers in accordance with their own privacy and security standards. You can read more at <strong>supabase.com</strong>.</p>
+          <p>The website itself is hosted on <strong>Vercel</strong>. No personal data is stored on Vercel beyond standard server logs (IP addresses, request timestamps) that are kept briefly for security purposes.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🧒 Under 13? COPPA & Age Requirements</h2>
+          <p>RellMarket is intended for users aged <strong>13 and older</strong> in line with Roblox's own Terms of Service and COPPA (Children's Online Privacy Protection Act) requirements.</p>
+          <p>If you are under 13, please do not create an account or submit any personal information. If we become aware that a user under 13 has provided personal data, we will delete that account promptly.</p>
+          <p>If you are between 13 and 16 and based in the European Union, you may need parental consent to use online services depending on your country's local GDPR rules.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🇪🇺 Your Rights (GDPR)</h2>
+          <p>If you're based in the European Union or UK, you have the right to:</p>
+          <ul>
+            <li>Access the data we hold about you.</li>
+            <li>Request correction of any inaccurate data.</li>
+            <li>Request deletion of your account and associated data.</li>
+            <li>Object to how we use your data.</li>
+          </ul>
+          <p>To exercise any of these rights, contact us via Discord or the contact form. We'll aim to respond within 30 days.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🗑️ Deleting Your Account</h2>
+          <p>If you want your account and data removed from RellMarket, contact us through Discord or the contact link in the menu. We'll delete your account, profile, and associated data as soon as possible.</p>
+          <p>Note: completed trade records may be kept in an anonymised form to protect the integrity of other users' trade histories.</p>
+          <p class="info-updated">Last updated: April 2026</p>
+          <p class="info-disclaimer">⚠️ RellMarket is a fan-made project and is not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="safety-tips.html">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms-of-service.html">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

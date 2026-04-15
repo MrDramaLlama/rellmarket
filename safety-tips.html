@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safety Tips — RellMarket</title>
+  <meta name="description" content="Stay safe while trading on RellMarket. Learn how to spot scammers, protect your account, and report bad actors." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    .info-hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+    }
+    .info-hero__emoji { font-size: 3rem; display: block; margin-bottom: .75rem; }
+    .info-hero__title {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--color-heading);
+      margin: 0 0 .75rem;
+    }
+    .info-hero__sub {
+      font-size: 1.05rem;
+      color: var(--color-muted);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+    .info-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 0 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .info-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg, 12px);
+      padding: 1.75rem 2rem;
+    }
+    .info-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-heading);
+      margin: 0 0 1rem;
+    }
+    .info-card p {
+      color: var(--color-muted);
+      line-height: 1.7;
+      margin: 0 0 .6rem;
+    }
+    .info-card p:last-child { margin: 0; }
+    .tip-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+    .tip-list li {
+      display: flex;
+      gap: .75rem;
+      align-items: flex-start;
+      color: var(--color-muted);
+      line-height: 1.65;
+      font-size: .95rem;
+    }
+    .tip-list li .tip-icon {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: .05rem;
+    }
+    .tip-list li strong { color: var(--color-heading); }
+    .warning-card {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: var(--radius-lg, 12px);
+      padding: 1.5rem 1.75rem;
+    }
+    .warning-card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #92400e;
+      margin: 0 0 .6rem;
+    }
+    .warning-card p {
+      color: #78350f;
+      font-size: .92rem;
+      line-height: 1.65;
+      margin: 0 0 .5rem;
+    }
+    .warning-card p:last-child { margin: 0; }
+    .info-links {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+    .info-disclaimer {
+      font-size: .82rem;
+      color: var(--color-muted);
+      border-top: 1px solid var(--color-border);
+      padding-top: .85rem;
+      margin-top: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar__inner">
+
+      <div class="navbar__left">
+        <a href="index.html" class="navbar__logo">
+          <span class="navbar__logo-icon">⚓</span>
+          <span class="navbar__logo-text">RellMarket</span>
+        </a>
+
+        <nav class="navbar__nav" aria-label="Site navigation">
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">Marketplace <span class="nav-dd__chevron">▾</span></button>
+            <div class="nav-dd__panel">
+              <a href="listings.html" class="nav-dd__item">🗺️ Browse Listings</a>
+              <a href="prices.html" class="nav-dd__item">📈 Price History</a>
+              <a href="post-listing.html" class="nav-dd__item">＋ Post a Listing</a>
+              <a href="my-listings.html" class="nav-dd__item">📋 My Listings</a>
+              <div class="nav-dd__divider"></div>
+              <a href="watchlist.html" class="nav-dd__item">❤️ Watchlist</a>
+              <a href="trades.html" class="nav-dd__item">🤝 Trade Requests</a>
+            </div>
+          </div>
+          <div class="nav-dd">
+            <button class="nav-dd__trigger">Community <span class="nav-dd__chevron">▾</span></button>
+            <div class="nav-dd__panel">
+              <a href="#" class="nav-dd__item">💬 Discord</a>
+              <a href="#" class="nav-dd__item">🎮 Reddit</a>
+              <div class="nav-dd__divider"></div>
+              <a href="#" class="nav-dd__item">📰 News &amp; Updates</a>
+              <a href="#" class="nav-dd__item">📖 Trading Guides</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="navbar__search">
+        <form class="search-form" role="search">
+          <span class="search-form__icon" aria-hidden="true">🔍</span>
+          <input class="search-form__input" type="search" placeholder="Search Devil Fruits, Armor, Beli…" aria-label="Search items" />
+          <button class="search-form__btn" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="navbar__right">
+        <a href="post-listing.html" class="btn btn--add-listing">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+        <div class="nav-dd more-dd">
+          <button class="btn btn--more nav-dd__trigger" aria-label="More options">⋮</button>
+          <div class="nav-dd__panel more-dd__panel">
+            <a href="about.html" class="nav-dd__item">📰 News &amp; Updates</a>
+            <a href="safety-tips.html" class="nav-dd__item">🔒 Safety Tips</a>
+            <a href="how-it-works.html" class="nav-dd__item">❓ How It Works</a>
+            <a href="#" class="nav-dd__item">📧 Contact Us</a>
+            <div class="nav-dd__divider"></div>
+            <a href="terms-of-service.html" class="nav-dd__item">📜 Terms of Service</a>
+            <a href="privacy-policy.html" class="nav-dd__item">🔐 Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+
+      <button class="navbar__hamburger" id="navbar-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="mobile-drawer">
+      <form class="search-form search-form--drawer" role="search">
+        <span class="search-form__icon" aria-hidden="true">🔍</span>
+        <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
+        <button class="search-form__btn" type="submit">Search</button>
+      </form>
+      <div class="navbar__drawer-links">
+        <a href="listings.html" class="drawer-link">Marketplace ›</a>
+        <a href="#" class="drawer-link">Community ›</a>
+      </div>
+      <div class="navbar__drawer-btns">
+        <a href="post-listing.html" class="btn btn--add-listing btn--full">＋ Add Listing</a>
+        <a href="login.html" class="btn btn--login">Log In</a>
+        <a href="signup.html" class="btn btn--signup">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       MAIN
+  ════════════════════════════════════════ -->
+  <main class="page-main">
+    <div class="container">
+
+      <div class="info-hero">
+        <span class="info-hero__emoji">🔒</span>
+        <h1 class="info-hero__title">Safety Tips</h1>
+        <p class="info-hero__sub">Trading should be fun, not stressful. Follow these tips to keep yourself safe and your items secure.</p>
+      </div>
+
+      <div class="info-body">
+
+        <div class="warning-card">
+          <p class="warning-card__title">⚠️ The golden rule of trading</p>
+          <p><strong>Never trade outside the RellMarket platform.</strong> If someone asks you to complete a trade through Discord DMs, a separate website, or "just trust me bro" — that's a red flag. Always use the trade request system here so there's a proper record of what was agreed.</p>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🛡️ How to Stay Safe</h2>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🔍</span>
+              <span><strong>Check the trader's profile before you commit.</strong> Look at their completed trades count, how long they've been on RellMarket, and whether they have a verified or trusted badge. New accounts with zero history should be treated with extra caution.</span>
+            </li>
+            <li>
+              <span class="tip-icon">💰</span>
+              <span><strong>Check the price history before agreeing to a value.</strong> Use the Price History page to see what an item has sold for recently. If someone is demanding way more than the market rate, or offering suspiciously little, something may be off.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🚩</span>
+              <span><strong>Trust your gut.</strong> If an offer feels too good to be true — like someone offering a Legendary fruit for almost nothing — it probably is. Scammers rely on you getting excited and moving fast.</span>
+            </li>
+            <li>
+              <span class="tip-icon">📸</span>
+              <span><strong>Screenshot everything.</strong> Before you hand over any item in-game, take a screenshot of the agreed trade in the RellMarket chat. If something goes wrong, you'll have evidence to include in a report.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🔄</span>
+              <span><strong>Mark trades as completed.</strong> Once you've finished a trade in-game, come back to RellMarket and mark it as completed. This helps build both traders' reputation on the platform.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🔐 Protect Your Account</h2>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🚫</span>
+              <span><strong>Never share your Roblox password with anyone.</strong> Not with other traders, not in Discord, not anywhere. RellMarket staff will never ask for your password.</span>
+            </li>
+            <li>
+              <span class="tip-icon">📧</span>
+              <span><strong>Use a real email address</strong> when signing up so you can verify your account and recover it if needed.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🔑</span>
+              <span><strong>Use a unique password for RellMarket.</strong> Don't reuse the same password you use for Roblox or other games.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h2 class="info-card__title">🚨 How to Report a Listing or Trader</h2>
+          <p>If you find a listing that's fake, misleading, or being used to scam people, you can report it directly from the item page. Look for the <strong>Report</strong> button near the listing details and describe what's wrong.</p>
+          <p>Our moderation team reviews all reports. Listings that break the rules will be removed and repeat offenders can be banned from the platform.</p>
+          <p>You can also reach out via our Discord server if you need to report something urgently or your account has been compromised.</p>
+          <div class="info-links">
+            <a href="trades.html" class="btn btn--carousel-primary">🤝 My Trades</a>
+            <a href="listings.html" class="btn btn--ghost">Browse Safely</a>
+          </div>
+          <p class="info-disclaimer">⚠️ RellMarket is a fan-made project and is not affiliated with Roblox Corporation or the Rell Seas development team. We cannot recover items lost outside of our platform.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__inner container">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">⚓ RellMarket</a>
+        <p>The friendliest Rell Seas trading community on the internet.</p>
+        <p class="footer__disclaimer">Not affiliated with Roblox Corporation or the Rell Seas development team.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="safety-tips.html">Safety Tips</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">💬 Discord</a></li>
+          <li><a href="#">🐦 Twitter / X</a></li>
+          <li><a href="#">🎮 Reddit</a></li>
+          <li><a href="#">📹 YouTube</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms-of-service.html">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Report a Scam</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container">
+        <p>&copy; <span id="year"></span> RellMarket. Fan-made marketplace.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="items-data.js"></script>
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
