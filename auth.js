@@ -49,7 +49,7 @@ async function updateNavbar() {
   if (user) {
     const { data: profile } = await supabaseClient
       .from('profiles')
-      .select('roblox_username, username')
+      .select('roblox_username, username, role')
       .eq('id', user.id)
       .single();
     const name = profile?.roblox_username || profile?.username || 'Account';
@@ -90,6 +90,16 @@ async function updateNavbar() {
         </div>`;
 
       loginBtn.parentNode.replaceChild(wrapper, loginBtn);
+
+      if (profile?.role === 'admin') {
+        const adminItem = document.createElement('a');
+        adminItem.href = 'admin.html';
+        adminItem.className = 'nav-dd__item';
+        adminItem.innerHTML = '⚙️ Admin Panel';
+        const divider = wrapper.querySelector('.nav-dd__divider');
+        wrapper.querySelector('.nav-dd__panel').insertBefore(adminItem, divider);
+      }
+
       wrapper.querySelector('.user-dd__logout').addEventListener('click', handleLogout);
 
       // Toggle dropdown on trigger click; close on outside click
