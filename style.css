@@ -3848,20 +3848,6 @@ body.page-out {
   border-right: none;
   text-align: right;
 }
-.btn--place-bid {
-  width: 100%;
-  padding: .8rem;
-  font-size: 1rem;
-  font-weight: 700;
-  background: var(--color-accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: opacity .15s;
-}
-.btn--place-bid:hover   { opacity: .88; }
-.btn--place-bid:disabled { opacity: .5; cursor: not-allowed; }
 
 /* Bid history */
 .auction-history {

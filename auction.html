@@ -164,19 +164,21 @@
           <!-- Bid form (hidden once auction ends) -->
           <div class="auction-bid-section" id="auction-bid-section">
             <p class="auction-bid-min-hint" id="auction-bid-min-hint"></p>
-            <div class="auction-bid-input-row">
-              <span class="beli-input-prefix">🪙</span>
-              <input
-                type="number"
-                id="auction-bid-amount"
-                class="form-input auction-bid-input"
-                placeholder="Enter your bid…"
-                min="0"
-                step="1000"
-              />
-              <span class="beli-input-suffix">Beli</span>
+            <div style="display:flex;flex-direction:column;gap:.75rem;">
+              <div class="auction-bid-input-row">
+                <span class="beli-input-prefix">🪙</span>
+                <input
+                  type="number"
+                  id="auction-bid-amount"
+                  class="form-input auction-bid-input"
+                  placeholder="Enter your bid…"
+                  min="0"
+                  step="1000"
+                />
+                <span class="beli-input-suffix">Beli</span>
+              </div>
+              <button id="place-bid-btn" class="btn btn--request-trade" style="width:100%;font-size:1rem;padding:.85rem;">Place Bid 🔨</button>
             </div>
-            <button class="btn btn--place-bid" id="auction-place-bid-btn">🔨 Place Bid</button>
           </div>
 
           <!-- Bid history -->
@@ -405,10 +407,10 @@
       }
       updateMinHint(auction.current_bid || auction.starting_price);
 
-      document.getElementById('auction-place-bid-btn').addEventListener('click', async () => {
+      document.getElementById('place-bid-btn').addEventListener('click', async () => {
         const amountInput = document.getElementById('auction-bid-amount');
         const amount      = Number(amountInput.value);
-        const btn         = document.getElementById('auction-place-bid-btn');
+        const btn         = document.getElementById('place-bid-btn');
 
         if (!amount || amount <= 0) {
           showToast('Please enter a valid bid amount.');
@@ -460,7 +462,7 @@
           showToast('Error placing bid.');
         } finally {
           btn.disabled    = false;
-          btn.textContent = '🔨 Place Bid';
+          btn.textContent = 'Place Bid 🔨';
         }
       });
 
