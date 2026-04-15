@@ -3339,32 +3339,15 @@ body.page-out {
 
 /* Profile reputation display */
 .profile-reputation {
-  display: flex;
-  gap: .75rem;
-  justify-content: center;
   margin: .5rem 0 .75rem;
+  text-align: center;
 }
 
-.profile-reputation__item {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  font-size: .9rem;
+.profile-reputation__score {
+  display: inline-block;
+  font-size: .875rem;
   font-weight: 600;
-  padding: .25rem .65rem;
-  border-radius: 999px;
-}
-
-.profile-reputation__item--pos {
-  background: #f0fdf4;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
-}
-
-.profile-reputation__item--neg {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  color: var(--color-muted);
 }
 
 .profile-card__stats {
