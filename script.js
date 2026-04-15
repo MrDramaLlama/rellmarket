@@ -405,7 +405,7 @@ function initItemPage() {
   if (!document.getElementById('item-name-heading')) return;
 
   const params    = new URLSearchParams(window.location.search);
-  const id        = params.get('id') || 'gravity-fruit';
+  const id        = params.get('id') || '';
   const listingId = params.get('listing_id');
 
   if (listingId) {
@@ -612,6 +612,9 @@ function populateItemPage(item) {
 
   const statType = document.getElementById('item-stat-type');
   if (statType) statType.textContent = item.type;
+
+  const statCategory = document.getElementById('item-stat-category');
+  if (statCategory) statCategory.textContent = item.category;
 
   const statListed = document.getElementById('item-stat-listed');
   if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
