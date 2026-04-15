@@ -4,7 +4,8 @@
       "Bash(grep -rl 'Price History' *.html)",
       "Bash(grep -n \"Price History\\\\|Trade Requests\" \"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Dokument\\\\Website Rellazon\"/*.html)",
       "Bash(python3 -)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(ls *.html)"
     ]
   }
 }
