@@ -29,12 +29,28 @@ document.addEventListener('DOMContentLoaded', () => {
   initFetchListings();
   initHomepageMiniGrids();
   initMyListings();
+  initMoreMenu();
 });
 
 // ─── Footer year ──────────────────────────────────────────────────────────────
 function setFooterYear() {
   const el = document.getElementById('year');
   if (el) el.textContent = new Date().getFullYear();
+}
+
+// ─── More (⋮) menu ────────────────────────────────────────────────────────────
+function initMoreMenu() {
+  const moreDd = document.querySelector('.more-dd');
+  if (!moreDd) return;
+  const trigger = moreDd.querySelector('.btn--more');
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    moreDd.classList.toggle('is-open');
+  });
+
+  document.addEventListener('click', () => moreDd.classList.remove('is-open'));
+  moreDd.addEventListener('click', (e) => e.stopPropagation());
 }
 
 // ─── Mobile nav drawer ────────────────────────────────────────────────────────

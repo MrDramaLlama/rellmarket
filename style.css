@@ -292,10 +292,19 @@ button { font-family: var(--font); cursor: pointer; }
   transition: opacity .15s, transform .15s;
 }
 .nav-dd:hover .nav-dd__panel,
-.nav-dd:focus-within .nav-dd__panel {
+.nav-dd:focus-within .nav-dd__panel,
+.nav-dd.is-open .nav-dd__panel {
   opacity: 1;
   pointer-events: all;
   transform: translateY(0) scale(1);
+}
+
+/* More (⋮) menu — right-aligned panel */
+.more-dd__panel {
+  left: auto;
+  right: 0;
+  transform-origin: top right;
+  transform: translateY(-6px) scale(.98);
 }
 
 .nav-dd__item {
