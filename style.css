@@ -1742,6 +1742,16 @@ button { font-family: var(--font); cursor: pointer; }
   text-align: right;
   margin-top: 0.2rem;
 }
+.form-hint--info {
+  text-align: left;
+  color: var(--color-muted);
+  margin-top: .3rem;
+}
+.form-input[readonly] {
+  opacity: .6;
+  cursor: default;
+  background: var(--color-surface);
+}
 
 .form-input {
   width: 100%;
@@ -3177,6 +3187,17 @@ body.page-out {
   font-weight: 700;
   color: var(--color-heading);
   margin: 0 0 .2rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.profile-roblox-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: .75;
 }
 
 .profile-card__roblox {

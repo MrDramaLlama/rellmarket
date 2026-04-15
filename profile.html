@@ -143,7 +143,7 @@
         <div class="profile-card__avatar profile-card__avatar--letter" id="profile-avatar">⚓</div>
 
         <div class="profile-card__body">
-          <h1 class="profile-card__username" id="profile-username">Loading…</h1>
+          <h1 class="profile-card__username" id="profile-username">Loading…<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Roblox_logo.svg/512px-Roblox_logo.svg.png" alt="Roblox" class="profile-roblox-icon" /></h1>
           <p class="profile-card__roblox" id="profile-roblox"></p>
 
           <div class="profile-card__badges" id="profile-badges"></div>
@@ -209,7 +209,8 @@
       <form id="edit-profile-form" novalidate>
         <div class="form-group">
           <label class="form-label" for="edit-profile-username">Username</label>
-          <input class="form-input" type="text" id="edit-profile-username" maxlength="30" autocomplete="off" />
+          <input class="form-input" type="text" id="edit-profile-username" maxlength="30" autocomplete="off" readonly />
+          <p class="form-hint form-hint--info">Your username is set by your Roblox account and cannot be changed here.</p>
         </div>
         <div class="form-group">
           <label class="form-label" for="edit-profile-bio">
