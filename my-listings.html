@@ -191,7 +191,7 @@
           <p id="profile-discord-status" style="font-size:.85rem;margin-top:.35rem;color:var(--color-muted);"></p>
         </div>
         <div class="profile-actions">
-          <a href="#" class="btn btn--add-listing">Edit Profile</a>
+          <button class="btn btn--add-listing" id="my-listings-edit-profile-btn">✏️ Edit Profile</button>
           <a href="/api/auth/discord" class="btn btn--discord-link" id="discord-link-btn" style="display:none;font-size:.82rem;padding:.4rem .9rem;background:#5865f2;color:#fff;border-color:#5865f2;">
             💬 Link Discord
           </a>
@@ -200,6 +200,35 @@
 
     </div>
   </main>
+
+  <!-- ═══════════════════════════════════════
+       EDIT PROFILE MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="edit-profile-modal" role="dialog" aria-modal="true" aria-labelledby="edit-profile-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="edit-profile-modal-title">Edit Profile</h2>
+        <button class="modal-close" id="edit-profile-modal-close" aria-label="Close">✕</button>
+      </div>
+      <form id="edit-profile-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="edit-profile-username">Username</label>
+          <input class="form-input" type="text" id="edit-profile-username" maxlength="30" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-profile-bio">
+            Bio
+            <span class="edit-profile-bio-counter" id="edit-profile-bio-counter">0/200</span>
+          </label>
+          <textarea class="form-input form-textarea" id="edit-profile-bio" rows="3" maxlength="200" placeholder="Tell traders a bit about yourself…"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn--login" id="edit-profile-cancel">Cancel</button>
+          <button type="submit" class="btn btn--post-listing" id="edit-profile-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        EDIT LISTING MODAL
@@ -329,5 +358,65 @@
     });
   </script>
   <script src="auth.js"></script>
+
+  <script>
+    (async function initEditProfileModal() {
+      const editBtn = document.getElementById('my-listings-edit-profile-btn');
+      const modal   = document.getElementById('edit-profile-modal');
+      if (!editBtn || !modal) return;
+
+      const sc = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data: { user } } = await sc.auth.getUser();
+      if (!user) return;
+
+      const token = (await sc.auth.getSession()).data.session?.access_token;
+
+      async function openModal() {
+        const { data: profile } = await sc.from('profiles').select('username, bio').eq('id', user.id).single();
+        document.getElementById('edit-profile-username').value = profile?.username || '';
+        const bioInput = document.getElementById('edit-profile-bio');
+        bioInput.value = profile?.bio || '';
+        document.getElementById('edit-profile-bio-counter').textContent = `${bioInput.value.length}/200`;
+        modal.classList.add('is-open');
+      }
+
+      editBtn.addEventListener('click', openModal);
+
+      document.getElementById('edit-profile-bio').addEventListener('input', function () {
+        document.getElementById('edit-profile-bio-counter').textContent = `${this.value.length}/200`;
+      });
+
+      document.getElementById('edit-profile-modal-close').addEventListener('click', () => modal.classList.remove('is-open'));
+      document.getElementById('edit-profile-cancel').addEventListener('click', () => modal.classList.remove('is-open'));
+      modal.addEventListener('click', (e) => { if (e.target === e.currentTarget) modal.classList.remove('is-open'); });
+
+      document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const saveBtn = document.getElementById('edit-profile-save');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+        const newUsername = document.getElementById('edit-profile-username').value.trim();
+        const newBio = document.getElementById('edit-profile-bio').value.trim();
+        try {
+          const res = await fetch('/api/profile/update', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ username: newUsername, bio: newBio })
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error || 'Failed to save');
+          const nameEl = document.querySelector('.profile-info__name');
+          if (nameEl) nameEl.textContent = newUsername;
+          modal.classList.remove('is-open');
+          showToast('Profile updated! ✅');
+        } catch (err) {
+          showToast('Error: ' + err.message);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Changes';
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

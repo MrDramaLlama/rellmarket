@@ -4420,3 +4420,19 @@ body.page-out {
   margin: 0;
   text-align: center;
 }
+
+/* ── Edit Profile Modal ─────────────────────────────────────────── */
+.profile-card__bio--empty {
+  color: var(--color-muted, #6b7280);
+  font-style: italic;
+  cursor: pointer;
+  transition: color .15s;
+}
+.profile-card__bio--empty:hover { color: var(--teal-400); }
+
+.edit-profile-bio-counter {
+  float: right;
+  font-size: .75rem;
+  font-weight: 400;
+  opacity: .55;
+}
