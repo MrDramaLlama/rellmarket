@@ -4409,12 +4409,14 @@ body.page-out {
 
 /* ── Post Listing Success State ─────────────────────────────────── */
 .post-success {
-  display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 2.5rem 1.5rem;
   gap: 1.25rem;
+}
+.post-success:not([hidden]) {
+  display: flex;
 }
 .post-success__emoji {
   font-size: 3.5rem;
