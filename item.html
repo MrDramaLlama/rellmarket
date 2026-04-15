@@ -193,13 +193,6 @@
             <h1 id="item-name-heading" class="item-details__name">Gravity Fruit</h1>
           </div>
 
-          <!-- Star rating -->
-          <div class="item-rating">
-            <span class="item-rating__stars" aria-hidden="true">★★★★★</span>
-            <span id="item-rating-score" class="item-rating__score">4.8</span>
-            <span id="item-rating-count" class="item-rating__count">(24 reviews)</span>
-          </div>
-
           <!-- Description -->
           <p id="item-description" class="item-details__desc">
             One of the rarest Devil Fruits in Rell Seas. The Gravity Fruit grants the user the
@@ -518,6 +511,15 @@
   <script src="script.js"></script>
   <script src="auth.js"></script>
   <script>
+    // Hide thumbnail strip when there is only one image
+    document.addEventListener('rellmarket:item-loaded', function() {
+      const strip = document.querySelector('.item-gallery__thumbs');
+      if (strip) {
+        const count = strip.querySelectorAll('.item-gallery__thumb').length;
+        strip.hidden = count <= 1;
+      }
+    });
+
     // Price history mini-chart for item page
     document.addEventListener('rellmarket:item-loaded', async function(e) {
       const itemName = e.detail.itemName;

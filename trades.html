@@ -168,6 +168,30 @@
   </main>
 
   <!-- ═══════════════════════════════════════
+       RATE TRADER MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="rate-modal" role="dialog" aria-modal="true" aria-labelledby="rate-modal-title">
+    <div class="modal-card modal-card--sm">
+      <div class="modal-header">
+        <h2 class="modal-title" id="rate-modal-title">Rate Trader</h2>
+        <button class="modal-close" id="rate-modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="rate-modal__body">
+        <p class="rate-modal__trader" id="rate-modal-trader-name"></p>
+        <p class="rate-modal__prompt">How did the trade go?</p>
+        <div class="rate-modal__thumbs">
+          <button class="rate-thumb rate-thumb--up" id="rate-thumb-up" aria-pressed="false">👍</button>
+          <button class="rate-thumb rate-thumb--down" id="rate-thumb-down" aria-pressed="false">👎</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn--ghost" id="rate-modal-cancel">Cancel</button>
+        <button class="btn btn--post-listing" id="rate-modal-submit" disabled>Confirm Rating</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
        FOOTER
   ════════════════════════════════════════ -->
   <footer class="footer">
@@ -276,6 +300,88 @@
         }
       }
 
+      // ── Rating modal state ───────────────────────────────────────────────
+      let rateState = { tradeId: null, ratedId: null, isPositive: null };
+
+      function openRateModal(tradeId, ratedId, ratedName) {
+        rateState = { tradeId, ratedId, isPositive: null };
+        document.getElementById('rate-modal-trader-name').textContent = ratedName;
+        document.getElementById('rate-thumb-up').setAttribute('aria-pressed', 'false');
+        document.getElementById('rate-thumb-down').setAttribute('aria-pressed', 'false');
+        document.getElementById('rate-thumb-up').classList.remove('rate-thumb--selected');
+        document.getElementById('rate-thumb-down').classList.remove('rate-thumb--selected');
+        document.getElementById('rate-modal-submit').disabled = true;
+        document.getElementById('rate-modal').classList.add('is-open');
+      }
+
+      document.getElementById('rate-thumb-up').addEventListener('click', () => {
+        rateState.isPositive = true;
+        document.getElementById('rate-thumb-up').classList.add('rate-thumb--selected');
+        document.getElementById('rate-thumb-down').classList.remove('rate-thumb--selected');
+        document.getElementById('rate-thumb-up').setAttribute('aria-pressed', 'true');
+        document.getElementById('rate-thumb-down').setAttribute('aria-pressed', 'false');
+        document.getElementById('rate-modal-submit').disabled = false;
+      });
+
+      document.getElementById('rate-thumb-down').addEventListener('click', () => {
+        rateState.isPositive = false;
+        document.getElementById('rate-thumb-down').classList.add('rate-thumb--selected');
+        document.getElementById('rate-thumb-up').classList.remove('rate-thumb--selected');
+        document.getElementById('rate-thumb-down').setAttribute('aria-pressed', 'true');
+        document.getElementById('rate-thumb-up').setAttribute('aria-pressed', 'false');
+        document.getElementById('rate-modal-submit').disabled = false;
+      });
+
+      function closeRateModal() {
+        document.getElementById('rate-modal').classList.remove('is-open');
+      }
+      document.getElementById('rate-modal-close').addEventListener('click', closeRateModal);
+      document.getElementById('rate-modal-cancel').addEventListener('click', closeRateModal);
+      document.getElementById('rate-modal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeRateModal();
+      });
+
+      document.getElementById('rate-modal-submit').addEventListener('click', async () => {
+        const submitBtn = document.getElementById('rate-modal-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving…';
+        try {
+          const r = await fetch('/api/ratings/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+              rated_id: rateState.ratedId,
+              trade_id: rateState.tradeId,
+              is_positive: rateState.isPositive,
+            }),
+          });
+          const json = await r.json();
+          if (!r.ok) throw new Error(json.error);
+          closeRateModal();
+          if (typeof showToast === 'function') showToast('Rating submitted! 👍');
+          // Mark the button as rated on the card
+          const rateWrap = document.querySelector(`.trade-card__rate[data-trade-id="${rateState.tradeId}"]`);
+          if (rateWrap) {
+            rateWrap.innerHTML = '<span class="trade-card__rated">✓ Rated</span>';
+          }
+        } catch (err) {
+          if (typeof showToast === 'function') showToast('Error: ' + err.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Confirm Rating';
+        }
+      });
+
+      function addRateButton(tradeId, ratedId, ratedName, cardEl) {
+        const wrap = document.createElement('div');
+        wrap.className = 'trade-card__rate';
+        wrap.dataset.tradeId = tradeId;
+        wrap.innerHTML = `<button class="btn btn--rate-trader">⭐ Rate Trader</button>`;
+        cardEl.appendChild(wrap);
+        wrap.querySelector('.btn--rate-trader').addEventListener('click', () => {
+          openRateModal(tradeId, ratedId, ratedName);
+        });
+      }
+
       function addCompleteButton(tradeId, cardEl) {
         const wrap = document.createElement('div');
         wrap.className = 'trade-card__complete';
@@ -333,6 +439,10 @@
         if (t.status === 'accepted') {
           addCompleteButton(t.id, card);
         }
+        if (t.status === 'completed') {
+          const senderId = t.requester_id || t.profiles?.id;
+          if (senderId) addRateButton(t.id, senderId, sender, card);
+        }
         return card;
       }
 
@@ -362,6 +472,11 @@
 
         if (t.status === 'pending') {
           card.querySelector('.btn--cancel-trade')?.addEventListener('click', () => updateTradeStatus(t.id, 'cancelled', card));
+        }
+        if (t.status === 'completed') {
+          const sellerId = t.listings?.user_id;
+          const sellerName = t.listings?.profiles?.roblox_username || t.listings?.profiles?.username || 'the seller';
+          if (sellerId) addRateButton(t.id, sellerId, sellerName, card);
         }
         return card;
       }

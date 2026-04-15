@@ -3252,6 +3252,121 @@ body.page-out {
   color: #065f46;
 }
 
+/* Rate Trader button on completed trade cards */
+.trade-card__rate {
+  margin-top: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.btn--rate-trader {
+  background: var(--color-surface);
+  color: var(--color-heading);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  padding: .45rem 1rem;
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+.btn--rate-trader:hover {
+  background: var(--color-bg);
+  border-color: var(--teal-400, #2dd4bf);
+}
+
+.trade-card__rated {
+  font-size: .85rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Rate Trader modal */
+.rate-modal__body {
+  padding: 1rem 0 .5rem;
+  text-align: center;
+}
+
+.rate-modal__trader {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 .3rem;
+}
+
+.rate-modal__prompt {
+  font-size: .9rem;
+  color: var(--color-muted);
+  margin: 0 0 1.25rem;
+}
+
+.rate-modal__thumbs {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-bottom: .5rem;
+}
+
+.rate-thumb {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 2rem;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  transition: border-color .15s, transform .1s, background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rate-thumb:hover {
+  border-color: var(--teal-400, #2dd4bf);
+  transform: scale(1.08);
+}
+
+.rate-thumb--up.rate-thumb--selected {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.rate-thumb--down.rate-thumb--selected {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Profile reputation display */
+.profile-reputation {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  margin: .5rem 0 .75rem;
+}
+
+.profile-reputation__item {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .9rem;
+  font-weight: 600;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+}
+
+.profile-reputation__item--pos {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.profile-reputation__item--neg {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 .profile-card__stats {
   list-style: none;
   padding: 0;

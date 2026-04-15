@@ -148,6 +148,15 @@
 
           <div class="profile-card__badges" id="profile-badges"></div>
 
+          <div class="profile-reputation" id="profile-reputation" hidden>
+            <span class="profile-reputation__item profile-reputation__item--pos">
+              👍 <span id="rep-positive">0</span>
+            </span>
+            <span class="profile-reputation__item profile-reputation__item--neg">
+              👎 <span id="rep-negative">0</span>
+            </span>
+          </div>
+
           <p class="profile-card__bio" id="profile-bio" hidden></p>
 
           <div id="profile-edit-btn-wrap" hidden>
@@ -325,6 +334,19 @@
         }
         if (profile.is_trusted) {
           badgesEl.insertAdjacentHTML('beforeend', '<span class="profile-badge profile-badge--trusted">🛡️ Trusted Trader</span>');
+        }
+
+        // Ratings / reputation
+        if (profile.id) {
+          fetch(`/api/ratings/get?user_id=${encodeURIComponent(profile.id)}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+              if (!data || data.total === 0) return;
+              document.getElementById('rep-positive').textContent = data.positive;
+              document.getElementById('rep-negative').textContent = data.negative;
+              document.getElementById('profile-reputation').hidden = false;
+            })
+            .catch(() => {});
         }
 
         // Completed trades
