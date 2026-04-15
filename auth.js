@@ -56,15 +56,32 @@ async function updateNavbar() {
 
     if (signupBtn) signupBtn.style.display = 'none';
 
-    // Check pending trades then build the user dropdown
+    // Extract token once, shared between all fetch calls
+    let token = null;
+    try {
+      token = (await supabaseClient.auth.getSession()).data.session?.access_token;
+    } catch (e) {}
+
+    // Check pending trades
     let pending = 0;
     try {
-      const token = (await supabaseClient.auth.getSession()).data.session?.access_token;
       const res = await fetch('https://rellmarket.vercel.app/api/trades/get?type=incoming', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
       pending = (json.trades || []).filter(t => t.status === 'pending').length;
+    } catch (e) {}
+
+    // Fetch notifications
+    let notifications = [];
+    let unreadCount = 0;
+    try {
+      const notifRes = await fetch('/api/notifications/get', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const notifJson = await notifRes.json();
+      notifications = notifJson.notifications || [];
+      unreadCount = notifications.filter(n => !n.is_read).length;
     } catch (e) {}
 
     // Replace the login button with a dropdown wrapper
@@ -90,6 +107,57 @@ async function updateNavbar() {
         </div>`;
 
       loginBtn.parentNode.replaceChild(wrapper, loginBtn);
+
+      // Build notification bell
+      const bellWrapper = document.createElement('div');
+      bellWrapper.className = 'nav-dd notif-dd';
+      bellWrapper.style.position = 'relative';
+      const last5 = notifications.slice(0, 5);
+      const notifItemsHTML = last5.length
+        ? last5.map(n => `
+          <a href="${n.link || '#'}" class="nav-notif__item${n.is_read ? '' : ' nav-notif__item--unread'}">
+            <span class="nav-notif__title">${n.title}</span>
+            <span class="nav-notif__msg">${n.message}</span>
+            <span class="nav-notif__time">${timeAgo(n.created_at)}</span>
+          </a>`).join('')
+        : '<p class="nav-notif__empty">No notifications</p>';
+
+      bellWrapper.innerHTML = `
+        <button class="btn nav-bell__trigger" aria-haspopup="true">
+          🔔${unreadCount > 0 ? `<span class="nav-bell__badge">${unreadCount}</span>` : ''}
+        </button>
+        <div class="nav-dd__panel notif-dd__panel">
+          <div class="nav-notif__header">
+            <span>Notifications</span>
+            <button class="nav-notif__mark-read">Mark all read</button>
+          </div>
+          <div class="nav-notif__list">${notifItemsHTML}</div>
+        </div>`;
+
+      wrapper.parentNode.insertBefore(bellWrapper, wrapper);
+
+      const bellTrigger = bellWrapper.querySelector('.nav-bell__trigger');
+      bellTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        bellWrapper.classList.toggle('is-open');
+        wrapper.classList.remove('is-open');
+      });
+
+      bellWrapper.querySelector('.nav-notif__mark-read').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          await fetch('/api/notifications/read', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+          });
+        } catch (err) {}
+        bellWrapper.querySelectorAll('.nav-notif__item--unread').forEach(el => el.classList.remove('nav-notif__item--unread'));
+        const badge = bellWrapper.querySelector('.nav-bell__badge');
+        if (badge) badge.remove();
+      });
+
+      document.addEventListener('click', () => bellWrapper.classList.remove('is-open'));
 
       // Build trigger button content: avatar (or fallback emoji) + name + chevron
       const trigger = wrapper.querySelector('.user-dd__trigger');

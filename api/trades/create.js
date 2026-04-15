@@ -22,5 +22,18 @@ module.exports = async function handler(req, res) {
   }).select().single();
 
   if (error) return res.status(500).json({ error: error.message });
+
+  // Notify listing owner of new trade request
+  const { data: listing } = await supabase.from('listings').select('user_id, item_name').eq('id', listing_id).single();
+  if (listing && listing.user_id !== user.id) {
+    await supabase.from('notifications').insert({
+      user_id: listing.user_id,
+      type: 'trade_request',
+      title: 'New Trade Request',
+      message: `Someone wants to trade for your ${listing.item_name}`,
+      link: '/trades.html'
+    });
+  }
+
   return res.status(200).json({ success: true, trade: data });
 }

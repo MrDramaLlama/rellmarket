@@ -49,6 +49,22 @@ module.exports = async function handler(req, res) {
 
   if (updateError) return res.status(500).json({ error: updateError.message });
 
+  // Notify previous highest bidder that they were outbid
+  if (auction.current_bidder_id && auction.current_bidder_id !== user.id) {
+    const { data: listingForNotif } = await supabase
+      .from('listings')
+      .select('item_name')
+      .eq('id', auction.listing_id)
+      .single();
+    await supabase.from('notifications').insert({
+      user_id: auction.current_bidder_id,
+      type: 'outbid',
+      title: 'You have been outbid! 🔨',
+      message: `Someone placed a higher bid on ${listingForNotif?.item_name || 'an auction'}`,
+      link: `/auction.html?listing_id=${auction.listing_id}`
+    });
+  }
+
   // Record bid in history
   await supabase.from('auction_bids').insert({
     auction_id,

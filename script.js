@@ -2069,36 +2069,3 @@ function showToast(message) {
   }, 2600);
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
-/** Debounce — use for search input or scroll handlers. */
-function debounce(fn, ms = 250) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), ms);
-  };
-}
-
-/** Format Beli numbers (e.g. 1000000 → "1,000,000 Beli") */
-function formatBeli(amount) {
-  return `${amount.toLocaleString()} Beli`;
-}
-
-// ─── Future hooks ─────────────────────────────────────────────────────────────
-// Live search:
-// const searchInput = document.querySelector('.search-form__input');
-// if (searchInput) {
-//   searchInput.addEventListener('input', debounce(async (e) => {
-//     const query = e.target.value.trim();
-//     if (!query) return;
-//     // const res  = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-//     // const data = await res.json();
-//     // renderResults(data);
-//   }, 300));
-// }
-
-// Auth modals:
-// document.querySelectorAll('[data-modal="login"]').forEach(el => {
-//   el.addEventListener('click', (e) => { e.preventDefault(); openModal('login'); });
-// });
