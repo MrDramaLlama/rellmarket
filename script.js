@@ -619,9 +619,34 @@ function populateItemPage(item) {
   const statListed = document.getElementById('item-stat-listed');
   if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
 
-  // Reveal the page now that real data is in place
-  const itemMain = document.querySelector('main.item-page');
-  if (itemMain) itemMain.style.visibility = 'visible';
+  // Check auth state, show/hide trade actions, then reveal the page
+  (async function applyItemAuthState() {
+    let loggedIn = false;
+    try {
+      if (typeof supabaseClient !== 'undefined') {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        loggedIn = !!session;
+      }
+    } catch (_) {}
+
+    const itemActions  = document.getElementById('item-actions');
+    const itemReport   = document.getElementById('item-report-row');
+    const itemGuestMsg = document.getElementById('item-guest-msg');
+
+    if (loggedIn) {
+      if (itemActions)  itemActions.hidden  = false;
+      if (itemReport)   itemReport.hidden   = false;
+      if (itemGuestMsg) itemGuestMsg.hidden = true;
+    } else {
+      if (itemActions)  itemActions.hidden  = true;
+      if (itemReport)   itemReport.hidden   = true;
+      if (itemGuestMsg) itemGuestMsg.hidden = false;
+    }
+
+    // Reveal the page now that both data and auth state are set
+    const itemMain = document.querySelector('main.item-page');
+    if (itemMain) itemMain.style.visibility = 'visible';
+  })();
 
   // Dispatch event so the inline price-history chart script can react
   document.dispatchEvent(new CustomEvent('rellmarket:item-loaded', { detail: { itemName: item.name } }));

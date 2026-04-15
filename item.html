@@ -207,7 +207,7 @@
           </div>
 
           <!-- Report link -->
-          <p class="item-report-row">
+          <p class="item-report-row" id="item-report-row" hidden>
             <button class="item-report-btn" id="report-btn">🚩 Report this listing</button>
           </p>
 
@@ -217,10 +217,15 @@
             <p id="item-price-sub" class="item-price__sub"></p>
           </div>
 
-          <!-- Action buttons -->
-          <div class="item-actions">
+          <!-- Action buttons (logged-in only) -->
+          <div class="item-actions" id="item-actions" hidden>
             <a href="#" class="btn btn--request-trade">Request Trade</a>
             <a href="#" class="btn btn--watchlist">Add to Watchlist ♡</a>
+          </div>
+
+          <!-- Guest prompt (logged-out only) -->
+          <div class="item-guest-msg" id="item-guest-msg" hidden>
+            Want to trade? <a href="login.html">Sign in</a> or <a href="signup.html">create a free account</a> to send trade requests and save listings.
           </div>
 
           <!-- Stats row -->
