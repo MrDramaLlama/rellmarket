@@ -533,13 +533,24 @@ function populateItemPage(item) {
   const mainImg = document.getElementById('gallery-main-img');
   if (mainImg) { mainImg.src = item.image; mainImg.alt = item.name; }
 
-  // Thumbnails
-  document.querySelectorAll('.item-gallery__thumb').forEach(t => {
-    t.dataset.src = item.image;
-  });
-  document.querySelectorAll('.item-gallery__thumb-img').forEach(img => {
-    img.src = item.image;
-  });
+  // Thumbnails — hide the strip when there is only one image
+  const thumbStrip = document.querySelector('.item-gallery__thumbs');
+  const images = (item.images && item.images.length > 1) ? item.images : [item.image].filter(Boolean);
+  if (thumbStrip) {
+    if (images.length <= 1) {
+      thumbStrip.hidden = true;
+    } else {
+      thumbStrip.hidden = false;
+      const thumbBtns = thumbStrip.querySelectorAll('.item-gallery__thumb');
+      thumbBtns.forEach((btn, i) => {
+        const src = images[i] || images[0];
+        btn.dataset.src = src;
+        const img = btn.querySelector('.item-gallery__thumb-img');
+        if (img) img.src = src;
+        btn.hidden = !images[i];
+      });
+    }
+  }
 
   // Rarity badge
   const badge = document.getElementById('item-rarity-badge');

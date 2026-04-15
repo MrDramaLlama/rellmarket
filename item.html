@@ -511,15 +511,6 @@
   <script src="script.js"></script>
   <script src="auth.js"></script>
   <script>
-    // Hide thumbnail strip when there is only one image
-    document.addEventListener('rellmarket:item-loaded', function() {
-      const strip = document.querySelector('.item-gallery__thumbs');
-      if (strip) {
-        const count = strip.querySelectorAll('.item-gallery__thumb').length;
-        strip.hidden = count <= 1;
-      }
-    });
-
     // Price history mini-chart for item page
     document.addEventListener('rellmarket:item-loaded', async function(e) {
       const itemName = e.detail.itemName;
