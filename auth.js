@@ -134,11 +134,13 @@ async function updateNavbar() {
           <div class="nav-notif__list">${notifItemsHTML}</div>
         </div>`;
 
-      const moreBtn = document.querySelector('.btn--more');
-      if (moreBtn) {
-        moreBtn.insertAdjacentElement('afterend', bellWrapper);
+      const moreDd = document.querySelector('.more-dd');
+      if (moreDd) {
+        moreDd.insertAdjacentElement('afterend', bellWrapper);
       } else {
-        wrapper.parentNode.insertBefore(bellWrapper, wrapper);
+        const navbarRight = document.querySelector('.navbar__right');
+        if (navbarRight) navbarRight.appendChild(bellWrapper);
+        else wrapper.parentNode.appendChild(bellWrapper);
       }
 
       const bellTrigger = bellWrapper.querySelector('.nav-bell__trigger');
