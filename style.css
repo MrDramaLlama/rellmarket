@@ -50,7 +50,7 @@
 
 /* ── Reset & Base ───────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html  { scroll-behavior: smooth; }
+html  { scroll-behavior: smooth; min-height: 100%; }
 body  {
   font-family: var(--font);
   background: var(--color-bg);
@@ -58,6 +58,9 @@ body  {
   line-height: 1.5;
   font-size: 1rem;
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 a     { color: var(--color-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -544,6 +547,7 @@ button { font-family: var(--font); cursor: pointer; }
    PAGE MAIN
 ══════════════════════════════════════════════ */
 .page-main {
+  flex: 1;
   padding: 1.5rem 0 3rem;
   background: var(--color-bg);
 }
