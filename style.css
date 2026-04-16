@@ -1357,7 +1357,7 @@ button { font-family: var(--font); cursor: pointer; }
   display: grid;
   grid-template-columns: 420px 1fr;
   gap: 2.75rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ── Gallery (left column) ── */
@@ -5220,6 +5220,7 @@ body.page-out {
    WANTED IN RETURN — item detail page
 ════════════════════════════════════════ */
 .item-wants {
+  margin-top: auto;
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
   border: 1px solid #86efac;
   border-radius: 12px;
