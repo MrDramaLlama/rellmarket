@@ -875,7 +875,7 @@ button { font-family: var(--font); cursor: pointer; }
 
 /* ── Mini Card ── */
 .mini-card {
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -891,7 +891,7 @@ button { font-family: var(--font); cursor: pointer; }
 
 /* Emoji placeholder — swap for <img> with class mini-card__img when art is ready */
 .mini-card__placeholder {
-  background: var(--ph, #f8f8f8);
+  background: var(--ph, var(--color-surface));
   aspect-ratio: 1 / 1;
   width: 100%;
   display: flex;
