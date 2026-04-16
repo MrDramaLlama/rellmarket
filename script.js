@@ -536,6 +536,8 @@ const FORM_ITEM_GROUPS = [
       { value: 'dragon-fruit',       label: 'Dragon Fruit',       icon: { type: 'img',   src: 'assets/Ou-fruit.png' } },
       { value: 'allo-fruit',         label: 'Allo Fruit',         icon: { type: 'img',   src: 'assets/allo-fruit.png' } },
       { value: 'ice-fruit',          label: 'Ice Fruit',          icon: { type: 'img',   src: 'assets/I-fruit.png' } },
+      { value: 'bison-fruit',        label: 'Bison Fruit',        icon: { type: 'img',   src: 'assets/bison-fruit.png' } },
+      { value: 'bomb-fruit',         label: 'Bomb Fruit',         icon: { type: 'img',   src: 'assets/bomb-fruit.png' } },
     ],
   },
   {

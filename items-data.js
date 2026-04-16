@@ -108,4 +108,38 @@ const ITEMS_DATA = {
     reviewCount: 22,
   },
 
+  'bison-fruit': {
+    id:          'bison-fruit',
+    name:        'Bison Fruit',
+    image:       'assets/bison-fruit.png',
+    rarity:      'Uncommon',
+    rarityClass: 'uncommon',
+    type:        'Zoan',
+    category:    'Devil Fruit',
+    description: 'A Zoan-type Devil Fruit that allows its user to transform into a full bison or a half-bison hybrid at will. Grants greatly enhanced strength and durability, making the user a powerful force in close combat.',
+    seller:      'BisonKing',
+    price:       'Make Offer',
+    priceSub:    'Seller accepts offers — submit yours below',
+    listed:      '1 day ago',
+    rating:      '4.2',
+    reviewCount: 7,
+  },
+
+  'bomb-fruit': {
+    id:          'bomb-fruit',
+    name:        'Bomb Fruit',
+    image:       'assets/bomb-fruit.png',
+    rarity:      'Uncommon',
+    rarityClass: 'uncommon',
+    type:        'Paramecia',
+    category:    'Devil Fruit',
+    description: 'A Paramecia-type Devil Fruit that allows the user to make any part of their body explode at will — limbs, hair, breath and more. Turns the user into a living weapon capable of devastating explosive attacks.',
+    seller:      'BombTrader',
+    price:       'Make Offer',
+    priceSub:    'Seller accepts offers — submit yours below',
+    listed:      '3 days ago',
+    rating:      '4.0',
+    reviewCount: 5,
+  },
+
 };
