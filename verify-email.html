@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Check Your Email — RellMarket</title>
+  <script>!function(){var d=localStorage.getItem('rellmarket-dark');if(d==='1'||(d===null&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark-mode');}();</script>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
@@ -82,6 +83,8 @@
             <div class="nav-dd__divider"></div>
             <a href="terms-of-service.html" class="nav-dd__item">📜 Terms of Service</a>
             <a href="privacy-policy.html" class="nav-dd__item">🔐 Privacy Policy</a>
+            <div class="nav-dd__divider"></div>
+            <button class="nav-dd__item nav-dd__item--btn" id="dark-mode-toggle" type="button">🌙 Dark Mode</button>
           </div>
         </div>
       </div>

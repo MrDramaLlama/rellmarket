@@ -48,6 +48,72 @@
   --max-w: 1280px;
 }
 
+/* ── Dark mode overrides ────────────────────── */
+html.dark-mode {
+  --color-bg:       #0f1117;
+  --color-surface:  #1a1d27;
+  --color-border:   #2a2d3a;
+  --color-text:     #e8eaf0;
+  --color-muted:    #8b90a0;
+  --color-heading:  #f0f2f8;
+  --teal-50:        #0d2520;
+  --teal-100:       #0d3028;
+  --shadow-xs: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.35);
+  --shadow:    0 4px 16px rgba(0,0,0,.4);
+  --shadow-md: 0 8px 28px rgba(0,0,0,.5);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.55);
+}
+
+/* Surface overrides for hardcoded #fff / #f8fafc in components */
+html.dark-mode .nav-dd__panel,
+html.dark-mode .navbar,
+html.dark-mode .listing-card,
+html.dark-mode .form-input,
+html.dark-mode .cs-trigger,
+html.dark-mode .cs-panel,
+html.dark-mode .post-tips,
+html.dark-mode .auction-item-card,
+html.dark-mode .auction-timer-card,
+html.dark-mode .auction-current-bid-card,
+html.dark-mode .auction-bid-section,
+html.dark-mode .auction-history,
+html.dark-mode .item-gallery__main,
+html.dark-mode .item-seller-card,
+html.dark-mode .item-stats,
+html.dark-mode .item-price,
+html.dark-mode .price-chart-card,
+html.dark-mode .sidebar,
+html.dark-mode .announcement { background: var(--color-surface); }
+
+html.dark-mode .navbar { border-bottom-color: var(--color-border); }
+
+html.dark-mode .btn--carousel-primary,
+html.dark-mode .btn--login,
+html.dark-mode .btn--ghost { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
+
+html.dark-mode .footer { background: #0a0c14; border-top-color: var(--color-border); }
+
+html.dark-mode .pill-bar { background: var(--color-bg); border-bottom-color: var(--color-border); }
+html.dark-mode .pill { background: var(--color-surface); color: var(--color-muted); border-color: var(--color-border); }
+html.dark-mode .pill--active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+html.dark-mode .listing-card { border-color: var(--color-border); }
+
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
+
+html.dark-mode .modal-overlay { background: rgba(0,0,0,.75); }
+html.dark-mode .modal { background: var(--color-surface); }
+
+html.dark-mode .nav-dd__item { color: var(--color-text); }
+html.dark-mode .nav-dd__item:hover { background: var(--color-bg); }
+html.dark-mode .nav-dd__divider { background: var(--color-border); }
+
+/* Dark mode toggle button styling */
+html.dark-mode .nav-dd__item--btn { color: var(--color-text); }
+
 /* ── Reset & Base ───────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; min-height: 100%; }
@@ -317,6 +383,16 @@ button { font-family: var(--font); cursor: pointer; }
   transition: background .1s, color .1s;
 }
 .nav-dd__item:hover { background: var(--teal-50); color: var(--color-primary); text-decoration: none; }
+
+/* Dark-mode toggle — button that visually matches <a> items */
+.nav-dd__item--btn {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
 
 .nav-dd__divider {
   height: 1px;

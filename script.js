@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFeaturedTraders();
   initMyListings();
   initMoreMenu();
+  initDarkMode();
 });
 
 // ─── Footer year ──────────────────────────────────────────────────────────────
@@ -60,6 +61,27 @@ function initMoreMenu() {
 
   document.addEventListener('click', () => moreDd.classList.remove('is-open'));
   moreDd.addEventListener('click', (e) => e.stopPropagation());
+}
+
+// ─── Dark mode ────────────────────────────────────────────────────────────────
+function initDarkMode() {
+  const KEY  = 'rellmarket-dark';
+  const html = document.documentElement;
+  const btn  = document.getElementById('dark-mode-toggle');
+  if (!btn) return;
+
+  function isDark() { return html.classList.contains('dark-mode'); }
+
+  function setDark(on) {
+    html.classList.toggle('dark-mode', on);
+    btn.textContent = on ? '☀️ Light Mode' : '🌙 Dark Mode';
+    localStorage.setItem(KEY, on ? '1' : '0');
+  }
+
+  // Sync button label to current state (class already applied by inline head script)
+  btn.textContent = isDark() ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+  btn.addEventListener('click', () => setDark(!isDark()));
 }
 
 // ─── Mobile nav drawer ────────────────────────────────────────────────────────
