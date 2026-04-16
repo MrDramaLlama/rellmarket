@@ -491,7 +491,7 @@ button { font-family: var(--font); cursor: pointer; }
   gap: .85rem;
   padding: 1rem 1.5rem 1.25rem;
   border-top: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
 }
 .navbar__drawer.is-open { display: flex; }
 
@@ -2339,7 +2339,7 @@ body.page-out {
   left: 0;
   right: 0;
   z-index: 500;
-  background: #fff;
+  background: var(--color-surface);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
@@ -2422,7 +2422,7 @@ body.page-out {
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: #fff;
+  background: var(--color-surface);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
@@ -2789,7 +2789,7 @@ body.page-out {
   line-height: 1;
   padding: 0;
 }
-.card-heart:hover { background: #fff; transform: scale(1.15); }
+.card-heart:hover { background: var(--color-surface); transform: scale(1.15); }
 .card-heart.is-watchlisted { color: var(--color-primary); }
 
 /* Watchlist page */
@@ -3020,7 +3020,7 @@ body.page-out {
   right: 0;
   left: auto;
   min-width: 200px;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
@@ -5503,7 +5503,7 @@ body.page-out {
   display: flex;
   align-items: center;
   gap: .85rem;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid #bbf7d0;
   border-radius: 12px;
   padding: .75rem 1rem .75rem .75rem;
@@ -5581,7 +5581,7 @@ body.page-out {
   display: inline-flex;
   align-items: center;
   gap: .25rem;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid #bbf7d0;
   border-radius: 999px;
   padding: .1rem .45rem .1rem .35rem;
