@@ -511,6 +511,7 @@ function initItemPage() {
           seller,
           sellerIsVerified,
           sellerIsTrusted,
+          sellerAvatarUrl: l.profiles?.avatar_url || null,
           price,
           priceSub,
           rating:      staticItem?.rating      || '—',
@@ -738,6 +739,17 @@ function populateItemPage(item) {
   if (desc) desc.textContent = item.description;
 
   // Seller
+  const sellerAvatarEl = document.getElementById('item-seller-avatar');
+  if (sellerAvatarEl && item.sellerAvatarUrl) {
+    const img = document.createElement('img');
+    img.src   = item.sellerAvatarUrl;
+    img.alt   = item.seller || '';
+    img.className = 'item-seller__avatar-img';
+    img.onerror = () => { sellerAvatarEl.innerHTML = '⚓'; };
+    sellerAvatarEl.innerHTML = '';
+    sellerAvatarEl.appendChild(img);
+  }
+
   const sellerName = document.getElementById('item-seller-name');
   if (sellerName) {
     sellerName.textContent = item.seller;
