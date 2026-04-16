@@ -524,6 +524,23 @@ function timeAgo(dateString) {
   return `${months}mo ago`;
 }
 
+// ─── Wanted in Return: resolve icon HTML for an item name ────────────────────
+// size: pixel dimension for img/emoji display
+function wantsItemIcon(itemName, size) {
+  // Beli amounts (contain "Beli" or look like number amounts)
+  if (/beli/i.test(itemName)) {
+    return `<span class="wants-icon-emoji" style="font-size:${size}px;line-height:1;">💰</span>`;
+  }
+  // Look up in ITEMS_DATA by name
+  if (typeof ITEMS_DATA !== 'undefined') {
+    const entry = Object.values(ITEMS_DATA).find(d => d.name === itemName);
+    if (entry && entry.image) {
+      return `<img src="${entry.image}" alt="" class="wants-icon" width="${size}" height="${size}" style="object-fit:contain;flex-shrink:0;" />`;
+    }
+  }
+  return `<span class="wants-icon-emoji" style="font-size:${Math.round(size * 0.85)}px;line-height:1;">📦</span>`;
+}
+
 function populateItemPage(item) {
 
   // Page title
@@ -714,8 +731,22 @@ function populateItemPage(item) {
       const { wants } = await res.json();
       if (!Array.isArray(wants) || wants.length === 0) return;
       wantsList.innerHTML = wants.map(w => {
-        const qtyText = w.quantity > 1 ? ` ×${w.quantity}` : '';
-        return `<span class="item-wants__chip">${w.item_name}${qtyText}</span>`;
+        const icon    = wantsItemIcon(w.item_name, 32);
+        const isBeli  = /beli/i.test(w.item_name);
+        // Format Beli names: "1000000 Beli" → "1,000,000 Beli" (handle both forms)
+        const nameText = isBeli
+          ? w.item_name.replace(/(\d+(?:,\d+)*)/, n => Number(n.replace(/,/g, '')).toLocaleString())
+          : w.item_name;
+        const qtyHTML = w.quantity > 1
+          ? `<span class="item-wants__qty">×${w.quantity}</span>`
+          : '';
+        return `<div class="item-wants__card">
+          <div class="item-wants__card-icon">${icon}</div>
+          <div class="item-wants__card-info">
+            <span class="item-wants__card-name">${nameText}</span>
+            ${qtyHTML}
+          </div>
+        </div>`;
       }).join('');
       wantsSection.style.display = 'block';
     } catch (_) {}
@@ -786,8 +817,9 @@ function initPostListingForm() {
   function renderWantsChips() {
     if (!wantsChips) return;
     wantsChips.innerHTML = wantsItems.map((w, i) => {
-      const qtyText = w.quantity > 1 ? ` ×${w.quantity}` : '';
-      return `<span class="wants-chip">${w.item_name}${qtyText}<button type="button" class="wants-chip__remove" data-idx="${i}" aria-label="Remove">✕</button></span>`;
+      const icon    = wantsItemIcon(w.item_name, 16);
+      const qtyText = w.quantity > 1 ? `${w.quantity}× ` : '';
+      return `<span class="wants-chip">${icon}<span class="wants-chip__text">${qtyText}${w.item_name}</span><button type="button" class="wants-chip__remove" data-idx="${i}" aria-label="Remove">✕</button></span>`;
     }).join('');
     wantsChips.querySelectorAll('.wants-chip__remove').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1626,7 +1658,11 @@ function initFetchListings() {
     const wantsRowHTML = wantsArr.length > 0
       ? `<div class="listing-card__wants">
           <span class="listing-card__wants-label">Wants:</span>
-          ${wantsArr.slice(0, 3).map(w => `<span class="listing-card__wants-chip">${w.item_name}${w.quantity > 1 ? ' ×' + w.quantity : ''}</span>`).join('')}
+          ${wantsArr.slice(0, 3).map(w => {
+            const icon = wantsItemIcon(w.item_name, 14);
+            const qty  = w.quantity > 1 ? ` ×${w.quantity}` : '';
+            return `<span class="listing-card__wants-chip">${icon}<span>${w.item_name}${qty}</span></span>`;
+          }).join('')}
           ${wantsArr.length > 3 ? `<span class="listing-card__wants-more">+${wantsArr.length - 3} more</span>` : ''}
         </div>`
       : '';
