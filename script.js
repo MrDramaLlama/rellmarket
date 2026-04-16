@@ -454,10 +454,11 @@ function initItemPage() {
           priceSub,
           rating:      staticItem?.rating      || '—',
           reviewCount: staticItem?.reviewCount || 0,
-          createdAt:   l.created_at || null,
+          createdAt:           l.created_at || null,
           id,
           listingId,
-          categoryRaw: l.category || '',
+          categoryRaw:         l.category || '',
+          acceptsOtherOffers:  l.accepts_other_offers,
         });
       })
       .catch(() => {
@@ -636,35 +637,6 @@ function populateItemPage(item) {
   const statListed = document.getElementById('item-stat-listed');
   if (statListed) statListed.textContent = item.createdAt ? timeAgo(item.createdAt) : '—';
 
-  // Check auth state, show/hide trade actions, then reveal the page
-  (async function applyItemAuthState() {
-    let loggedIn = false;
-    try {
-      if (typeof supabaseClient !== 'undefined') {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        loggedIn = !!session;
-      }
-    } catch (_) {}
-
-    const itemActions  = document.getElementById('item-actions');
-    const itemReport   = document.getElementById('item-report-row');
-    const itemGuestMsg = document.getElementById('item-guest-msg');
-
-    if (loggedIn) {
-      if (itemActions)  itemActions.style.display  = 'grid';
-      if (itemReport)   itemReport.style.display   = 'block';
-      if (itemGuestMsg) itemGuestMsg.style.display = 'none';
-    } else {
-      if (itemActions)  itemActions.style.display  = 'none';
-      if (itemReport)   itemReport.style.display   = 'none';
-      if (itemGuestMsg) itemGuestMsg.style.display = 'block';
-    }
-
-    // Reveal the page now that both data and auth state are set
-    const itemMain = document.querySelector('main.item-page');
-    if (itemMain) itemMain.style.visibility = 'visible';
-  })();
-
   // Dispatch event so the inline price-history chart script can react
   document.dispatchEvent(new CustomEvent('rellmarket:item-loaded', { detail: { itemName: item.name } }));
 
@@ -683,9 +655,7 @@ function populateItemPage(item) {
       if (!res.ok) throw new Error('fetch failed');
       const { listings } = await res.json();
 
-      // Exclude the current listing
       const others = listings.filter(l => String(l.id) !== String(item.listingId)).slice(0, 4);
-
       if (others.length === 0) { similarSection.hidden = true; return; }
 
       similarGrid.innerHTML = others.map(l => {
@@ -719,25 +689,34 @@ function populateItemPage(item) {
     }
   })();
 
-  // Wanted in Return — fetch from API and display below stats
-  (async function loadWants() {
-    if (!item.listingId) return;
+  // Fetch auth state + wanted items in parallel, then apply all interactive UI + reveal page
+  (async function applyItemInteractions() {
+    const sessionPromise = (typeof supabaseClient !== 'undefined')
+      ? supabaseClient.auth.getSession().catch(() => ({ data: { session: null } }))
+      : Promise.resolve({ data: { session: null } });
+
+    const wantsPromise = item.listingId
+      ? fetch(`/api/listings/wants-get?listing_id=${encodeURIComponent(item.listingId)}`)
+          .then(r => r.ok ? r.json() : { wants: [] })
+          .catch(() => ({ wants: [] }))
+      : Promise.resolve({ wants: [] });
+
+    const [sessionData, wantsData] = await Promise.all([sessionPromise, wantsPromise]);
+
+    const loggedIn = !!(sessionData?.data?.session);
+    const wants    = wantsData.wants || [];
+
+    // Populate "Wanted in Return" section
     const wantsSection = document.getElementById('item-wants');
     const wantsList    = document.getElementById('item-wants-list');
-    if (!wantsSection || !wantsList) return;
-    try {
-      const res = await fetch(`/api/listings/wants-get?listing_id=${encodeURIComponent(item.listingId)}`);
-      if (!res.ok) return;
-      const { wants } = await res.json();
-      if (!Array.isArray(wants) || wants.length === 0) return;
+    if (wantsSection && wantsList && wants.length > 0) {
       wantsList.innerHTML = wants.map(w => {
-        const icon    = wantsItemIcon(w.item_name, 32);
-        const isBeli  = /beli/i.test(w.item_name);
-        // Format Beli names: "1000000 Beli" → "1,000,000 Beli" (handle both forms)
+        const icon     = wantsItemIcon(w.item_name, 48);
+        const isBeli   = /beli/i.test(w.item_name);
         const nameText = isBeli
           ? w.item_name.replace(/(\d+(?:,\d+)*)/, n => Number(n.replace(/,/g, '')).toLocaleString())
           : w.item_name;
-        const qtyHTML = w.quantity > 1
+        const qtyHTML  = w.quantity > 1
           ? `<span class="item-wants__qty">×${w.quantity}</span>`
           : '';
         return `<div class="item-wants__card">
@@ -749,7 +728,50 @@ function populateItemPage(item) {
         </div>`;
       }).join('');
       wantsSection.style.display = 'block';
-    } catch (_) {}
+    }
+
+    // Determine trade button display state
+    // accepts_other_offers: null/undefined = treat as true (legacy listings); false = strict mode
+    const hasWants    = wants.length > 0;
+    const strictWants = hasWants && item.acceptsOtherOffers === false;
+
+    const itemActions  = document.getElementById('item-actions');
+    const itemReport   = document.getElementById('item-report-row');
+    const itemGuestMsg = document.getElementById('item-guest-msg');
+    const itemOnlyMsg  = document.getElementById('item-only-wants-msg');
+    const itemAltOffer = document.getElementById('item-different-offer');
+
+    if (loggedIn) {
+      if (itemGuestMsg) itemGuestMsg.style.display = 'none';
+      if (itemReport)   itemReport.style.display   = 'block';
+
+      if (strictWants) {
+        // Seller only wants the items listed — hide trade buttons, show restriction message
+        if (itemActions)  itemActions.style.display  = 'none';
+        if (itemOnlyMsg)  itemOnlyMsg.style.display  = 'block';
+        if (itemAltOffer) itemAltOffer.style.display = 'none';
+      } else if (hasWants) {
+        // Has wants but also accepts other offers — show "Or make a different offer" label
+        if (itemActions)  itemActions.style.display  = 'grid';
+        if (itemOnlyMsg)  itemOnlyMsg.style.display  = 'none';
+        if (itemAltOffer) itemAltOffer.style.display = 'block';
+      } else {
+        // No wants — normal trade buttons with no extra messaging
+        if (itemActions)  itemActions.style.display  = 'grid';
+        if (itemOnlyMsg)  itemOnlyMsg.style.display  = 'none';
+        if (itemAltOffer) itemAltOffer.style.display = 'none';
+      }
+    } else {
+      if (itemActions)  itemActions.style.display  = 'none';
+      if (itemReport)   itemReport.style.display   = 'none';
+      if (itemOnlyMsg)  itemOnlyMsg.style.display  = 'none';
+      if (itemAltOffer) itemAltOffer.style.display = 'none';
+      if (itemGuestMsg) itemGuestMsg.style.display = 'block';
+    }
+
+    // Reveal the page — everything is settled now
+    const itemMain = document.querySelector('main.item-page');
+    if (itemMain) itemMain.style.visibility = 'visible';
   })();
 }
 
@@ -803,6 +825,7 @@ function initPostListingForm() {
   const wantsQtyInput    = document.getElementById('wants-qty-input');
   const wantsAddBtn      = document.getElementById('wants-add-btn');
   const wantsChips       = document.getElementById('wants-chips');
+  const wantsOtherGroup  = document.getElementById('wants-other-group');
 
   // Track added wants as array of { item_name, quantity }
   let wantsItems = [];
@@ -828,6 +851,10 @@ function initPostListingForm() {
         renderWantsChips();
       });
     });
+    // Show "Also accept other offers?" toggle only when at least one want is added
+    if (wantsOtherGroup) {
+      wantsOtherGroup.style.display = wantsItems.length > 0 ? '' : 'none';
+    }
   }
 
   if (wantsAddBtn) {
@@ -1116,16 +1143,18 @@ function initPostListingForm() {
 
       const listingType = form.querySelector('input[name="listing-type"]:checked')?.value || 'selling';
 
+      const acceptsOtherOffersEl = document.getElementById('wants-accepts-other');
       const payload = {
-        item_name:    itemText,
-        category:     fieldCategory.value,
-        rarity:       fieldRarity.value || null,
-        fruit_type:   fieldType.value   || null,
-        price:        listingType === 'looking' ? null : (priceType === 'fixed' && fieldPrice.value ? Number(fieldPrice.value) : (startingPrice || null)),
-        price_type:   listingType === 'looking' ? 'offer' : priceType,
-        listing_type: listingType,
-        description:  fieldDesc.value   || null,
-        image_url:    (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
+        item_name:             itemText,
+        category:              fieldCategory.value,
+        rarity:                fieldRarity.value || null,
+        fruit_type:            fieldType.value   || null,
+        price:                 listingType === 'looking' ? null : (priceType === 'fixed' && fieldPrice.value ? Number(fieldPrice.value) : (startingPrice || null)),
+        price_type:            listingType === 'looking' ? 'offer' : priceType,
+        listing_type:          listingType,
+        description:           fieldDesc.value   || null,
+        image_url:             (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
+        accepts_other_offers:  wantsItems.length === 0 ? true : (acceptsOtherOffersEl?.checked !== false),
       };
 
       const headers = { 'Content-Type': 'application/json' };
@@ -1217,6 +1246,8 @@ function initPostListingForm() {
           previewImgBox.classList.remove('has-image');
           wantsItems = [];
           renderWantsChips();
+          const acceptsOtherReset = document.getElementById('wants-accepts-other');
+          if (acceptsOtherReset) acceptsOtherReset.checked = true;
           updatePreview();
         };
       }

@@ -5277,23 +5277,23 @@ body.page-out {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 56px;
+  height: 56px;
   background: #f0fdf4;
-  border-radius: 8px;
+  border-radius: 10px;
   flex-shrink: 0;
   overflow: hidden;
 }
 
 .item-wants__card-icon .wants-icon {
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   display: block;
 }
 
 .item-wants__card-icon .wants-icon-emoji {
-  font-size: 22px;
+  font-size: 30px;
   line-height: 1;
 }
 
@@ -5369,4 +5369,100 @@ body.page-out {
   font-size: .68rem;
   font-weight: 600;
   opacity: .8;
+}
+
+/* ═══════════════════════════════════════
+   ALSO ACCEPT OTHER OFFERS — toggle
+════════════════════════════════════════ */
+.wants-toggle-group {
+  margin-top: .75rem;
+  padding: .75rem .9rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+}
+
+.wants-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hide native checkbox */
+.wants-toggle-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Track */
+.wants-toggle-track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+
+.wants-toggle-label input[type="checkbox"]:checked + .wants-toggle-track {
+  background: #22c55e;
+}
+
+/* Thumb */
+.wants-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .2s;
+}
+
+.wants-toggle-label input[type="checkbox"]:checked + .wants-toggle-track .wants-toggle-thumb {
+  transform: translateX(16px);
+}
+
+.wants-toggle-text {
+  font-size: .88rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+/* ═══════════════════════════════════════
+   ITEM PAGE — strict-wants & alt-offer
+════════════════════════════════════════ */
+
+/* "This seller is only accepting the items listed above" */
+.item-only-msg {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .85rem;
+  padding: .65rem .9rem;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  font-size: .85rem;
+  font-weight: 500;
+  color: #b91c1c;
+  line-height: 1.4;
+}
+
+/* "Or make a different offer:" label shown above trade buttons */
+.item-alt-offer {
+  margin-top: .9rem;
+  margin-bottom: .4rem;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
