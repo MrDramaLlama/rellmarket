@@ -178,6 +178,10 @@
               <span class="profile-card__stat-label">Discord</span>
               <span class="profile-card__stat-value profile-card__stat-value--discord" id="stat-discord">—</span>
             </li>
+            <li id="stat-portfolio-rv-row" hidden>
+              <span class="profile-card__stat-label">Portfolio RV</span>
+              <span class="profile-card__stat-value" id="stat-portfolio-rv">—</span>
+            </li>
           </ul>
         </div>
 
@@ -467,6 +471,27 @@
             }
           }
         } catch (e) {}
+
+        // Portfolio RV — fetch all values, sum established RVs for active listings
+        fetch('/api/values/get')
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (!data?.items || !listings.length) return;
+            const vm = new Map(data.items.map(v => [(v.item_name || '').toLowerCase(), v]));
+            let totalRV = 0;
+            let hasEstablished = false;
+            listings.forEach(l => {
+              const v = vm.get((l.item_name || '').toLowerCase());
+              if (v?.is_established && v.rv > 0) { totalRV += v.rv; hasEstablished = true; }
+            });
+            const rvEl  = document.getElementById('stat-portfolio-rv');
+            const rvRow = document.getElementById('stat-portfolio-rv-row');
+            if (rvEl && rvRow) {
+              rvEl.textContent = hasEstablished ? totalRV.toFixed(1) : 'Unestablished';
+              rvRow.hidden = false;
+            }
+          })
+          .catch(() => {});
 
         // Listings grid
         const grid = document.getElementById('profile-listing-grid');

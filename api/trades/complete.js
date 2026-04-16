@@ -62,5 +62,15 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // Trigger RV recalculation (fire-and-forget — never blocks the response)
+  const base = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://rellmarket.vercel.app';
+  fetch(`${base}/api/values/recalculate`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ trade_id }),
+  }).catch(() => {});
+
   return res.status(200).json({ success: true });
 }

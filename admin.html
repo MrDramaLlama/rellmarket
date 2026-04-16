@@ -184,6 +184,8 @@
           <button class="admin-tab" data-tab="listings" role="tab">Listings</button>
           <button class="admin-tab" data-tab="users" role="tab">Users</button>
           <button class="admin-tab" data-tab="reports" role="tab">Reports</button>
+          <button class="admin-tab" data-tab="flagged" role="tab">🚨 Flagged Trades</button>
+          <button class="admin-tab" data-tab="values" role="tab">📊 Item Values</button>
         </div>
 
         <!-- ── Overview tab ── -->
@@ -247,6 +249,50 @@
               </thead>
               <tbody id="reports-tbody">
                 <tr><td colspan="5" class="admin-table__loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Flagged Trades tab ── -->
+        <div class="admin-panel" id="tab-flagged" hidden>
+          <p class="admin-panel__hint">Trades flagged by the manipulation detection system. Approve to count toward RV, or dismiss to ignore.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="flagged-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Sender</th>
+                  <th>Receiver</th>
+                  <th>Offer</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="flagged-tbody">
+                <tr><td colspan="6" class="admin-table__loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Item Values tab ── -->
+        <div class="admin-panel" id="tab-values" hidden>
+          <p class="admin-panel__hint">Manage Rell Values and demand tiers for all items.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="values-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>RV</th>
+                  <th>Demand</th>
+                  <th>Established</th>
+                  <th>Last Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="values-tbody">
+                <tr><td colspan="6" class="admin-table__loading">Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -467,8 +513,133 @@
         });
       }
 
+      // ── Load flagged trades ──
+      async function loadFlaggedTrades() {
+        const tbody = document.getElementById('flagged-tbody');
+        const { data: trades, error } = await client
+          .from('trade_requests')
+          .select('id, created_at, sender_id, listing_id, offered_item, offered_beli, listings(item_name, user_id)')
+          .eq('is_flagged', true)
+          .order('created_at', { ascending: false });
+
+        if (error || !trades?.length) {
+          tbody.innerHTML = '<tr><td colspan="6">No flagged trades.</td></tr>';
+          return;
+        }
+
+        // Collect all unique user IDs to batch-fetch profiles
+        const userIds = [...new Set(trades.flatMap(t => [t.sender_id, t.listings?.user_id].filter(Boolean)))];
+        const { data: profiles } = await client.from('profiles').select('id, username, roblox_username').in('id', userIds);
+        const profileMap = new Map((profiles || []).map(p => [p.id, p.roblox_username || p.username || p.id]));
+
+        // Auto-approve trades older than 7 days
+        const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
+        for (const t of trades) {
+          if (new Date(t.created_at).getTime() < sevenDaysAgo) {
+            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
+            fetch(`${BASE}/api/values/recalculate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeaders },
+              body: JSON.stringify({ trade_id: t.id }),
+            }).catch(() => {});
+          }
+        }
+
+        const remaining = trades.filter(t => new Date(t.created_at).getTime() >= sevenDaysAgo);
+        if (!remaining.length) {
+          tbody.innerHTML = '<tr><td colspan="6">No flagged trades.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        remaining.forEach(t => {
+          const itemName  = t.listings?.item_name || '—';
+          const sender    = profileMap.get(t.sender_id) || '—';
+          const receiver  = profileMap.get(t.listings?.user_id) || '—';
+          const offer     = t.offered_beli ? `${Number(t.offered_beli).toLocaleString()} Beli` : (t.offered_item || '—');
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${itemName}</td>
+            <td>${sender}</td>
+            <td>${receiver}</td>
+            <td>${offer}</td>
+            <td>${fmt(t.created_at)}</td>
+            <td class="admin-actions">
+              <button class="btn admin-btn btn-approve">Approve</button>
+              <button class="btn admin-btn admin-btn--danger btn-dismiss-flag">Dismiss</button>
+            </td>`;
+          tr.querySelector('.btn-approve').addEventListener('click', async () => {
+            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
+            fetch(`${BASE}/api/values/recalculate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeaders },
+              body: JSON.stringify({ trade_id: t.id }),
+            }).catch(() => {});
+            tr.remove();
+            if (typeof showToast === 'function') showToast('Trade approved — RV updated ✅');
+          });
+          tr.querySelector('.btn-dismiss-flag').addEventListener('click', async () => {
+            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
+            tr.remove();
+            if (typeof showToast === 'function') showToast('Trade dismissed.');
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ── Load item values ──
+      async function loadItemValues() {
+        const tbody = document.getElementById('values-tbody');
+        const r = await fetch(`${BASE}/api/values/get`, { headers: authHeaders });
+        const json = await r.json();
+        const items = json.items || [];
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="6">No item values found.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        items.forEach(v => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${v.item_name}</td>
+            <td><input class="admin-rv-input" type="number" min="0" step="0.01" value="${v.rv ?? ''}" style="width:70px;" /></td>
+            <td>
+              <select class="admin-demand-select">
+                <option value="">—</option>
+                <option value="low"      ${v.demand_tier === 'low'       ? 'selected' : ''}>💙 Low</option>
+                <option value="medium"   ${v.demand_tier === 'medium'    ? 'selected' : ''}>💛 Medium</option>
+                <option value="high"     ${v.demand_tier === 'high'      ? 'selected' : ''}>❤️ High</option>
+                <option value="very_high"${v.demand_tier === 'very_high' ? 'selected' : ''}>🖤 Very High</option>
+              </select>
+            </td>
+            <td>${v.is_established ? '✅ Yes' : '⏳ No'}</td>
+            <td>${v.last_updated ? fmt(v.last_updated) : '—'}</td>
+            <td><button class="btn admin-btn btn-save-rv">Save</button></td>`;
+          tr.querySelector('.btn-save-rv').addEventListener('click', async () => {
+            const rvVal     = tr.querySelector('.admin-rv-input').value;
+            const demandVal = tr.querySelector('.admin-demand-select').value;
+            try {
+              const res = await fetch(`${BASE}/api/values/update`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({
+                  item_name:   v.item_name,
+                  rv:          rvVal !== '' ? rvVal : undefined,
+                  demand_tier: demandVal || null,
+                }),
+              });
+              if (!res.ok) throw new Error((await res.json()).error);
+              if (typeof showToast === 'function') showToast(`${v.item_name} updated ✅`);
+            } catch (e) {
+              if (typeof showToast === 'function') showToast('Error: ' + e.message);
+            }
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
       // ── Tab switching ──
-      const loaded = { overview: true, listings: false, users: false, reports: false };
+      const loaded = { overview: true, listings: false, users: false, reports: false, flagged: false, values: false };
 
       document.querySelectorAll('.admin-tab').forEach(tab => {
         tab.addEventListener('click', async () => {
@@ -484,6 +655,8 @@
             if (name === 'listings') await loadListings();
             if (name === 'users')    await loadUsers();
             if (name === 'reports')  await loadReports();
+            if (name === 'flagged')  await loadFlaggedTrades();
+            if (name === 'values')   await loadItemValues();
           }
         });
       });

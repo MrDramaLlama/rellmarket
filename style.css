@@ -4192,6 +4192,90 @@ body.page-out {
   font-style: italic;
 }
 
+/* ── RV / Demand row on listing cards ── */
+.listing-card__rv {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .1rem 0 .2rem;
+  font-size: .7rem;
+  color: var(--color-muted);
+}
+.listing-card__rv-demand {
+  font-size: .8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.listing-card__rv-val {
+  font-weight: 600;
+  color: var(--color-text);
+}
+.listing-card__rv-market {
+  margin-left: auto;
+  font-size: .72rem;
+}
+
+/* ── RV section on item detail page ── */
+.item-rv-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+}
+.item-rv__row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.item-rv__demand-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  cursor: default;
+}
+.item-rv__info {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  flex: 1;
+}
+.item-rv__value {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.item-rv__unestablished {
+  font-size: .78rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+.item-rv__market {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+/* ── Admin: item values table inputs ── */
+.admin-rv-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  padding: .25rem .4rem;
+  font-size: .85rem;
+  font-family: inherit;
+}
+.admin-demand-select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  padding: .25rem .4rem;
+  font-size: .85rem;
+  font-family: inherit;
+}
+
 /* ── Auction badge on listing cards ── */
 .listing-badge--auction {
   background: #fef3c7;

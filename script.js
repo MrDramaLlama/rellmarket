@@ -405,6 +405,45 @@ function initSidebarClear() {
   applyListingFilters();
 }
 
+// ─── RV / Demand helpers ──────────────────────────────────────────────────────
+// These helpers use the stored RV value — the formula stays server-side only.
+
+function getDemandHeart(tier) {
+  switch (tier) {
+    case 'very_high': return '🖤';
+    case 'high':      return '❤️';
+    case 'medium':    return '💛';
+    case 'low':       return '💙';
+    default:          return '🤍';
+  }
+}
+
+function getDemandLabel(tier) {
+  switch (tier) {
+    case 'very_high': return 'Very High Demand';
+    case 'high':      return 'High Demand';
+    case 'medium':    return 'Medium Demand';
+    case 'low':       return 'Low Demand';
+    default:          return 'Unknown Demand';
+  }
+}
+
+function getMarketIndicator(priceInBeli, rv) {
+  if (!rv || rv <= 0 || !priceInBeli) return '';
+  const market = rv * 10_000_000;
+  if (priceInBeli > market * 1.2) return '📈';
+  if (priceInBeli < market * 0.8) return '📉';
+  return '✅';
+}
+
+function getMarketLabel(priceInBeli, rv) {
+  if (!rv || rv <= 0 || !priceInBeli) return '';
+  const market = rv * 10_000_000;
+  if (priceInBeli > market * 1.2) return 'Above market value';
+  if (priceInBeli < market * 0.8) return 'Below market value';
+  return 'Around market value';
+}
+
 // ─── Listing card names → item.html ──────────────────────────────────────────
 // Wraps each .listing-card__name in an anchor. Uses the parent card's
 // data-item-id to build the correct ?id= URL; falls back to item.html.
@@ -482,6 +521,40 @@ function initItemPage() {
           categoryRaw:         l.category || '',
           acceptsOtherOffers:  l.accepts_other_offers,
         });
+
+        // Fetch and display RV / demand for this item
+        fetch(`https://rellmarket.vercel.app/api/values/get?item_name=${encodeURIComponent(l.item_name)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            const v = data?.item;
+            const sec = document.getElementById('item-rv-section');
+            if (!sec) return;
+            sec.hidden = false;
+            const demandEl = document.getElementById('item-rv-demand-icon');
+            if (demandEl) {
+              demandEl.textContent = getDemandHeart(v?.demand_tier);
+              demandEl.title = getDemandLabel(v?.demand_tier);
+            }
+            const rvValEl = document.getElementById('item-rv-value');
+            if (rvValEl) {
+              if (!v) {
+                rvValEl.textContent = 'RV: —';
+              } else if (v.is_established) {
+                rvValEl.textContent = `RV: ${v.rv}`;
+              } else {
+                rvValEl.textContent = 'RV: Unestablished';
+                const unestEl = document.getElementById('item-rv-unestablished');
+                if (unestEl) unestEl.hidden = false;
+              }
+            }
+            const marketEl = document.getElementById('item-rv-market');
+            if (marketEl && v?.is_established && l.price && l.price_type === 'fixed') {
+              const icon  = getMarketIndicator(Number(l.price), v.rv);
+              const label = getMarketLabel(Number(l.price), v.rv);
+              if (icon) { marketEl.textContent = `${icon} ${label}`; marketEl.hidden = false; }
+            }
+          })
+          .catch(() => {});
       })
       .catch(() => {
         // Fetch failed — fall back to static data if available
@@ -1809,6 +1882,17 @@ function initFetchListings() {
     });
   });
 
+  // Pre-fetch all item values for RV/demand display on cards
+  const valuesMap = new Map();
+  fetch('https://rellmarket.vercel.app/api/values/get')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data?.items) {
+        data.items.forEach(v => valuesMap.set((v.item_name || '').toLowerCase(), v));
+      }
+    })
+    .catch(() => {});
+
   function auctionTimeLeft(endsAt) {
     const diff = new Date(endsAt) - Date.now();
     if (diff <= 0) return 'Ended';
@@ -1884,6 +1968,23 @@ function initFetchListings() {
         </div>`
       : '';
 
+    // RV + demand row
+    const iv = valuesMap.get((l.item_name || '').toLowerCase());
+    const demandHeart = getDemandHeart(iv?.demand_tier);
+    const rvText = iv
+      ? (iv.is_established ? `RV: ${iv.rv}` : 'RV: ?')
+      : '';
+    const marketIcon = (!isLooking && iv?.is_established && l.price && l.price_type === 'fixed')
+      ? getMarketIndicator(Number(l.price), iv.rv)
+      : '';
+    const rvRowHTML = (iv || rvText)
+      ? `<div class="listing-card__rv">
+          <span class="listing-card__rv-demand" title="${getDemandLabel(iv?.demand_tier)}">${demandHeart}</span>
+          ${rvText ? `<span class="listing-card__rv-val">${rvText}</span>` : ''}
+          ${marketIcon ? `<span class="listing-card__rv-market" title="${getMarketLabel(Number(l.price), iv?.rv)}">${marketIcon}</span>` : ''}
+        </div>`
+      : '';
+
     return `
       <article class="listing-card${isLooking ? ' listing-card--looking' : ''}" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}" data-sort-price="${standardSortPrice}">
         <a href="${itemUrl}" class="listing-card__img-wrap">
@@ -1896,6 +1997,7 @@ function initFetchListings() {
           <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
           <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
           ${wantsRowHTML}
+          ${rvRowHTML}
           <div class="listing-card__footer">
             ${priceHTML}
             <a href="${itemUrl}" class="btn btn--trade-card">${isLooking ? 'Offer' : 'Trade'}</a>
