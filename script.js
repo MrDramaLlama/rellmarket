@@ -711,7 +711,7 @@ function populateItemPage(item) {
     const wantsList    = document.getElementById('item-wants-list');
     if (wantsSection && wantsList && wants.length > 0) {
       wantsList.innerHTML = wants.map(w => {
-        const icon     = wantsItemIcon(w.item_name, 48);
+        const icon     = wantsItemIcon(w.item_name, 64);
         const isBeli   = /beli/i.test(w.item_name);
         const nameText = isBeli
           ? w.item_name.replace(/(\d+(?:,\d+)*)/, n => Number(n.replace(/,/g, '')).toLocaleString())
@@ -734,6 +734,14 @@ function populateItemPage(item) {
     // accepts_other_offers: null/undefined = treat as true (legacy listings); false = strict mode
     const hasWants    = wants.length > 0;
     const strictWants = hasWants && item.acceptsOtherOffers === false;
+
+    // Hide the price label/subtext when wants are present — the wants section replaces that context
+    if (hasWants) {
+      const itemPriceLabel = document.getElementById('item-price-label');
+      const itemPriceSub   = document.getElementById('item-price-sub');
+      if (itemPriceLabel) itemPriceLabel.style.display = 'none';
+      if (itemPriceSub)   itemPriceSub.style.display   = 'none';
+    }
 
     const itemActions  = document.getElementById('item-actions');
     const itemReport   = document.getElementById('item-report-row');

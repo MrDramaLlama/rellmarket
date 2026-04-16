@@ -5265,11 +5265,11 @@ body.page-out {
 .item-wants__card {
   display: flex;
   align-items: center;
-  gap: .6rem;
+  gap: .85rem;
   background: #fff;
   border: 1px solid #bbf7d0;
-  border-radius: 10px;
-  padding: .5rem .75rem .5rem .6rem;
+  border-radius: 12px;
+  padding: .75rem 1rem .75rem .75rem;
   min-width: 0;
 }
 
@@ -5277,23 +5277,23 @@ body.page-out {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   background: #f0fdf4;
-  border-radius: 10px;
+  border-radius: 12px;
   flex-shrink: 0;
   overflow: hidden;
 }
 
 .item-wants__card-icon .wants-icon {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   display: block;
 }
 
 .item-wants__card-icon .wants-icon-emoji {
-  font-size: 30px;
+  font-size: 38px;
   line-height: 1;
 }
 
@@ -5305,7 +5305,7 @@ body.page-out {
 }
 
 .item-wants__card-name {
-  font-size: .85rem;
+  font-size: .95rem;
   font-weight: 600;
   color: var(--color-text);
   white-space: nowrap;
