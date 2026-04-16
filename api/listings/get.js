@@ -22,8 +22,8 @@ module.exports = async function handler(req, res) {
   }
 
   const selectFields = sort === 'popular'
-    ? '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at), trade_requests(count)'
-    : '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at)';
+    ? '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at), trade_requests(count), listing_wants(item_name, quantity)'
+    : '*, profiles(username, roblox_username, avatar_url, is_verified, is_trusted), auctions(id, current_bid, min_increment, starting_price, ends_at), listing_wants(item_name, quantity)';
 
   let query = supabase
     .from('listings')

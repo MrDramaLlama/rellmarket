@@ -320,6 +320,28 @@
               </div>
             </div>
 
+            <!-- Wanted in Return (hidden for "Looking For" listings) -->
+            <div class="form-group" id="wanted-group">
+              <label class="form-label">Wanted in Return <span class="form-label__optional">(optional)</span></label>
+              <p class="form-hint">Add the items you'd like to receive in exchange.</p>
+              <div class="wants-input-row">
+                <select class="form-input form-select" id="wants-item-select">
+                  <option value="">Select an item…</option>
+                </select>
+                <input
+                  class="form-input wants-qty-input"
+                  type="number"
+                  id="wants-qty-input"
+                  value="1"
+                  min="1"
+                  max="99"
+                  aria-label="Quantity"
+                />
+                <button type="button" class="btn btn--wants-add" id="wants-add-btn">＋ Add</button>
+              </div>
+              <div class="wants-chips" id="wants-chips"></div>
+            </div>
+
             <!-- Description -->
             <div class="form-group">
               <label class="form-label" for="field-desc">Description</label>

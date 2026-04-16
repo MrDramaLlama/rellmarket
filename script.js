@@ -701,6 +701,25 @@ function populateItemPage(item) {
       similarSection.hidden = true;
     }
   })();
+
+  // Wanted in Return — fetch from API and display below stats
+  (async function loadWants() {
+    if (!item.listingId) return;
+    const wantsSection = document.getElementById('item-wants');
+    const wantsList    = document.getElementById('item-wants-list');
+    if (!wantsSection || !wantsList) return;
+    try {
+      const res = await fetch(`/api/listings/wants-get?listing_id=${encodeURIComponent(item.listingId)}`);
+      if (!res.ok) return;
+      const { wants } = await res.json();
+      if (!Array.isArray(wants) || wants.length === 0) return;
+      wantsList.innerHTML = wants.map(w => {
+        const qtyText = w.quantity > 1 ? ` ×${w.quantity}` : '';
+        return `<span class="item-wants__chip">${w.item_name}${qtyText}</span>`;
+      }).join('');
+      wantsSection.style.display = 'block';
+    } catch (_) {}
+  })();
 }
 
 // ─── Item page: gallery thumbnail switcher ────────────────────────────────────
@@ -746,6 +765,56 @@ function initPostListingForm() {
   const fieldAuctionDur    = document.getElementById('field-auction-duration');
   const fruitTypeGrp       = document.getElementById('fruit-type-group');
   const descCount     = document.getElementById('desc-count');
+
+  // Wanted in Return refs
+  const wantedGroup      = document.getElementById('wanted-group');
+  const wantsItemSelect  = document.getElementById('wants-item-select');
+  const wantsQtyInput    = document.getElementById('wants-qty-input');
+  const wantsAddBtn      = document.getElementById('wants-add-btn');
+  const wantsChips       = document.getElementById('wants-chips');
+
+  // Track added wants as array of { item_name, quantity }
+  let wantsItems = [];
+
+  // Populate wants item select by mirroring field-item options
+  if (wantsItemSelect && fieldItem) {
+    Array.from(fieldItem.children).forEach(child => {
+      wantsItemSelect.appendChild(child.cloneNode(true));
+    });
+  }
+
+  function renderWantsChips() {
+    if (!wantsChips) return;
+    wantsChips.innerHTML = wantsItems.map((w, i) => {
+      const qtyText = w.quantity > 1 ? ` ×${w.quantity}` : '';
+      return `<span class="wants-chip">${w.item_name}${qtyText}<button type="button" class="wants-chip__remove" data-idx="${i}" aria-label="Remove">✕</button></span>`;
+    }).join('');
+    wantsChips.querySelectorAll('.wants-chip__remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.idx);
+        wantsItems.splice(idx, 1);
+        renderWantsChips();
+      });
+    });
+  }
+
+  if (wantsAddBtn) {
+    wantsAddBtn.addEventListener('click', () => {
+      const name = wantsItemSelect?.value;
+      if (!name) return;
+      const qty = Math.max(1, Number(wantsQtyInput?.value) || 1);
+      // Merge if same item already added
+      const existing = wantsItems.find(w => w.item_name === wantsItemSelect.options[wantsItemSelect.selectedIndex].text);
+      if (existing) {
+        existing.quantity += qty;
+      } else {
+        wantsItems.push({ item_name: wantsItemSelect.options[wantsItemSelect.selectedIndex].text, quantity: qty });
+      }
+      if (wantsItemSelect) wantsItemSelect.value = '';
+      if (wantsQtyInput) wantsQtyInput.value = '1';
+      renderWantsChips();
+    });
+  }
 
   // Preview refs
   const previewName   = document.getElementById('preview-name');
@@ -916,10 +985,12 @@ function initPostListingForm() {
   }
   priceRadios.forEach(radio => radio.addEventListener('change', applyPriceRadio));
 
-  // Show/hide price group based on listing type
+  // Show/hide price group and wanted group based on listing type
   function applyListingType() {
     const listingType = form.querySelector('input[name="listing-type"]:checked')?.value;
-    if (priceGroup) priceGroup.style.display = listingType === 'looking' ? 'none' : '';
+    const isLooking = listingType === 'looking';
+    if (priceGroup)  priceGroup.style.display  = isLooking ? 'none' : '';
+    if (wantedGroup) wantedGroup.style.display = isLooking ? 'none' : '';
   }
   listingTypeRadios.forEach(radio => radio.addEventListener('change', applyListingType));
 
@@ -1037,6 +1108,17 @@ function initPostListingForm() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to post listing');
 
+      // Save wanted items if any
+      if (json.listing?.id && wantsItems.length > 0) {
+        try {
+          await fetch('/api/listings/wants-create', {
+            method:  'POST',
+            headers,
+            body:    JSON.stringify({ listing_id: json.listing.id, wants: wantsItems }),
+          });
+        } catch (_) {}
+      }
+
       // If auction, create the auction record then redirect
       if (priceType === 'auction' && json.listing?.id) {
         submitBtn.textContent = 'Starting auction…';
@@ -1101,6 +1183,8 @@ function initPostListingForm() {
           if (auctionWrap) auctionWrap.classList.remove('is-visible');
           previewImg.src = '';
           previewImgBox.classList.remove('has-image');
+          wantsItems = [];
+          renderWantsChips();
           updatePreview();
         };
       }
@@ -1536,6 +1620,17 @@ function initFetchListings() {
         : `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
     const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
     const standardSortPrice = (l.price && Number(l.price) > 0) ? Number(l.price) : '';
+
+    // Compact "Wants:" row for selling listings that have wants set
+    const wantsArr = (!isLooking && Array.isArray(l.listing_wants) && l.listing_wants.length > 0) ? l.listing_wants : [];
+    const wantsRowHTML = wantsArr.length > 0
+      ? `<div class="listing-card__wants">
+          <span class="listing-card__wants-label">Wants:</span>
+          ${wantsArr.slice(0, 3).map(w => `<span class="listing-card__wants-chip">${w.item_name}${w.quantity > 1 ? ' ×' + w.quantity : ''}</span>`).join('')}
+          ${wantsArr.length > 3 ? `<span class="listing-card__wants-more">+${wantsArr.length - 3} more</span>` : ''}
+        </div>`
+      : '';
+
     return `
       <article class="listing-card${isLooking ? ' listing-card--looking' : ''}" data-category="${l.category || ''}" data-rarity="${l.rarity || ''}" data-item-id="${l.id}" data-sort-price="${standardSortPrice}">
         <a href="${itemUrl}" class="listing-card__img-wrap">
@@ -1547,6 +1642,7 @@ function initFetchListings() {
           <p class="listing-card__type">${typeLabel}</p>
           <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
           <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
+          ${wantsRowHTML}
           <div class="listing-card__footer">
             ${priceHTML}
             <a href="${itemUrl}" class="btn btn--trade-card">${isLooking ? 'Offer' : 'Trade'}</a>
