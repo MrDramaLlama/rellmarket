@@ -1812,7 +1812,7 @@ function initFetchListings() {
     // Auction listing
     if (l.price_type === 'auction') {
       const auction   = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
-      const cardUrl   = auction ? `auction.html?id=${auction.id}` : `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
+      const cardUrl   = auction ? `auction.html?id=${auction.id}` : `auction.html?listing_id=${l.id}`;
       const curBid    = auction ? `${Number(auction.current_bid).toLocaleString()} Beli` : '—';
       const timeLeft  = auction ? auctionTimeLeft(auction.ends_at) : '';
       const auctionSortPrice = auction ? (Number(auction.current_bid) || Number(auction.starting_price) || '') : '';
@@ -1968,7 +1968,11 @@ function initHomepageMiniGrids() {
 
   function buildMiniCard(l) {
     const itemId  = itemNameToId(l.item_name);
-    const itemUrl = `item.html?id=${itemId}&listing_id=${l.id}`;
+    const isAuction = l.price_type === 'auction';
+    const auctionId = isAuction && (Array.isArray(l.auctions) ? l.auctions[0]?.id : l.auctions?.id);
+    const itemUrl = isAuction
+      ? (auctionId ? `auction.html?id=${auctionId}` : `auction.html?listing_id=${l.id}`)
+      : `item.html?id=${itemId}&listing_id=${l.id}`;
     const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
     const imgHTML = staticItem?.image
       ? `<img src="${staticItem.image}" alt="${l.item_name}" class="mini-card__img" />`
@@ -2033,7 +2037,11 @@ function initHomepageMiniGrids() {
 
   function buildScrollCard(l) {
     const itemId  = itemNameToId(l.item_name);
-    const itemUrl = `item.html?id=${itemId}&listing_id=${l.id}`;
+    const isAuction = l.price_type === 'auction';
+    const auctionId = isAuction && (Array.isArray(l.auctions) ? l.auctions[0]?.id : l.auctions?.id);
+    const itemUrl = isAuction
+      ? (auctionId ? `auction.html?id=${auctionId}` : `auction.html?listing_id=${l.id}`)
+      : `item.html?id=${itemId}&listing_id=${l.id}`;
     const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
     const imgSrc = staticItem?.image || l.image_url || '';
     const imgHTML = imgSrc
