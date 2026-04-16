@@ -1423,19 +1423,10 @@ button { font-family: var(--font); cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 1.35rem;
-  /* Match .item-gallery__main height exactly (420px column × 1:1 aspect-ratio image) */
-  height: 420px;
-  overflow: visible;
 }
 
-/* Prevent items from shrinking to fit the fixed height — let stats overflow below */
-.item-details > * {
-  flex-shrink: 0;
-}
-
-/* Bottom group: wants section OR trade buttons, pushed to base of column */
+/* Bottom group: wants section OR trade buttons */
 .item-details__bottom {
-  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: .75rem;
@@ -1678,9 +1669,7 @@ button { font-family: var(--font); cursor: pointer; }
     margin-inline: auto;
     width: 100%;
   }
-  .item-details {
-    height: auto;
-  }
+
   .item-stats {
     grid-template-columns: repeat(2, 1fr);
   }
