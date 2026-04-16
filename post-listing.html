@@ -176,28 +176,7 @@
             <!-- Item selector -->
             <div class="form-group">
               <label class="form-label" for="field-item">Item <span class="form-required">*</span></label>
-              <select class="form-input form-select" id="field-item">
-                <option value="">Select an item…</option>
-                <optgroup label="🍎 Devil Fruits">
-                  <option value="gravity-fruit">Gravity Fruit</option>
-                  <option value="flame-fruit">Flame Fruit</option>
-                  <option value="barrier-fruit">Barrier Fruit</option>
-                  <option value="dragon-fruit">Dragon Fruit</option>
-                  <option value="allo-fruit">Allo Fruit</option>
-                  <option value="ice-fruit">Ice Fruit</option>
-                </optgroup>
-                <optgroup label="🛡️ Armor">
-                  <option value="admiral-coat">Admiral Coat</option>
-                  <option value="warlords-plate">Warlord's Plate</option>
-                  <option value="marine-captain-set">Marine Captain Set</option>
-                </optgroup>
-                <optgroup label="💰 Beli">
-                  <option value="beli-1000000">1,000,000 Beli</option>
-                  <option value="beli-500000">500,000 Beli</option>
-                  <option value="beli-250000">250,000 Beli</option>
-                </optgroup>
-                <option value="other">Other / Unlisted Item</option>
-              </select>
+              <div class="cs-select" id="field-item"></div>
             </div>
 
             <!-- Quantity -->
@@ -325,9 +304,7 @@
               <label class="form-label">Wanted in Return <span class="form-label__optional">(optional)</span></label>
               <p class="form-hint">Add the items you'd like to receive in exchange.</p>
               <div class="wants-input-row">
-                <select class="form-input form-select" id="wants-item-select">
-                  <option value="">Select an item…</option>
-                </select>
+                <div class="cs-select" id="wants-item-select"></div>
                 <input
                   class="form-input wants-qty-input"
                   type="number"

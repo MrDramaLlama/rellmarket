@@ -525,19 +525,62 @@ function timeAgo(dateString) {
   return `${months}mo ago`;
 }
 
+// ─── Item groups data (shared by form dropdowns and wantsItemIcon) ────────────
+const FORM_ITEM_GROUPS = [
+  {
+    label: '🍎 Devil Fruits',
+    items: [
+      { value: 'gravity-fruit',      label: 'Gravity Fruit',      icon: { type: 'img',   src: 'assets/G-fruit.png' } },
+      { value: 'flame-fruit',        label: 'Flame Fruit',        icon: { type: 'img',   src: 'assets/F-fruit.png' } },
+      { value: 'barrier-fruit',      label: 'Barrier Fruit',      icon: { type: 'img',   src: 'assets/B-Fruit.png' } },
+      { value: 'dragon-fruit',       label: 'Dragon Fruit',       icon: { type: 'img',   src: 'assets/Ou-fruit.png' } },
+      { value: 'allo-fruit',         label: 'Allo Fruit',         icon: { type: 'img',   src: 'assets/allo-fruit.png' } },
+      { value: 'ice-fruit',          label: 'Ice Fruit',          icon: { type: 'img',   src: 'assets/I-fruit.png' } },
+    ],
+  },
+  {
+    label: '🛡️ Armor',
+    items: [
+      { value: 'admiral-coat',       label: 'Admiral Coat',       icon: { type: 'emoji', char: '🛡️' } },
+      { value: 'warlords-plate',     label: "Warlord's Plate",    icon: { type: 'emoji', char: '🛡️' } },
+      { value: 'marine-captain-set', label: 'Marine Captain Set', icon: { type: 'emoji', char: '🛡️' } },
+    ],
+  },
+  {
+    label: '💰 Beli',
+    items: [
+      { value: 'beli-1000000', label: '1,000,000 Beli', icon: { type: 'emoji', char: '💰' } },
+      { value: 'beli-500000',  label: '500,000 Beli',   icon: { type: 'emoji', char: '💰' } },
+      { value: 'beli-250000',  label: '250,000 Beli',   icon: { type: 'emoji', char: '💰' } },
+    ],
+  },
+  {
+    label: null,
+    items: [
+      { value: 'other', label: 'Other / Unlisted Item', icon: { type: 'emoji', char: '📦' } },
+    ],
+  },
+];
+
 // ─── Wanted in Return: resolve icon HTML for an item name ────────────────────
 // size: pixel dimension for img/emoji display
 function wantsItemIcon(itemName, size) {
-  // Beli amounts (contain "Beli" or look like number amounts)
+  // Beli amounts
   if (/beli/i.test(itemName)) {
     return `<span class="wants-icon-emoji" style="font-size:${size}px;line-height:1;">💰</span>`;
   }
-  // Look up in ITEMS_DATA by name
+  // Look up in ITEMS_DATA by name (fruits have images)
   if (typeof ITEMS_DATA !== 'undefined') {
     const entry = Object.values(ITEMS_DATA).find(d => d.name === itemName);
     if (entry && entry.image) {
       return `<img src="${entry.image}" alt="" class="wants-icon" width="${size}" height="${size}" style="object-fit:contain;flex-shrink:0;" />`;
     }
+  }
+  // Look up in FORM_ITEM_GROUPS for emoji icons (armor, etc.)
+  const allGroupItems = FORM_ITEM_GROUPS.flatMap(g => g.items);
+  const found = allGroupItems.find(i => i.label === itemName);
+  if (found && found.icon.type === 'emoji') {
+    return `<span class="wants-icon-emoji" style="font-size:${Math.round(size * 0.85)}px;line-height:1;">${found.icon.char}</span>`;
   }
   return `<span class="wants-icon-emoji" style="font-size:${Math.round(size * 0.85)}px;line-height:1;">📦</span>`;
 }
@@ -802,12 +845,124 @@ function initGalleryThumbs() {
 }
 
 // ─── Post Listing: live preview + image upload ────────────────────────────────
+// ─── Custom dropdown builder ──────────────────────────────────────────────────
+// Converts a .cs-select div into a styled image+icon dropdown.
+// groups: same shape as FORM_ITEM_GROUPS
+// Returns API: { getValue, getLabel, onChange, reset, el }
+function buildCustomDropdown(containerEl, groups) {
+  if (!containerEl) return null;
+
+  let _value = '';
+  let _label = '';
+  const _listeners = [];
+
+  function _esc(s) { return String(s).replace(/"/g, '&quot;'); }
+
+  function _iconHTML(icon, size) {
+    if (icon.type === 'img') {
+      return `<img src="${icon.src}" width="${size}" height="${size}" class="cs-icon" alt="" />`;
+    }
+    return `<span class="cs-icon cs-icon--emoji">${icon.char}</span>`;
+  }
+
+  const panelInner = groups.map((group, gi) => {
+    let h = '';
+    if (group.label) {
+      h += `<div class="cs-group-hdr${gi > 0 ? ' cs-group-hdr--sep' : ''}">${group.label}</div>`;
+    }
+    h += group.items.map(item =>
+      `<button type="button" class="cs-option" data-value="${_esc(item.value)}" data-label="${_esc(item.label)}">`
+      + _iconHTML(item.icon, 16)
+      + `<span class="cs-option-text">${item.label}</span>`
+      + `</button>`
+    ).join('');
+    return h;
+  }).join('');
+
+  containerEl.innerHTML =
+    `<button type="button" class="cs-trigger" aria-haspopup="listbox" aria-expanded="false">`
+    + `<span class="cs-trigger-icon"></span>`
+    + `<span class="cs-trigger-text cs-placeholder">Select an item\u2026</span>`
+    + `<svg class="cs-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`
+    + `</button>`
+    + `<div class="cs-panel" role="listbox">${panelInner}</div>`;
+
+  const triggerBtn = containerEl.querySelector('.cs-trigger');
+  const panelEl    = containerEl.querySelector('.cs-panel');
+  const iconSlot   = triggerBtn.querySelector('.cs-trigger-icon');
+  const textSlot   = triggerBtn.querySelector('.cs-trigger-text');
+
+  function _updateTrigger() {
+    if (_value) {
+      const item = groups.flatMap(g => g.items).find(i => i.value === _value);
+      iconSlot.innerHTML   = item ? _iconHTML(item.icon, 16) : '';
+      textSlot.textContent = _label;
+      textSlot.classList.remove('cs-placeholder');
+    } else {
+      iconSlot.innerHTML   = '';
+      textSlot.textContent = 'Select an item\u2026';
+      textSlot.classList.add('cs-placeholder');
+    }
+  }
+
+  function _select(value, label) {
+    _value = value;
+    _label = label;
+    _updateTrigger();
+    panelEl.querySelectorAll('.cs-option').forEach(o => {
+      o.classList.toggle('cs-option--selected', o.dataset.value === value);
+    });
+    _listeners.forEach(fn => fn(value, label));
+  }
+
+  triggerBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = containerEl.classList.toggle('cs--open');
+    triggerBtn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      const sel = panelEl.querySelector('.cs-option--selected');
+      if (sel) sel.scrollIntoView({ block: 'nearest' });
+    }
+  });
+
+  panelEl.addEventListener('click', e => {
+    const opt = e.target.closest('.cs-option');
+    if (!opt) return;
+    _select(opt.dataset.value, opt.dataset.label);
+    containerEl.classList.remove('cs--open');
+    triggerBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  document.addEventListener('click', e => {
+    if (!containerEl.contains(e.target)) {
+      containerEl.classList.remove('cs--open');
+      triggerBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  containerEl.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      containerEl.classList.remove('cs--open');
+      triggerBtn.setAttribute('aria-expanded', 'false');
+      triggerBtn.focus();
+    }
+  });
+
+  return {
+    getValue() { return _value; },
+    getLabel() { return _label; },
+    onChange(fn) { _listeners.push(fn); },
+    reset()    { _select('', ''); },
+    el:        containerEl,
+  };
+}
+
 function initPostListingForm() {
   const form = document.getElementById('post-form');
   if (!form) return;
 
   // Field refs
-  const fieldItem     = document.getElementById('field-item');
+  const fieldItemEl   = document.getElementById('field-item');
   const fieldQty      = document.getElementById('field-qty');
   const fieldCategory = document.getElementById('field-category');
   const fieldRarity   = document.getElementById('field-rarity');
@@ -826,9 +981,9 @@ function initPostListingForm() {
   const descCount     = document.getElementById('desc-count');
 
   // Wanted in Return refs
-  const wantedGroup      = document.getElementById('wanted-group');
-  const wantsItemSelect  = document.getElementById('wants-item-select');
-  const wantsQtyInput    = document.getElementById('wants-qty-input');
+  const wantedGroup        = document.getElementById('wanted-group');
+  const wantsItemSelectEl  = document.getElementById('wants-item-select');
+  const wantsQtyInput      = document.getElementById('wants-qty-input');
   const wantsAddBtn      = document.getElementById('wants-add-btn');
   const wantsChips       = document.getElementById('wants-chips');
   const wantsOtherGroup  = document.getElementById('wants-other-group');
@@ -836,12 +991,9 @@ function initPostListingForm() {
   // Track added wants as array of { item_name, quantity }
   let wantsItems = [];
 
-  // Populate wants item select by mirroring field-item options
-  if (wantsItemSelect && fieldItem) {
-    Array.from(fieldItem.children).forEach(child => {
-      wantsItemSelect.appendChild(child.cloneNode(true));
-    });
-  }
+  // Build custom dropdowns
+  const fieldItemDD = buildCustomDropdown(fieldItemEl, FORM_ITEM_GROUPS);
+  const wantsDD     = buildCustomDropdown(wantsItemSelectEl, FORM_ITEM_GROUPS);
 
   function renderWantsChips() {
     if (!wantsChips) return;
@@ -865,17 +1017,18 @@ function initPostListingForm() {
 
   if (wantsAddBtn) {
     wantsAddBtn.addEventListener('click', () => {
-      const name = wantsItemSelect?.value;
-      if (!name) return;
+      const val   = wantsDD?.getValue();
+      const label = wantsDD?.getLabel();
+      if (!val) return;
       const qty = Math.max(1, Number(wantsQtyInput?.value) || 1);
       // Merge if same item already added
-      const existing = wantsItems.find(w => w.item_name === wantsItemSelect.options[wantsItemSelect.selectedIndex].text);
+      const existing = wantsItems.find(w => w.item_name === label);
       if (existing) {
         existing.quantity += qty;
       } else {
-        wantsItems.push({ item_name: wantsItemSelect.options[wantsItemSelect.selectedIndex].text, quantity: qty });
+        wantsItems.push({ item_name: label, quantity: qty });
       }
-      if (wantsItemSelect) wantsItemSelect.value = '';
+      wantsDD?.reset();
       if (wantsQtyInput) wantsQtyInput.value = '1';
       renderWantsChips();
     });
@@ -983,12 +1136,10 @@ function initPostListingForm() {
   }
 
   // ── Item selector change ──
-  fieldItem.addEventListener('change', () => {
-    const val = fieldItem.value;
+  fieldItemDD.onChange(val => {
     if (!val || val === 'other') {
       clearAutoFill();
     } else {
-      // Check ITEMS_DATA first (fruits), then PRESET_ITEMS
       const data = (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[val])
         ? ITEMS_DATA[val]
         : PRESET_ITEMS[val];
@@ -996,12 +1147,13 @@ function initPostListingForm() {
     }
     updatePreview();
   });
+  fieldItemDD.onChange(() => clearFieldError(fieldItemDD.el));
 
   function updatePreview() {
     // Name — use selected option text, apply qty suffix if > 1
-    const itemVal  = fieldItem.value;
+    const itemVal  = fieldItemDD.getValue();
     const itemText = itemVal && itemVal !== 'other'
-      ? fieldItem.options[fieldItem.selectedIndex].text
+      ? fieldItemDD.getLabel()
       : 'Item Name';
     const qty = parseInt(fieldQty.value, 10) || 1;
     previewName.textContent = qty > 1 ? `${itemText} x${qty}` : itemText;
@@ -1089,20 +1241,21 @@ function initPostListingForm() {
   }
 
   // Clear errors on interaction
-  [fieldItem, fieldCategory, fieldPrice].forEach(el => {
+  [fieldCategory, fieldPrice].forEach(el => {
     el.addEventListener('change', () => clearFieldError(el));
     el.addEventListener('input',  () => clearFieldError(el));
   });
+  // fieldItem error cleared via onChange (registered above)
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     let valid = true;
 
-    if (!fieldItem.value) {
-      showFieldError(fieldItem, 'Please select an item.');
+    if (!fieldItemDD.getValue()) {
+      showFieldError(fieldItemDD.el, 'Please select an item.');
       valid = false;
     } else {
-      clearFieldError(fieldItem);
+      clearFieldError(fieldItemDD.el);
     }
 
     if (!fieldCategory.value) {
@@ -1140,8 +1293,8 @@ function initPostListingForm() {
         token = session?.access_token || null;
       }
 
-      const itemText = fieldItem.value && fieldItem.value !== 'other'
-        ? fieldItem.options[fieldItem.selectedIndex].text
+      const itemText = fieldItemDD.getValue() && fieldItemDD.getValue() !== 'other'
+        ? fieldItemDD.getLabel()
         : '';
 
       const startingPrice = priceType === 'auction' && fieldAuctionStart?.value
@@ -1159,7 +1312,7 @@ function initPostListingForm() {
         price_type:            listingType === 'looking' ? 'offer' : priceType,
         listing_type:          listingType,
         description:           fieldDesc.value   || null,
-        image_url:             (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItem.value]?.image) || null,
+        image_url:             (typeof ITEMS_DATA !== 'undefined' && ITEMS_DATA[fieldItemDD.getValue()]?.image) || null,
         accepts_other_offers:  wantsItems.length === 0 ? true : (acceptsOtherOffersEl?.checked !== false),
       };
 
@@ -1207,7 +1360,8 @@ function initPostListingForm() {
       }
 
       // Build item URL
-      const itemId  = fieldItem.value && fieldItem.value !== 'other' ? fieldItem.value : itemText.toLowerCase().replace(/\s+/g, '-');
+      const itemVal2 = fieldItemDD.getValue();
+      const itemId  = itemVal2 && itemVal2 !== 'other' ? itemVal2 : itemText.toLowerCase().replace(/\s+/g, '-');
       const itemUrl = `item.html?id=${itemId}&listing_id=${json.listing?.id}`;
       const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
 
@@ -1246,6 +1400,8 @@ function initPostListingForm() {
           if (formCol)    formCol.style.display    = '';
           if (previewCol) previewCol.style.display = '';
           form.reset();
+          fieldItemDD?.reset();
+          wantsDD?.reset();
           beliWrap.classList.remove('is-visible');
           if (auctionWrap) auctionWrap.classList.remove('is-visible');
           previewImg.src = '';
