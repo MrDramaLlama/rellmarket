@@ -1278,7 +1278,7 @@ button { font-family: var(--font); cursor: pointer; }
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: contain;
-  background: #f8f8f8;
+  background: var(--color-surface);
   padding: 12px;
   transition: transform .22s;
 }
@@ -1286,7 +1286,7 @@ button { font-family: var(--font); cursor: pointer; }
 
 /* Emoji placeholder for non-fruit cards */
 .listing-card__placeholder {
-  background-color: var(--ph, #f8f8f8);
+  background-color: var(--ph, var(--color-surface));
   aspect-ratio: 1 / 1;
   width: 100%;
   display: flex;
@@ -4796,7 +4796,7 @@ body.page-out {
   position: relative;
   display: block;
   height: 120px;
-  background: var(--teal-50);
+  background: var(--color-surface);
   overflow: hidden;
 }
 .scroll-card__img {
