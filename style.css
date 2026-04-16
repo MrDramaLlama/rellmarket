@@ -1357,7 +1357,7 @@ button { font-family: var(--font); cursor: pointer; }
   display: grid;
   grid-template-columns: 420px 1fr;
   gap: 2.75rem;
-  align-items: stretch;
+  align-items: start;
 }
 
 /* ── Gallery (left column) ── */
@@ -1423,6 +1423,22 @@ button { font-family: var(--font); cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 1.35rem;
+  /* Match .item-gallery__main height exactly (420px column × 1:1 aspect-ratio image) */
+  height: 420px;
+  overflow: visible;
+}
+
+/* Prevent items from shrinking to fit the fixed height — let stats overflow below */
+.item-details > * {
+  flex-shrink: 0;
+}
+
+/* Bottom group: wants section OR trade buttons, pushed to base of column */
+.item-details__bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
 }
 
 .item-details__type {
@@ -1661,6 +1677,9 @@ button { font-family: var(--font); cursor: pointer; }
     max-width: 480px;
     margin-inline: auto;
     width: 100%;
+  }
+  .item-details {
+    height: auto;
   }
   .item-stats {
     grid-template-columns: repeat(2, 1fr);
@@ -5220,7 +5239,6 @@ body.page-out {
    WANTED IN RETURN — item detail page
 ════════════════════════════════════════ */
 .item-wants {
-  margin-top: auto;
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
   border: 1px solid #86efac;
   border-radius: 12px;
@@ -5445,7 +5463,6 @@ body.page-out {
   display: flex;
   align-items: center;
   gap: .5rem;
-  margin-top: .85rem;
   padding: .65rem .9rem;
   background: #fef2f2;
   border: 1px solid #fca5a5;
@@ -5458,8 +5475,6 @@ body.page-out {
 
 /* "Or make a different offer:" label shown above trade buttons */
 .item-alt-offer {
-  margin-top: .9rem;
-  margin-bottom: .4rem;
   font-size: .8rem;
   font-weight: 600;
   color: var(--color-muted);

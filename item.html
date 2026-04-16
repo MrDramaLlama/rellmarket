@@ -217,36 +217,42 @@
             <p id="item-price-sub" class="item-price__sub"></p>
           </div>
 
-          <!-- Wanted in Return (populated by script.js — shown above action buttons) -->
-          <div class="item-wants" id="item-wants" style="display:none;">
-            <div class="item-wants__header">
-              <span class="item-wants__icon-label">🔄</span>
-              <h4 class="item-wants__title">Wanted in Return</h4>
-              <span class="item-wants__subtitle">The seller wants these items in exchange</span>
+          <!-- Bottom group: pushed to base of right column via margin-top:auto (populated by script.js) -->
+          <div class="item-details__bottom">
+
+            <!-- Wanted in Return -->
+            <div class="item-wants" id="item-wants" style="display:none;">
+              <div class="item-wants__header">
+                <span class="item-wants__icon-label">🔄</span>
+                <h4 class="item-wants__title">Wanted in Return</h4>
+                <span class="item-wants__subtitle">The seller wants these items in exchange</span>
+              </div>
+              <div class="item-wants__list" id="item-wants-list"></div>
             </div>
-            <div class="item-wants__list" id="item-wants-list"></div>
+
+            <!-- Strict-wants message: shown when accepts_other_offers=false and user is logged in -->
+            <p class="item-only-msg" id="item-only-wants-msg" style="display:none;">
+              🚫 This seller is only accepting the items listed above.
+            </p>
+
+            <!-- "Or make a different offer" label — shown when has wants but accepts_other_offers=true -->
+            <p class="item-alt-offer" id="item-different-offer" style="display:none;">
+              Or make a different offer:
+            </p>
+
+            <!-- Action buttons (logged-in only) -->
+            <div class="item-actions" id="item-actions" style="display:none;">
+              <a href="#" class="btn btn--request-trade">Request Trade</a>
+              <a href="#" class="btn btn--watchlist">Add to Watchlist ♡</a>
+            </div>
+
+            <!-- Guest prompt (logged-out only) -->
+            <div class="item-guest-msg" id="item-guest-msg" style="display:none;">
+              Want to trade? <a href="login.html">Log in</a> or <a href="signup.html">create a free account</a> to send trade requests and save listings.
+            </div>
+
           </div>
-
-          <!-- Strict-wants message: shown when accepts_other_offers=false and user is logged in -->
-          <p class="item-only-msg" id="item-only-wants-msg" style="display:none;">
-            🚫 This seller is only accepting the items listed above.
-          </p>
-
-          <!-- "Or make a different offer" label — shown when has wants but accepts_other_offers=true -->
-          <p class="item-alt-offer" id="item-different-offer" style="display:none;">
-            Or make a different offer:
-          </p>
-
-          <!-- Action buttons (logged-in only) -->
-          <div class="item-actions" id="item-actions" style="display:none;">
-            <a href="#" class="btn btn--request-trade">Request Trade</a>
-            <a href="#" class="btn btn--watchlist">Add to Watchlist ♡</a>
-          </div>
-
-          <!-- Guest prompt (logged-out only) -->
-          <div class="item-guest-msg" id="item-guest-msg" style="display:none;">
-            Want to trade? <a href="login.html">Log in</a> or <a href="signup.html">create a free account</a> to send trade requests and save listings.
-          </div>
+          <!-- /item-details__bottom -->
 
           <!-- Stats row -->
           <div class="item-stats" role="list">
