@@ -172,6 +172,11 @@
             <p class="auction-current-bid-card__starting" id="auction-starting-info"></p>
           </div>
 
+          <!-- Ended status (replaces bid UI when auction is over) -->
+          <div class="auction-ended-status" id="auction-ended-status" hidden>
+            <p class="auction-ended-status__msg" id="auction-ended-status-msg"></p>
+          </div>
+
           <!-- Bid form (hidden once auction ends) -->
           <div class="auction-bid-section" id="auction-bid-section">
             <p class="auction-bid-min-hint" id="auction-bid-min-hint"></p>
@@ -407,20 +412,28 @@
       }
 
       function showEndedState() {
+        // Left column: swap timer for ended banner
         document.getElementById('auction-timer-card').hidden = true;
         document.getElementById('auction-ended-card').hidden = false;
-        document.getElementById('auction-bid-section').hidden = true;
 
-        const winnerEl  = document.getElementById('auction-ended-winner');
-        const hasBids   = !!auction.current_bidder_id;
-        const noBids    = !hasBids || auction.status === 'ended_no_bids';
+        // Right column: hide current-bid card + bid form, show ended status box
+        document.getElementById('auction-current-bid-card').hidden = true;
+        document.getElementById('auction-bid-section').hidden = true;
+        document.getElementById('auction-ended-status').hidden = false;
+
+        const hasBids = !!auction.current_bidder_id;
+        const noBids  = !hasBids || auction.status === 'ended_no_bids';
+        const msgEl   = document.getElementById('auction-ended-status-msg');
 
         if (noBids) {
-          winnerEl.textContent = 'No bids were placed.';
+          msgEl.textContent = '🔨 Auction Ended — No bids were placed.';
+          document.getElementById('auction-ended-winner').textContent = 'No bids were placed.';
         } else {
           const winnerName = auction.profiles?.roblox_username || auction.profiles?.username || 'Unknown';
           const amount     = Number(auction.current_bid).toLocaleString();
-          winnerEl.textContent = `Winning bid: ${amount} Beli by ${winnerName}`;
+          msgEl.textContent = `🔨 Auction Ended — Winning bid: ${amount} Beli by ${winnerName}`;
+          document.getElementById('auction-ended-winner').textContent =
+            `Winning bid: ${amount} Beli by ${winnerName}`;
         }
       }
 

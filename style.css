@@ -4017,6 +4017,22 @@ body.page-out {
   color: var(--color-text-muted);
 }
 
+/* Ended status box (replaces bid card + bid form when auction is over) */
+.auction-ended-status {
+  background: #fee2e2;
+  border: 1.5px solid #fca5a5;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  text-align: center;
+}
+.auction-ended-status__msg {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #991b1b;
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* Bid form */
 .auction-bid-section {
   background: var(--color-surface);

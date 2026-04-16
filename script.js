@@ -2105,9 +2105,20 @@ function initHomepageMiniGrids() {
     auctionsRow ? fetch(`${base}?price_type=auction&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
     lookingForRow ? fetch(`${base}?listing_type=looking&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
   ]).then(([latestJson, auctionsJson, lookingJson]) => {
-    fillScrollRow(latestRow,     latestJson?.listings   || []);
-    fillScrollRow(auctionsRow,   auctionsJson?.listings || []);
-    fillScrollRow(lookingForRow, lookingJson?.listings  || []);
+    fillScrollRow(latestRow, latestJson?.listings || []);
+
+    // Only show auctions that haven't ended yet
+    const now = new Date();
+    const activeAuctions = (auctionsJson?.listings || []).filter(l => {
+      const a = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
+      if (!a) return false;
+      if (new Date(a.ends_at) <= now) return false;
+      if (a.status && a.status !== 'active') return false;
+      return true;
+    });
+    fillScrollRow(auctionsRow, activeAuctions);
+
+    fillScrollRow(lookingForRow, lookingJson?.listings || []);
   });
 }
 
