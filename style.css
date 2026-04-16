@@ -908,7 +908,7 @@ button { font-family: var(--font); cursor: pointer; }
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: contain;
-  background: #f8f8f8;
+  background: var(--color-surface);
   padding: 8px;
   transition: transform .2s;
 }
