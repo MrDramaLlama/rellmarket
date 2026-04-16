@@ -294,7 +294,26 @@
         return;
       }
 
-      const { auction, bids } = await res.json();
+      let { auction, bids } = await res.json();
+
+      // If the auction clock has run out but status is still "active",
+      // trigger end logic server-side then re-fetch the updated record.
+      if (new Date(auction.ends_at) <= new Date() && (!auction.status || auction.status === 'active')) {
+        try {
+          await fetch('/api/auctions/end', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ auction_id: auction.id }),
+          });
+          const refreshRes = await fetch(`/api/auctions/get?auction_id=${auction.id}`);
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            auction = refreshData.auction;
+            bids    = refreshData.bids;
+          }
+        } catch (_) { /* non-fatal — display will still show ended state */ }
+      }
+
       const listing = auction.listings;
       const profile = listing?.profiles;
 
@@ -392,11 +411,16 @@
         document.getElementById('auction-ended-card').hidden = false;
         document.getElementById('auction-bid-section').hidden = true;
 
-        const winnerEl = document.getElementById('auction-ended-winner');
-        if (currentBidder) {
-          winnerEl.textContent = `Won by ${currentBidder} for ${Number(auction.current_bid).toLocaleString()} Beli`;
-        } else {
+        const winnerEl  = document.getElementById('auction-ended-winner');
+        const hasBids   = !!auction.current_bidder_id;
+        const noBids    = !hasBids || auction.status === 'ended_no_bids';
+
+        if (noBids) {
           winnerEl.textContent = 'No bids were placed.';
+        } else {
+          const winnerName = auction.profiles?.roblox_username || auction.profiles?.username || 'Unknown';
+          const amount     = Number(auction.current_bid).toLocaleString();
+          winnerEl.textContent = `Winning bid: ${amount} Beli by ${winnerName}`;
         }
       }
 

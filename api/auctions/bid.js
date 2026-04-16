@@ -19,9 +19,11 @@ module.exports = async function handler(req, res) {
 
   if (!auction) return res.status(404).json({ error: 'Auction not found' });
 
-  // Check if auction has ended
-  if (new Date(auction.ends_at) <= new Date()) {
-    return res.status(400).json({ error: 'Auction has ended' });
+  // Check if auction has ended (by status or by time).
+  // Treat null/missing status as "active" so older rows still accept bids.
+  const statusEnded = auction.status && auction.status !== 'active';
+  if (statusEnded || new Date(auction.ends_at) <= new Date()) {
+    return res.status(400).json({ error: 'This auction has already ended.' });
   }
 
   // Validate bid is high enough
