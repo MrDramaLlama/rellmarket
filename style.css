@@ -4863,6 +4863,15 @@ body.page-out {
   color: var(--teal-700);
   border: 1px solid var(--teal-400);
 }
+/* Move Looking For badge to top-right so it doesn't overlap the rarity badge (top-left) */
+.listing-card__img-wrap .listing-badge--looking {
+  left: auto;
+  right: .55rem;
+}
+.scroll-card__img-wrap .listing-badge--looking {
+  left: auto;
+  right: .4rem;
+}
 .listing-card--looking .listing-card__img-wrap {
   background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
 }
