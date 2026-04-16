@@ -735,12 +735,10 @@ function populateItemPage(item) {
     const hasWants    = wants.length > 0;
     const strictWants = hasWants && item.acceptsOtherOffers === false;
 
-    // Hide the price label/subtext when wants are present — the wants section replaces that context
+    // Hide the entire price block when wants are present — the wants section replaces that context
     if (hasWants) {
-      const itemPriceLabel = document.getElementById('item-price-label');
-      const itemPriceSub   = document.getElementById('item-price-sub');
-      if (itemPriceLabel) itemPriceLabel.style.display = 'none';
-      if (itemPriceSub)   itemPriceSub.style.display   = 'none';
+      const itemPriceDiv = document.querySelector('.item-price');
+      if (itemPriceDiv) itemPriceDiv.style.display = 'none';
     }
 
     const itemActions  = document.getElementById('item-actions');
