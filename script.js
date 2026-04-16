@@ -2000,7 +2000,7 @@ function initHomepageMiniGrids() {
       ? `<img src="${staticItem.image}" alt="${l.item_name}" class="mini-card__img" />`
       : l.image_url
         ? `<img src="${l.image_url}" alt="${l.item_name}" class="mini-card__img" />`
-        : `<div class="mini-card__placeholder" style="--ph:#f0fdfa; font-size:2rem;">📦</div>`;
+        : `<div class="mini-card__placeholder" style="font-size:2rem;">📦</div>`;
     return `
       <article class="mini-card">
         <a href="${itemUrl}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
