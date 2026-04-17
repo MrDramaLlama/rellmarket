@@ -83,8 +83,9 @@ html.dark-mode .item-seller-card,
 html.dark-mode .item-stats,
 html.dark-mode .item-price,
 html.dark-mode .price-chart-card,
-html.dark-mode .sidebar,
-html.dark-mode .announcement { background: var(--color-surface); }
+html.dark-mode .sidebar { background: var(--color-surface); }
+
+html.dark-mode .announcement { background-color: var(--teal-600); }
 
 html.dark-mode .navbar { border-bottom-color: var(--color-border); }
 
