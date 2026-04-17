@@ -649,11 +649,17 @@
       document.querySelectorAll('.admin-tab').forEach(tab => {
         tab.addEventListener('click', async () => {
           document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('is-active'));
-          document.querySelectorAll('.admin-panel').forEach(p => p.hidden = true);
+          document.querySelectorAll('.admin-panel').forEach(p => {
+            p.classList.remove('is-active');
+            p.hidden = true;
+          });
           tab.classList.add('is-active');
           const name = tab.dataset.tab;
           const panel = document.getElementById(`tab-${name}`);
-          if (panel) panel.hidden = false;
+          if (panel) {
+            panel.classList.add('is-active');
+            panel.hidden = false;
+          }
 
           if (!loaded[name]) {
             loaded[name] = true;

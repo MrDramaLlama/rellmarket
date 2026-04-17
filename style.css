@@ -3770,7 +3770,7 @@ body.page-out {
   color: var(--color-text);
   background: var(--color-surface);
 }
-.admin-tab.active {
+.admin-tab.is-active {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
 }
@@ -3779,7 +3779,7 @@ body.page-out {
 .admin-panel {
   display: none;
 }
-.admin-panel.active {
+.admin-panel.is-active {
   display: block;
 }
 
