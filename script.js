@@ -2411,20 +2411,28 @@ function initFeaturedListings() {
       </article>`;
   }
 
+  // Always show the section during debug so we can confirm it renders.
+  section.hidden = false;
+  grid.innerHTML = '<p style="color:var(--color-text-muted);padding:1rem 0;">Loading featured listings…</p>';
+
   fetch('https://rellmarket.vercel.app/api/listings/get?featured=true&limit=4')
-    .then(r => r.ok ? r.json() : null)
+    .then(r => {
+      console.log('[featured listings] response status:', r.status);
+      return r.ok ? r.json() : r.text().then(t => { console.error('[featured listings] error body:', t); return null; });
+    })
     .then(json => {
+      console.log('[featured listings] payload:', json);
       const listings = (json?.listings || []).filter(l => l.is_active !== false);
+      console.log('[featured listings] active count:', listings.length);
       if (!listings.length) {
-        section.hidden = true;
+        grid.innerHTML = '<p style="color:var(--color-text-muted);padding:1rem 0;">No featured listings yet — members can feature one of their listings from My Listings.</p>';
         return;
       }
-      section.hidden = false;
       grid.innerHTML = listings.map(buildFeaturedCard).join('');
     })
     .catch(err => {
       console.error('[featured listings] failed:', err);
-      section.hidden = true;
+      grid.innerHTML = '<p style="color:var(--color-text-muted);padding:1rem 0;">Couldn\u2019t load featured listings.</p>';
     });
 }
 
@@ -2525,13 +2533,17 @@ async function initMyListings() {
   // ── Profile section ──
   let canFeature = false;
   try {
-    const { data: profile } = await client
+    const { data: profile, error: profileErr } = await client
       .from('profiles')
       .select('username, roblox_username, avatar_url, discord_id, discord_username, is_member, role')
       .eq('id', userId)
       .single();
 
+    console.log('[my-listings] profile fetch →', { profile, error: profileErr });
+    if (profileErr) console.error('[my-listings] profile error:', profileErr);
+
     canFeature = !!profile && (profile.role === 'admin' || profile.is_member === true);
+    console.log('[my-listings] canFeature =', canFeature, '(role:', profile?.role, ', is_member:', profile?.is_member, ')');
 
     if (profile) {
       const nameEl   = document.querySelector('.profile-info__name');
@@ -2613,6 +2625,7 @@ async function initMyListings() {
           ? `<button class="btn my-listing-feature" data-id="${l.id}" data-state="featured">Unfeature</button>`
           : `<button class="btn my-listing-feature" data-id="${l.id}" data-state="unfeatured">Feature ⭐</button>`)
       : '';
+    console.log('[my-listings] render', l.item_name, '→ canFeature:', canFeature, 'is_active:', l.is_active, 'is_featured:', l.is_featured, 'btn:', !!featureBtnHTML);
     article.innerHTML = `
       ${imgHTML}
       <div class="my-listing-info">
