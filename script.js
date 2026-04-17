@@ -2620,12 +2620,12 @@ async function initMyListings() {
     const article = document.createElement('article');
     article.className = 'my-listing-row';
     article.dataset.listingId = l.id;
-    const featureBtnHTML = (canFeature && l.is_active)
+    // Membership gate temporarily disabled — show Feature button on every active listing.
+    const featureBtnHTML = l.is_active
       ? (l.is_featured
-          ? `<button class="btn my-listing-feature" data-id="${l.id}" data-state="featured">Unfeature</button>`
-          : `<button class="btn my-listing-feature" data-id="${l.id}" data-state="unfeatured">Feature ⭐</button>`)
+          ? `<button class="btn my-listing-feature" data-id="${l.id}" data-state="featured">★ Unfeature</button>`
+          : `<button class="btn my-listing-feature" data-id="${l.id}" data-state="unfeatured">⭐ Feature</button>`)
       : '';
-    console.log('[my-listings] render', l.item_name, '→ canFeature:', canFeature, 'is_active:', l.is_active, 'is_featured:', l.is_featured, 'btn:', !!featureBtnHTML);
     article.innerHTML = `
       ${imgHTML}
       <div class="my-listing-info">

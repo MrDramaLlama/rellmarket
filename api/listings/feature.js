@@ -13,18 +13,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing listing_id or invalid action' });
   }
 
-  const { data: profile, error: profErr } = await supabase
-    .from('profiles')
-    .select('id, role, is_member')
-    .eq('id', user.id)
-    .single();
-  if (profErr || !profile) return res.status(403).json({ error: 'Profile not found' });
-
-  const isAdmin = profile.role === 'admin';
-  if (!isAdmin && !profile.is_member) {
-    return res.status(403).json({ error: 'Membership required to feature listings' });
-  }
-
+  // Verify the listing exists and belongs to this user.
   const { data: listing, error: lErr } = await supabase
     .from('listings')
     .select('id, user_id')
@@ -44,16 +33,13 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ success: true, is_featured: false });
   }
 
-  // action === 'feature'
-  // Non-admins can only have one featured listing at a time — unfeature others first.
-  if (!isAdmin) {
-    const { error: clearErr } = await supabase
-      .from('listings')
-      .update({ is_featured: false })
-      .eq('user_id', user.id)
-      .neq('id', listing_id);
-    if (clearErr) return res.status(500).json({ error: clearErr.message });
-  }
+  // action === 'feature': clear other featured listings by this user first, then flag this one.
+  const { error: clearErr } = await supabase
+    .from('listings')
+    .update({ is_featured: false })
+    .eq('user_id', user.id)
+    .neq('id', listing_id);
+  if (clearErr) return res.status(500).json({ error: clearErr.message });
 
   const { error: setErr } = await supabase
     .from('listings')
