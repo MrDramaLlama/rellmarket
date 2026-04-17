@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWatchlistPage();
   initFetchListings();
   initHomepageMiniGrids();
+  initHomeStatsBar();
   initCategoryGrid();
   initFeaturedTraders();
   initMyListings();
@@ -2117,12 +2118,13 @@ function initHomepageMiniGrids() {
         ? `<img src="${l.image_url}" alt="${l.item_name}" class="mini-card__img" />`
         : `<div class="mini-card__placeholder" style="font-size:2rem;">📦</div>`;
     return `
-      <article class="mini-card">
+      <article class="mini-card" data-item-name="${l.item_name.replace(/"/g, '&quot;')}">
         <a href="${searchUrl}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
           ${imgHTML}
         </a>
         <div class="mini-card__body">
           <a href="${searchUrl}" class="mini-card__name">${l.item_name}</a>
+          <span class="mini-card__change" hidden></span>
           <a href="${searchUrl}" class="btn btn--mini-trade">Trade</a>
         </div>
       </article>`;
@@ -2153,7 +2155,37 @@ function initHomepageMiniGrids() {
   ]).then(([popularJson, newJson]) => {
     fillGrid(mostTradedGrid, popularJson?.listings || []);
     fillGrid(newItemsGrid,   newJson?.listings   || []);
+    populateMostTradedChanges(mostTradedGrid);
   });
+
+  function populateMostTradedChanges(grid) {
+    if (!grid) return;
+    const cards = grid.querySelectorAll('.mini-card[data-item-name]');
+    const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
+    cards.forEach(card => {
+      const name = card.dataset.itemName;
+      if (!name) return;
+      fetch(`/api/values/history?item_name=${encodeURIComponent(name)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          const hist = (data?.history || []).filter(h => new Date(h.recorded_at).getTime() >= sevenDaysAgo);
+          if (hist.length < 2) return;
+          const oldest = Number(hist[0].rv);
+          const newest = Number(hist[hist.length - 1].rv);
+          if (!oldest || !isFinite(oldest)) return;
+          const pct = ((newest - oldest) / oldest) * 100;
+          if (!isFinite(pct)) return;
+          const el = card.querySelector('.mini-card__change');
+          if (!el) return;
+          const sign = pct > 0 ? '+' : '';
+          el.textContent = `${sign}${pct.toFixed(1)}%`;
+          el.classList.toggle('mini-card__change--up', pct >= 0);
+          el.classList.toggle('mini-card__change--down', pct < 0);
+          el.hidden = false;
+        })
+        .catch(() => {});
+    });
+  }
 
   // ── Scroll-row sections ──────────────────────────────────────────────────────
   const latestRow     = document.getElementById('latest-listed-row');
@@ -2237,13 +2269,18 @@ function initHomepageMiniGrids() {
     row.innerHTML = listings.map(buildScrollCard).join('');
   }
 
+  function refreshLatestListed() {
+    if (!latestRow) return;
+    fetch(`${base}?limit=10`)
+      .then(r => r.ok ? r.json() : null)
+      .then(json => fillScrollRow(latestRow, json?.listings || []))
+      .catch(() => {});
+  }
+
   Promise.all([
-    latestRow   ? fetch(`${base}?limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
     auctionsRow ? fetch(`${base}?price_type=auction&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
     lookingForRow ? fetch(`${base}?listing_type=looking&limit=10`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
-  ]).then(([latestJson, auctionsJson, lookingJson]) => {
-    fillScrollRow(latestRow, latestJson?.listings || []);
-
+  ]).then(([auctionsJson, lookingJson]) => {
     // Only show auctions that haven't ended yet
     const now = new Date();
     const activeAuctions = (auctionsJson?.listings || []).filter(l => {
@@ -2257,6 +2294,55 @@ function initHomepageMiniGrids() {
 
     fillScrollRow(lookingForRow, lookingJson?.listings || []);
   });
+
+  refreshLatestListed();
+  setInterval(refreshLatestListed, 30000);
+}
+
+// ─── Homepage Live Stats Bar ─────────────────────────────────────────────────
+function initHomeStatsBar() {
+  const bar = document.getElementById('stats-bar');
+  if (!bar || typeof SUPABASE_URL === 'undefined' || !window.supabase) return;
+
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const fmt = n => Number(n || 0).toLocaleString('en-US');
+
+  async function loadStats() {
+    try {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const [totalTrades, activeListings, itemsTraded, todayTrades] = await Promise.all([
+        client.from('trade_requests').select('id', { count: 'exact', head: true }).eq('status', 'completed'),
+        client.from('listings').select('id', { count: 'exact', head: true }).eq('is_active', true),
+        client.from('trade_requests').select('offered_item, listings(item_name)').eq('status', 'completed'),
+        client.from('trade_requests').select('id', { count: 'exact', head: true })
+          .eq('status', 'completed').gte('created_at', startOfDay.toISOString()),
+      ]);
+
+      const totalEl   = document.getElementById('stat-total-trades');
+      const activeEl  = document.getElementById('stat-active-listings');
+      const itemsEl   = document.getElementById('stat-items-traded');
+      const todayEl   = document.getElementById('stat-today-trades');
+
+      if (totalEl)  totalEl.textContent  = fmt(totalTrades.count);
+      if (activeEl) activeEl.textContent = fmt(activeListings.count);
+      if (todayEl)  todayEl.textContent  = fmt(todayTrades.count);
+
+      const distinctItems = new Set();
+      (itemsTraded.data || []).forEach(r => {
+        if (r.offered_item) distinctItems.add(r.offered_item.trim());
+        const ln = r.listings?.item_name;
+        if (ln) distinctItems.add(ln.trim());
+      });
+      distinctItems.delete('');
+      if (itemsEl) itemsEl.textContent = fmt(distinctItems.size);
+    } catch (err) {
+      console.error('[stats-bar] failed:', err);
+    }
+  }
+
+  loadStats();
 }
 
 // ─── Homepage: Browse by Category ────────────────────────────────────────────
