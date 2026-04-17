@@ -2108,12 +2108,8 @@ function initHomepageMiniGrids() {
   if (!mostTradedGrid && !newItemsGrid) return;
 
   function buildMiniCard(l) {
-    const itemId  = itemNameToId(l.item_name);
-    const isAuction = l.price_type === 'auction';
-    const auctionId = isAuction && (Array.isArray(l.auctions) ? l.auctions[0]?.id : l.auctions?.id);
-    const itemUrl = isAuction
-      ? (auctionId ? `auction.html?id=${auctionId}` : `auction.html?listing_id=${l.id}`)
-      : `item.html?id=${itemId}&listing_id=${l.id}`;
+    const itemId    = itemNameToId(l.item_name);
+    const searchUrl = `listings.html?search=${encodeURIComponent(l.item_name)}`;
     const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
     const imgHTML = staticItem?.image
       ? `<img src="${staticItem.image}" alt="${l.item_name}" class="mini-card__img" />`
@@ -2122,12 +2118,12 @@ function initHomepageMiniGrids() {
         : `<div class="mini-card__placeholder" style="font-size:2rem;">📦</div>`;
     return `
       <article class="mini-card">
-        <a href="${itemUrl}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
+        <a href="${searchUrl}" class="mini-card__img-wrap" tabindex="-1" aria-hidden="true">
           ${imgHTML}
         </a>
         <div class="mini-card__body">
-          <a href="${itemUrl}" class="mini-card__name">${l.item_name}</a>
-          <a href="${itemUrl}" class="btn btn--mini-trade">Trade</a>
+          <a href="${searchUrl}" class="mini-card__name">${l.item_name}</a>
+          <a href="${searchUrl}" class="btn btn--mini-trade">Trade</a>
         </div>
       </article>`;
   }
