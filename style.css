@@ -5079,6 +5079,65 @@ body.page-out {
   font-weight: 600;
 }
 
+/* ── Featured listing card & badge ─────────────────────────────── */
+.listing-grid--featured {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .listing-grid--featured { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .listing-grid--featured { grid-template-columns: 1fr; }
+}
+.listing-card--featured {
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  position: relative;
+}
+.listing-card--featured:hover {
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.55);
+}
+.listing-badge.listing-badge--featured {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #422006;
+  border: 1px solid #d97706;
+  left: auto;
+  right: .55rem;
+  top: .55rem;
+  z-index: 3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* My Listings feature button */
+.btn.my-listing-feature {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #422006;
+  border: 1px solid #d97706;
+  font-weight: 700;
+}
+.btn.my-listing-feature[data-state="featured"] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.my-listing-feat-dot { font-size: .9em; margin-left: .25rem; }
+
+/* Admin members tab headings */
+.admin-members__heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-heading, var(--color-text));
+  margin: 1.25rem 0 .5rem;
+}
+.admin-members__heading:first-of-type { margin-top: .5rem; }
+.admin-btn--primary {
+  background: var(--color-accent, #14b8a6);
+  color: #fff;
+  border-color: transparent;
+}
+
 /* ── Looking For badge ─────────────────────────────────────────── */
 /* Always pinned top-right; rarity stays top-left (set by .listing-badge) */
 .listing-badge.listing-badge--looking {

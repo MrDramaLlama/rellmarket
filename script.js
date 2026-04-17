@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFetchListings();
   initHomepageMiniGrids();
   initHomeStatsBar();
+  initFeaturedListings();
   initCategoryGrid();
   initFeaturedTraders();
   initMyListings();
@@ -2357,6 +2358,76 @@ function initHomeStatsBar() {
   loadStats();
 }
 
+// ─── Homepage Featured Listings ──────────────────────────────────────────────
+function initFeaturedListings() {
+  const section = document.getElementById('featured-listings-section');
+  const grid    = document.getElementById('featured-listings-grid');
+  if (!section || !grid) return;
+
+  function buildFeaturedCard(l) {
+    const itemId    = itemNameToId(l.item_name);
+    const isAuction = l.price_type === 'auction';
+    const auctionId = isAuction && (Array.isArray(l.auctions) ? l.auctions[0]?.id : l.auctions?.id);
+    const itemUrl   = isAuction
+      ? (auctionId ? `auction.html?id=${auctionId}` : `auction.html?listing_id=${l.id}`)
+      : `item.html?id=${itemId}&listing_id=${l.id}`;
+    const staticItem = (typeof ITEMS_DATA !== 'undefined') ? ITEMS_DATA[itemId] : null;
+    const imgSrc = staticItem?.image || l.image_url || '';
+    const imgHTML = imgSrc
+      ? `<img src="${imgSrc}" alt="${l.item_name}" class="listing-card__img" />`
+      : `<div class="listing-card__placeholder">📦</div>`;
+
+    const rarityClass = l.rarity ? `listing-badge--${l.rarity}` : '';
+    const rarityLabel = l.rarity ? l.rarity.charAt(0).toUpperCase() + l.rarity.slice(1) : '';
+
+    const seller = l.profiles?.roblox_username || l.profiles?.username || 'Trader';
+
+    let priceHTML;
+    if (l.price_type === 'auction') {
+      const auction = Array.isArray(l.auctions) ? l.auctions[0] : l.auctions;
+      const curBid  = auction ? `${Number(auction.current_bid || auction.starting_price).toLocaleString()} Beli` : '—';
+      priceHTML = `<span class="listing-card__price listing-card__price--auction">🔨 ${curBid}</span>`;
+    } else if (l.price) {
+      priceHTML = `<span class="listing-card__price">${Number(l.price).toLocaleString()} Beli</span>`;
+    } else {
+      priceHTML = `<span class="listing-card__price listing-card__price--offer">Make Offer</span>`;
+    }
+
+    return `
+      <article class="listing-card listing-card--featured" data-item-id="${l.id}">
+        <a href="${itemUrl}" class="listing-card__img-wrap">
+          ${imgHTML}
+          ${rarityLabel ? `<span class="listing-badge ${rarityClass}">${rarityLabel}</span>` : ''}
+          <span class="listing-badge listing-badge--featured">⭐ Featured</span>
+        </a>
+        <div class="listing-card__body">
+          <h3 class="listing-card__name"><a href="${itemUrl}" style="color:inherit;text-decoration:none;">${l.item_name}</a></h3>
+          <p class="listing-card__seller">by <a href="profile.html?username=${encodeURIComponent(seller)}">${seller}</a></p>
+          <div class="listing-card__footer">
+            ${priceHTML}
+            <a href="${itemUrl}" class="btn btn--trade-card">Trade</a>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  fetch('https://rellmarket.vercel.app/api/listings/get?featured=true&limit=4')
+    .then(r => r.ok ? r.json() : null)
+    .then(json => {
+      const listings = (json?.listings || []).filter(l => l.is_active !== false);
+      if (!listings.length) {
+        section.hidden = true;
+        return;
+      }
+      section.hidden = false;
+      grid.innerHTML = listings.map(buildFeaturedCard).join('');
+    })
+    .catch(err => {
+      console.error('[featured listings] failed:', err);
+      section.hidden = true;
+    });
+}
+
 // ─── Homepage: Browse by Category ────────────────────────────────────────────
 function initCategoryGrid() {
   const grid = document.getElementById('category-grid');
@@ -2452,12 +2523,15 @@ async function initMyListings() {
   const userId = session.user.id;
 
   // ── Profile section ──
+  let canFeature = false;
   try {
     const { data: profile } = await client
       .from('profiles')
-      .select('username, roblox_username, avatar_url, discord_id, discord_username')
+      .select('username, roblox_username, avatar_url, discord_id, discord_username, is_member, role')
       .eq('id', userId)
       .single();
+
+    canFeature = !!profile && (profile.role === 'admin' || profile.is_member === true);
 
     if (profile) {
       const nameEl   = document.querySelector('.profile-info__name');
@@ -2534,19 +2608,48 @@ async function initMyListings() {
     const article = document.createElement('article');
     article.className = 'my-listing-row';
     article.dataset.listingId = l.id;
+    const featureBtnHTML = (canFeature && l.is_active)
+      ? (l.is_featured
+          ? `<button class="btn my-listing-feature" data-id="${l.id}" data-state="featured">Unfeature</button>`
+          : `<button class="btn my-listing-feature" data-id="${l.id}" data-state="unfeatured">Feature ⭐</button>`)
+      : '';
     article.innerHTML = `
       ${imgHTML}
       <div class="my-listing-info">
-        <p class="my-listing-name">${l.item_name}</p>
+        <p class="my-listing-name">${l.item_name}${l.is_featured ? ' <span class="my-listing-feat-dot" title="Featured">⭐</span>' : ''}</p>
         <p class="my-listing-meta">${[rarityLabel, priceText, l.created_at ? timeAgo(l.created_at) : ''].filter(Boolean).join(' · ')}</p>
       </div>
       <div class="my-listing-right">
         ${statusBadge}
         ${rarityBadge}
+        ${featureBtnHTML}
         <button class="btn btn--login my-listing-edit" data-id="${l.id}">Edit</button>
         <button class="btn my-listing-delete" data-id="${l.id}"
           style="background:#ef4444;color:#fff;border-color:transparent;">Delete</button>
       </div>`;
+
+    // Feature / Unfeature
+    const featureBtn = article.querySelector('.my-listing-feature');
+    if (featureBtn) {
+      featureBtn.addEventListener('click', async () => {
+        const action = featureBtn.dataset.state === 'featured' ? 'unfeature' : 'feature';
+        featureBtn.disabled = true;
+        try {
+          const r = await fetch('https://rellmarket.vercel.app/api/listings/feature', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ listing_id: l.id, action }),
+          });
+          const json = await r.json();
+          if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+          showToast(action === 'feature' ? 'Listing featured ⭐' : 'Listing unfeatured.');
+          renderAll();
+        } catch (err) {
+          showToast('Error: ' + err.message);
+          featureBtn.disabled = false;
+        }
+      });
+    }
 
     // Delete
     article.querySelector('.my-listing-delete').addEventListener('click', async () => {
