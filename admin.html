@@ -516,126 +516,131 @@
       // ── Load flagged trades ──
       async function loadFlaggedTrades() {
         const tbody = document.getElementById('flagged-tbody');
-        const { data: trades, error } = await client
-          .from('trade_requests')
-          .select('id, created_at, sender_id, listing_id, offered_item, offered_beli, listings(item_name, user_id)')
-          .eq('is_flagged', true)
-          .order('created_at', { ascending: false });
+        try {
+          const r = await fetch(`${BASE}/api/admin/flagged`, { headers: authHeaders });
+          const json = await r.json();
+          console.log('[admin] /api/admin/flagged response:', json);
+          if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+          const trades = json.trades || [];
 
-        if (error || !trades?.length) {
-          tbody.innerHTML = '<tr><td colspan="6">No flagged trades.</td></tr>';
-          return;
-        }
-
-        // Collect all unique user IDs to batch-fetch profiles
-        const userIds = [...new Set(trades.flatMap(t => [t.sender_id, t.listings?.user_id].filter(Boolean)))];
-        const { data: profiles } = await client.from('profiles').select('id, username, roblox_username').in('id', userIds);
-        const profileMap = new Map((profiles || []).map(p => [p.id, p.roblox_username || p.username || p.id]));
-
-        // Auto-approve trades older than 7 days
-        const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
-        for (const t of trades) {
-          if (new Date(t.created_at).getTime() < sevenDaysAgo) {
-            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
-            fetch(`${BASE}/api/values/recalculate`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', ...authHeaders },
-              body: JSON.stringify({ trade_id: t.id }),
-            }).catch(() => {});
+          const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
+          for (const t of trades) {
+            if (new Date(t.created_at).getTime() < sevenDaysAgo) {
+              await fetch(`${BASE}/api/admin/flagged`, {
+                method: 'POST', headers: authHeaders,
+                body: JSON.stringify({ trade_id: t.id, action: 'approve' }),
+              });
+              fetch(`${BASE}/api/values/recalculate`, {
+                method: 'POST', headers: authHeaders,
+                body: JSON.stringify({ trade_id: t.id }),
+              }).catch(() => {});
+            }
           }
-        }
 
-        const remaining = trades.filter(t => new Date(t.created_at).getTime() >= sevenDaysAgo);
-        if (!remaining.length) {
-          tbody.innerHTML = '<tr><td colspan="6">No flagged trades.</td></tr>';
-          return;
-        }
+          const remaining = trades.filter(t => new Date(t.created_at).getTime() >= sevenDaysAgo);
+          if (!remaining.length) {
+            tbody.innerHTML = '<tr><td colspan="6">No flagged trades.</td></tr>';
+            return;
+          }
 
-        tbody.innerHTML = '';
-        remaining.forEach(t => {
-          const itemName  = t.listings?.item_name || '—';
-          const sender    = profileMap.get(t.sender_id) || '—';
-          const receiver  = profileMap.get(t.listings?.user_id) || '—';
-          const offer     = t.offered_beli ? `${Number(t.offered_beli).toLocaleString()} Beli` : (t.offered_item || '—');
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${itemName}</td>
-            <td>${sender}</td>
-            <td>${receiver}</td>
-            <td>${offer}</td>
-            <td>${fmt(t.created_at)}</td>
-            <td class="admin-actions">
-              <button class="btn admin-btn btn-approve">Approve</button>
-              <button class="btn admin-btn admin-btn--danger btn-dismiss-flag">Dismiss</button>
-            </td>`;
-          tr.querySelector('.btn-approve').addEventListener('click', async () => {
-            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
-            fetch(`${BASE}/api/values/recalculate`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', ...authHeaders },
-              body: JSON.stringify({ trade_id: t.id }),
-            }).catch(() => {});
-            tr.remove();
-            if (typeof showToast === 'function') showToast('Trade approved — RV updated ✅');
+          tbody.innerHTML = '';
+          remaining.forEach(t => {
+            const offer = t.offered_beli ? `${Number(t.offered_beli).toLocaleString()} Beli` : (t.offered_item || '—');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${t.item_name}</td>
+              <td>${t.sender_name}</td>
+              <td>${t.receiver_name}</td>
+              <td>${offer}</td>
+              <td>${fmt(t.created_at)}</td>
+              <td class="admin-actions">
+                <button class="btn admin-btn btn-approve">Approve</button>
+                <button class="btn admin-btn admin-btn--danger btn-dismiss-flag">Dismiss</button>
+              </td>`;
+            tr.querySelector('.btn-approve').addEventListener('click', async () => {
+              await fetch(`${BASE}/api/admin/flagged`, {
+                method: 'POST', headers: authHeaders,
+                body: JSON.stringify({ trade_id: t.id, action: 'approve' }),
+              });
+              fetch(`${BASE}/api/values/recalculate`, {
+                method: 'POST', headers: authHeaders,
+                body: JSON.stringify({ trade_id: t.id }),
+              }).catch(() => {});
+              tr.remove();
+              if (typeof showToast === 'function') showToast('Trade approved — RV updated ✅');
+            });
+            tr.querySelector('.btn-dismiss-flag').addEventListener('click', async () => {
+              await fetch(`${BASE}/api/admin/flagged`, {
+                method: 'POST', headers: authHeaders,
+                body: JSON.stringify({ trade_id: t.id, action: 'dismiss' }),
+              });
+              tr.remove();
+              if (typeof showToast === 'function') showToast('Trade dismissed.');
+            });
+            tbody.appendChild(tr);
           });
-          tr.querySelector('.btn-dismiss-flag').addEventListener('click', async () => {
-            await client.from('trade_requests').update({ is_flagged: false }).eq('id', t.id);
-            tr.remove();
-            if (typeof showToast === 'function') showToast('Trade dismissed.');
-          });
-          tbody.appendChild(tr);
-        });
+        } catch (e) {
+          console.error('[admin] loadFlaggedTrades failed:', e);
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--color-danger,#dc2626);">Error: ${e.message}</td></tr>`;
+        }
       }
 
       // ── Load item values ──
       async function loadItemValues() {
         const tbody = document.getElementById('values-tbody');
-        const r = await fetch(`${BASE}/api/values/get`, { headers: authHeaders });
-        const json = await r.json();
-        const items = json.items || [];
-        if (!items.length) {
-          tbody.innerHTML = '<tr><td colspan="6">No item values found.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = '';
-        items.forEach(v => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${v.item_name}</td>
-            <td><input class="admin-rv-input" type="number" min="0" step="0.01" value="${v.rv ?? ''}" style="width:70px;" /></td>
-            <td>
-              <select class="admin-demand-select">
-                <option value="">—</option>
-                <option value="low"      ${v.demand_tier === 'low'       ? 'selected' : ''}>💙 Low</option>
-                <option value="medium"   ${v.demand_tier === 'medium'    ? 'selected' : ''}>💛 Medium</option>
-                <option value="high"     ${v.demand_tier === 'high'      ? 'selected' : ''}>❤️ High</option>
-                <option value="very_high"${v.demand_tier === 'very_high' ? 'selected' : ''}>🖤 Very High</option>
-              </select>
-            </td>
-            <td>${v.is_established ? '✅ Yes' : '⏳ No'}</td>
-            <td>${v.last_updated ? fmt(v.last_updated) : '—'}</td>
-            <td><button class="btn admin-btn btn-save-rv">Save</button></td>`;
-          tr.querySelector('.btn-save-rv').addEventListener('click', async () => {
-            const rvVal     = tr.querySelector('.admin-rv-input').value;
-            const demandVal = tr.querySelector('.admin-demand-select').value;
-            try {
-              const res = await fetch(`${BASE}/api/values/update`, {
-                method: 'POST',
-                headers: authHeaders,
-                body: JSON.stringify({
-                  item_name:   v.item_name,
-                  rv:          rvVal !== '' ? rvVal : undefined,
-                  demand_tier: demandVal || null,
-                }),
-              });
-              if (!res.ok) throw new Error((await res.json()).error);
-              if (typeof showToast === 'function') showToast(`${v.item_name} updated ✅`);
-            } catch (e) {
-              if (typeof showToast === 'function') showToast('Error: ' + e.message);
-            }
+        try {
+          const r = await fetch(`${BASE}/api/values/get`, { headers: authHeaders });
+          const json = await r.json();
+          console.log('[admin] /api/values/get response:', json);
+          if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+          const items = json.items || [];
+          if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="6">No item values found. Add items via the item values table in Supabase.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = '';
+          items.forEach(v => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${v.item_name}</td>
+              <td><input class="admin-rv-input" type="number" min="0" step="0.01" value="${v.rv ?? ''}" style="width:70px;" /></td>
+              <td>
+                <select class="admin-demand-select">
+                  <option value="">—</option>
+                  <option value="low"      ${v.demand_tier === 'low'       ? 'selected' : ''}>💙 Low</option>
+                  <option value="medium"   ${v.demand_tier === 'medium'    ? 'selected' : ''}>💛 Medium</option>
+                  <option value="high"     ${v.demand_tier === 'high'      ? 'selected' : ''}>❤️ High</option>
+                  <option value="very_high"${v.demand_tier === 'very_high' ? 'selected' : ''}>🖤 Very High</option>
+                </select>
+              </td>
+              <td>${v.is_established ? '✅ Yes' : '⏳ No'}</td>
+              <td>${v.last_updated ? fmt(v.last_updated) : '—'}</td>
+              <td><button class="btn admin-btn btn-save-rv">Save</button></td>`;
+            tr.querySelector('.btn-save-rv').addEventListener('click', async () => {
+              const rvVal     = tr.querySelector('.admin-rv-input').value;
+              const demandVal = tr.querySelector('.admin-demand-select').value;
+              try {
+                const res = await fetch(`${BASE}/api/values/update`, {
+                  method: 'POST',
+                  headers: authHeaders,
+                  body: JSON.stringify({
+                    item_name:   v.item_name,
+                    rv:          rvVal !== '' ? rvVal : undefined,
+                    demand_tier: demandVal || null,
+                  }),
+                });
+                if (!res.ok) throw new Error((await res.json()).error);
+                if (typeof showToast === 'function') showToast(`${v.item_name} updated ✅`);
+              } catch (e) {
+                if (typeof showToast === 'function') showToast('Error: ' + e.message);
+              }
+            });
+            tbody.appendChild(tr);
           });
-          tbody.appendChild(tr);
-        });
+        } catch (e) {
+          console.error('[admin] loadItemValues failed:', e);
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--color-danger,#dc2626);">Error: ${e.message}</td></tr>`;
+        }
       }
 
       // ── Tab switching ──

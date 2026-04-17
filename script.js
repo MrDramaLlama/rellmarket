@@ -1896,14 +1896,16 @@ function initFetchListings() {
 
   // Pre-fetch all item values for RV/demand display on cards
   const valuesMap = new Map();
-  fetch('https://rellmarket.vercel.app/api/values/get')
+  const valuesReady = fetch('https://rellmarket.vercel.app/api/values/get')
     .then(r => r.ok ? r.json() : null)
     .then(data => {
+      console.log('[RV] /api/values/get response:', data);
       if (data?.items) {
         data.items.forEach(v => valuesMap.set((v.item_name || '').toLowerCase(), v));
+        console.log('[RV] valuesMap populated with', valuesMap.size, 'items');
       }
     })
-    .catch(() => {});
+    .catch(err => console.error('[RV] fetch failed:', err));
 
   function auctionTimeLeft(endsAt) {
     const diff = new Date(endsAt) - Date.now();
@@ -1984,7 +1986,7 @@ function initFetchListings() {
     const iv = valuesMap.get((l.item_name || '').toLowerCase());
     const demandHeart = getDemandHeart(iv?.demand_tier);
     const rvText = iv
-      ? (iv.is_established ? `RV: ${iv.rv}` : 'RV: ?')
+      ? (iv.is_established ? `RV: ${iv.rv}` : 'RV: Unestablished')
       : '';
     const marketIcon = (!isLooking && iv?.is_established && l.price && l.price_type === 'fixed')
       ? getMarketIndicator(Number(l.price), iv.rv)
@@ -2037,12 +2039,15 @@ function initFetchListings() {
       loadMoreBtn.textContent = '';
     }
 
-    fetch(`https://rellmarket.vercel.app/api/listings/get?limit=${PAGE_SIZE}&offset=${offset}&listing_type=${activeListingType}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(json => {
+    Promise.all([
+      fetch(`https://rellmarket.vercel.app/api/listings/get?limit=${PAGE_SIZE}&offset=${offset}&listing_type=${activeListingType}`)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        }),
+      valuesReady
+    ])
+      .then(([json]) => {
         const listings = json.listings || [];
         const hasMore  = json.hasMore === true;
 
