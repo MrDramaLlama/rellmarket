@@ -148,42 +148,6 @@
   </div>
 
   <!-- ═══════════════════════════════════════
-       LIVE STATS BAR
-  ════════════════════════════════════════ -->
-  <div class="stats-bar" id="stats-bar" aria-label="Live marketplace stats">
-    <div class="stats-bar__inner">
-      <div class="stats-bar__item">
-        <span class="stats-bar__icon" aria-hidden="true">🤝</span>
-        <div class="stats-bar__text">
-          <span class="stats-bar__value" id="stat-total-trades">—</span>
-          <span class="stats-bar__label">Total Trades</span>
-        </div>
-      </div>
-      <div class="stats-bar__item">
-        <span class="stats-bar__icon" aria-hidden="true">📋</span>
-        <div class="stats-bar__text">
-          <span class="stats-bar__value" id="stat-active-listings">—</span>
-          <span class="stats-bar__label">Active Listings</span>
-        </div>
-      </div>
-      <div class="stats-bar__item">
-        <span class="stats-bar__icon" aria-hidden="true">📦</span>
-        <div class="stats-bar__text">
-          <span class="stats-bar__value" id="stat-items-traded">—</span>
-          <span class="stats-bar__label">Items Traded</span>
-        </div>
-      </div>
-      <div class="stats-bar__item">
-        <span class="stats-bar__icon" aria-hidden="true">⚡</span>
-        <div class="stats-bar__text">
-          <span class="stats-bar__value" id="stat-today-trades">—</span>
-          <span class="stats-bar__label">Today's Trades</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════
        MAIN CONTENT
   ════════════════════════════════════════ -->
   <main class="page-main">
@@ -252,6 +216,30 @@
 
       </section>
       <!-- /hero-carousel -->
+
+      <!-- ── Live Stats Bar ── -->
+      <section class="stats-bar reveal" id="stats-bar" aria-label="Live marketplace stats">
+        <div class="stats-bar__item">
+          <span class="stats-bar__icon" aria-hidden="true">🤝</span>
+          <span class="stats-bar__value" id="stat-total-trades" data-target="0">0</span>
+          <span class="stats-bar__label">Total Trades</span>
+        </div>
+        <div class="stats-bar__item">
+          <span class="stats-bar__icon" aria-hidden="true">📋</span>
+          <span class="stats-bar__value" id="stat-active-listings" data-target="0">0</span>
+          <span class="stats-bar__label">Active Listings</span>
+        </div>
+        <div class="stats-bar__item">
+          <span class="stats-bar__icon" aria-hidden="true">📦</span>
+          <span class="stats-bar__value" id="stat-items-traded" data-target="0">0</span>
+          <span class="stats-bar__label">Items Traded</span>
+        </div>
+        <div class="stats-bar__item">
+          <span class="stats-bar__icon" aria-hidden="true">⚡</span>
+          <span class="stats-bar__value" id="stat-today-trades" data-target="0">0</span>
+          <span class="stats-bar__label">Today's Trades</span>
+        </div>
+      </section>
 
       <!-- ── Two-Column Featured Sections ── -->
       <div class="featured-row">

@@ -2307,6 +2307,23 @@ function initHomeStatsBar() {
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const fmt = n => Number(n || 0).toLocaleString('en-US');
 
+  function animateCount(el, target, duration = 1000) {
+    if (!el) return;
+    target = Number(target) || 0;
+    const start = performance.now();
+    const from = 0;
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      const value = Math.round(from + (target - from) * eased);
+      el.textContent = fmt(value);
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = fmt(target);
+    }
+    requestAnimationFrame(tick);
+  }
+
   async function loadStats() {
     try {
       const startOfDay = new Date();
@@ -2320,15 +2337,6 @@ function initHomeStatsBar() {
           .eq('status', 'completed').gte('created_at', startOfDay.toISOString()),
       ]);
 
-      const totalEl   = document.getElementById('stat-total-trades');
-      const activeEl  = document.getElementById('stat-active-listings');
-      const itemsEl   = document.getElementById('stat-items-traded');
-      const todayEl   = document.getElementById('stat-today-trades');
-
-      if (totalEl)  totalEl.textContent  = fmt(totalTrades.count);
-      if (activeEl) activeEl.textContent = fmt(activeListings.count);
-      if (todayEl)  todayEl.textContent  = fmt(todayTrades.count);
-
       const distinctItems = new Set();
       (itemsTraded.data || []).forEach(r => {
         if (r.offered_item) distinctItems.add(r.offered_item.trim());
@@ -2336,7 +2344,11 @@ function initHomeStatsBar() {
         if (ln) distinctItems.add(ln.trim());
       });
       distinctItems.delete('');
-      if (itemsEl) itemsEl.textContent = fmt(distinctItems.size);
+
+      animateCount(document.getElementById('stat-total-trades'),   totalTrades.count);
+      animateCount(document.getElementById('stat-active-listings'), activeListings.count);
+      animateCount(document.getElementById('stat-items-traded'),    distinctItems.size);
+      animateCount(document.getElementById('stat-today-trades'),    todayTrades.count);
     } catch (err) {
       console.error('[stats-bar] failed:', err);
     }
