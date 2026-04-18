@@ -5,7 +5,8 @@
       "Bash(grep -n \"Price History\\\\|Trade Requests\" \"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Dokument\\\\Website Rellazon\"/*.html)",
       "Bash(python3 -)",
       "Bash(node -e ' *)",
-      "Bash(ls *.html)"
+      "Bash(ls *.html)",
+      "WebFetch(domain:api.anthropic.com)"
     ]
   }
 }

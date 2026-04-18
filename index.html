@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RellMarket — Rell Seas Trading Marketplace</title>
   <script>!function(){var d=localStorage.getItem('rellmarket-dark');if(d==='1'||(d===null&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark-mode');}();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap">
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
@@ -20,7 +23,7 @@
       <!-- Left: Logo + Nav dropdowns -->
       <div class="navbar__left">
         <a href="index.html" class="navbar__logo">
-          <span class="navbar__logo-icon">⚓</span>
+          <svg class="navbar__logo-icon" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" style="display:inline-block;vertical-align:-5px;flex-shrink:0"><defs><linearGradient id="rmlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0f766e"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#rmlg)"/><path d="M5 19 Q 9 15, 13 19 T 21 19 T 29 19" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M5 23 Q 9 19, 13 23 T 21 23 T 29 23" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".55"/><path d="M16 5 L19 12 L16 10 L13 12 Z" fill="#fcd34d"/></svg>
           <span class="navbar__logo-text">RellMarket</span>
         </a>
 
@@ -60,14 +63,13 @@
       <!-- Center: Search -->
       <div class="navbar__search">
         <form class="search-form" role="search">
-          <span class="search-form__icon" aria-hidden="true">🔍</span>
           <input
             class="search-form__input"
             type="search"
             placeholder="Search Devil Fruits, Armor, Beli…"
             aria-label="Search items"
           />
-          <button class="search-form__btn" type="submit">Search</button>
+          <button class="search-form__btn" type="submit" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
         </form>
       </div>
 
@@ -102,9 +104,8 @@
     <!-- Mobile drawer -->
     <div class="navbar__drawer" id="mobile-drawer">
       <form class="search-form search-form--drawer" role="search">
-        <span class="search-form__icon" aria-hidden="true">🔍</span>
         <input class="search-form__input" type="search" placeholder="Search items…" aria-label="Search" />
-        <button class="search-form__btn" type="submit">Search</button>
+        <button class="search-form__btn" type="submit" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       </form>
       <div class="navbar__drawer-links">
         <a href="#" class="drawer-link">Marketplace ›</a>
@@ -159,47 +160,112 @@
         <!-- Slide 1 -->
         <div class="carousel__slide carousel__slide--active carousel__slide--1">
           <div class="carousel__content">
-            <h1 class="carousel__heading">The #1 Rell Seas<br/>Trading Marketplace</h1>
+            <span class="carousel__eyebrow">
+              <span class="carousel__eyebrow-dot"></span>
+              The #1 Rell Seas Marketplace
+            </span>
+            <h1 class="carousel__heading">Trade devil fruits<br/>with <span class="carousel__heading-gradient">real players</span></h1>
             <p class="carousel__sub">Buy, sell and trade Devil Fruits, Armor, Beli and more — listed by real players every day.</p>
             <div class="carousel__actions">
-              <a href="listings.html" class="btn btn--carousel-primary">Start Trading</a>
+              <a href="listings.html" class="btn btn--carousel-primary">Start Trading <span aria-hidden="true">→</span></a>
               <a href="post-listing.html" class="btn btn--carousel-outline">Post a Listing</a>
             </div>
+            <div class="carousel__proof">
+              <div class="carousel__avatars" aria-hidden="true">
+                <span class="carousel__avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">K</span>
+                <span class="carousel__avatar" style="background:linear-gradient(135deg,#14b8a6,#0ea5e9)">M</span>
+                <span class="carousel__avatar" style="background:linear-gradient(135deg,#a855f7,#ec4899)">R</span>
+                <span class="carousel__avatar" style="background:linear-gradient(135deg,#10b981,#14b8a6)">J</span>
+              </div>
+              <span class="carousel__proof-text"><strong>2,400+</strong> traders active this week</span>
+            </div>
           </div>
-          <div class="carousel__art" aria-hidden="true">
+          <div class="carousel__art carousel__art--1" aria-hidden="true">
+            <div class="carousel__orbit"></div>
+            <div class="carousel__orbit carousel__orbit--2"></div>
             <img src="assets/G-fruit.png" class="carousel__art-main" alt="" />
             <img src="assets/F-fruit.png" class="carousel__art-float carousel__art-float--1" alt="" />
             <img src="assets/I-fruit.png" class="carousel__art-float carousel__art-float--2" alt="" />
+            <span class="carousel__art-badge carousel__art-badge--1">Legendary</span>
+            <span class="carousel__art-badge carousel__art-badge--2">+340% ▲</span>
           </div>
         </div>
 
         <!-- Slide 2 -->
         <div class="carousel__slide carousel__slide--2">
           <div class="carousel__content">
-            <h1 class="carousel__heading">Got Fruits to Trade?</h1>
-            <p class="carousel__sub">Post your listing in seconds and reach thousands of Rell Seas traders.</p>
+            <span class="carousel__eyebrow carousel__eyebrow--gold">
+              <span class="carousel__eyebrow-dot"></span>
+              Sell your loot in seconds
+            </span>
+            <h1 class="carousel__heading">Got fruits?<br/><span class="carousel__heading-gradient carousel__heading-gradient--gold">Get paid.</span></h1>
+            <p class="carousel__sub">Post your listing in under 60 seconds and reach thousands of Rell Seas traders.</p>
             <div class="carousel__actions">
-              <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing</a>
+              <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing <span aria-hidden="true">→</span></a>
               <a href="listings.html" class="btn btn--carousel-outline">Browse Listings</a>
             </div>
+            <ul class="carousel__checks">
+              <li><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Free listings</li>
+              <li><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Trusted escrow</li>
+              <li><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>No fees</li>
+            </ul>
           </div>
-          <div class="carousel__art" aria-hidden="true">
-            <img src="assets/Ou-fruit.png" class="carousel__art-main" alt="" />
+          <div class="carousel__art carousel__art--2" aria-hidden="true">
+            <div class="carousel__ticket">
+              <div class="carousel__ticket-head">
+                <span class="carousel__ticket-tag">NEW LISTING</span>
+                <span class="carousel__ticket-time">just now</span>
+              </div>
+              <div class="carousel__ticket-body">
+                <img src="assets/Ou-fruit.png" class="carousel__ticket-img" alt=""/>
+                <div>
+                  <div class="carousel__ticket-title">Ope Ope no Mi</div>
+                  <div class="carousel__ticket-price">$12,500</div>
+                </div>
+              </div>
+              <div class="carousel__ticket-foot">
+                <span>⬆ 12 bids</span>
+                <span>⏱ 3h left</span>
+              </div>
+            </div>
+            <img src="assets/F-fruit.png" class="carousel__art-float carousel__art-float--3" alt=""/>
           </div>
         </div>
 
         <!-- Slide 3 -->
         <div class="carousel__slide carousel__slide--3">
           <div class="carousel__content">
-            <h1 class="carousel__heading">Find Rare Devil Fruits</h1>
-            <p class="carousel__sub">Browse hundreds of listings from real players — Legendary, Rare and more.</p>
+            <span class="carousel__eyebrow carousel__eyebrow--purple">
+              <span class="carousel__eyebrow-dot"></span>
+              Rare drops, daily
+            </span>
+            <h1 class="carousel__heading">Hunt <span class="carousel__heading-gradient carousel__heading-gradient--purple">legendary</span><br/>devil fruits</h1>
+            <p class="carousel__sub">Browse hundreds of listings from real players — Legendary, Mythic and Rare drops surface every hour.</p>
             <div class="carousel__actions">
-              <a href="listings.html" class="btn btn--carousel-primary">Browse Now</a>
+              <a href="listings.html" class="btn btn--carousel-primary">Browse Now <span aria-hidden="true">→</span></a>
               <a href="signup.html" class="btn btn--carousel-outline">Sign Up Free</a>
             </div>
+            <div class="carousel__chips">
+              <span class="carousel__chip" style="--chip:#fbbf24">★ Legendary <b>42</b></span>
+              <span class="carousel__chip" style="--chip:#a855f7">★ Mythic <b>117</b></span>
+              <span class="carousel__chip" style="--chip:#3b82f6">★ Rare <b>298</b></span>
+            </div>
           </div>
-          <div class="carousel__art" aria-hidden="true">
-            <img src="assets/I-fruit.png" class="carousel__art-main" alt="" />
+          <div class="carousel__art carousel__art--3" aria-hidden="true">
+            <div class="carousel__rarity-stack">
+              <div class="carousel__rarity-card carousel__rarity-card--3">
+                <img src="assets/bomb-fruit.png" alt=""/>
+                <span>Rare</span>
+              </div>
+              <div class="carousel__rarity-card carousel__rarity-card--2">
+                <img src="assets/bison-fruit.png" alt=""/>
+                <span>Mythic</span>
+              </div>
+              <div class="carousel__rarity-card carousel__rarity-card--1">
+                <img src="assets/I-fruit.png" alt=""/>
+                <span>Legendary</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -219,25 +285,60 @@
 
       <!-- ── Live Stats Bar ── -->
       <section class="stats-bar reveal" id="stats-bar" aria-label="Live marketplace stats">
-        <div class="stats-bar__item">
-          <span class="stats-bar__icon" aria-hidden="true">🤝</span>
-          <span class="stats-bar__value" id="stat-total-trades" data-target="0">0</span>
-          <span class="stats-bar__label">Total Trades</span>
+        <div class="stats-bar__header">
+          <span class="stats-bar__pulse" aria-hidden="true"><span class="stats-bar__pulse-dot"></span></span>
+          <span class="stats-bar__eyebrow">Live Marketplace</span>
+          <span class="stats-bar__clock" id="stats-bar-clock" aria-hidden="true">—</span>
         </div>
-        <div class="stats-bar__item">
-          <span class="stats-bar__icon" aria-hidden="true">📋</span>
-          <span class="stats-bar__value" id="stat-active-listings" data-target="0">0</span>
-          <span class="stats-bar__label">Active Listings</span>
-        </div>
-        <div class="stats-bar__item">
-          <span class="stats-bar__icon" aria-hidden="true">📦</span>
-          <span class="stats-bar__value" id="stat-items-traded" data-target="0">0</span>
-          <span class="stats-bar__label">Items Traded</span>
-        </div>
-        <div class="stats-bar__item">
-          <span class="stats-bar__icon" aria-hidden="true">⚡</span>
-          <span class="stats-bar__value" id="stat-today-trades" data-target="0">0</span>
-          <span class="stats-bar__label">Today's Trades</span>
+        <div class="stats-bar__grid">
+          <div class="stats-bar__item" style="--accent:#14b8a6;--accent-2:#0d9488;">
+            <div class="stats-bar__icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11l-3-3 3-3"/><path d="M5 8h9a4 4 0 0 1 4 4"/><path d="M16 13l3 3-3 3"/><path d="M19 16h-9a4 4 0 0 1-4-4"/></svg>
+            </div>
+            <div class="stats-bar__body">
+              <span class="stats-bar__value" id="stat-total-trades" data-target="0">0</span>
+              <span class="stats-bar__label">Total Trades</span>
+              <div class="stats-bar__spark" aria-hidden="true">
+                <svg viewBox="0 0 100 28" preserveAspectRatio="none"><defs><linearGradient id="sparkFill1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="stats-bar__spark-fill" d="M0,22 L10,18 L20,20 L30,12 L40,15 L50,8 L60,11 L70,6 L80,9 L90,4 L100,6 L100,28 L0,28 Z" fill="url(#sparkFill1)"/><path class="stats-bar__spark-line" d="M0,22 L10,18 L20,20 L30,12 L40,15 L50,8 L60,11 L70,6 L80,9 L90,4 L100,6" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="stats-bar__item" style="--accent:#3b82f6;--accent-2:#2563eb;">
+            <div class="stats-bar__icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+            </div>
+            <div class="stats-bar__body">
+              <span class="stats-bar__value" id="stat-active-listings" data-target="0">0</span>
+              <span class="stats-bar__label">Active Listings</span>
+              <div class="stats-bar__spark" aria-hidden="true">
+                <svg viewBox="0 0 100 28" preserveAspectRatio="none"><defs><linearGradient id="sparkFill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="stats-bar__spark-fill" d="M0,18 L10,14 L20,16 L30,10 L40,13 L50,7 L60,10 L70,5 L80,8 L90,3 L100,5 L100,28 L0,28 Z" fill="url(#sparkFill2)"/><path class="stats-bar__spark-line" d="M0,18 L10,14 L20,16 L30,10 L40,13 L50,7 L60,10 L70,5 L80,8 L90,3 L100,5" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="stats-bar__item" style="--accent:#f59e0b;--accent-2:#d97706;">
+            <div class="stats-bar__icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+            </div>
+            <div class="stats-bar__body">
+              <span class="stats-bar__value" id="stat-items-traded" data-target="0">0</span>
+              <span class="stats-bar__label">Items Traded</span>
+              <div class="stats-bar__spark" aria-hidden="true">
+                <svg viewBox="0 0 100 28" preserveAspectRatio="none"><defs><linearGradient id="sparkFill3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="stats-bar__spark-fill" d="M0,20 L10,17 L20,19 L30,14 L40,16 L50,10 L60,12 L70,7 L80,10 L90,5 L100,7 L100,28 L0,28 Z" fill="url(#sparkFill3)"/><path class="stats-bar__spark-line" d="M0,20 L10,17 L20,19 L30,14 L40,16 L50,10 L60,12 L70,7 L80,10 L90,5 L100,7" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="stats-bar__item" style="--accent:#a855f7;--accent-2:#9333ea;">
+            <div class="stats-bar__icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="stats-bar__body">
+              <span class="stats-bar__value" id="stat-today-trades" data-target="0">0</span>
+              <span class="stats-bar__label">Today's Trades</span>
+              <div class="stats-bar__spark" aria-hidden="true">
+                <svg viewBox="0 0 100 28" preserveAspectRatio="none"><defs><linearGradient id="sparkFill4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="stats-bar__spark-fill" d="M0,15 L10,19 L20,13 L30,17 L40,10 L50,14 L60,8 L70,12 L80,5 L90,9 L100,3 L100,28 L0,28 Z" fill="url(#sparkFill4)"/><path class="stats-bar__spark-line" d="M0,15 L10,19 L20,13 L30,17 L40,10 L50,14 L60,8 L70,12 L80,5 L90,9 L100,3" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -312,40 +413,68 @@
           <h2 class="home-row__title">Browse by Category</h2>
         </div>
         <div class="category-grid" id="category-grid">
-          <a href="listings.html?filter=fruit"   class="category-card" data-category="fruit">
-            <span class="category-card__emoji">🍎</span>
+          <a href="listings.html?filter=fruit"   class="category-card" data-category="fruit" style="--cat:#14b8a6;--cat-2:#0d9488;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 29c-6 0-10-4-10-10 0-5 4-9 10-9s10 4 10 9c0 6-4 10-10 10z" fill="currentColor" fill-opacity=".14"/><path d="M16 10c0-3 1-5 3-6" stroke-width="2.4"/><circle cx="20" cy="5" r="1.5" fill="currentColor"/></svg>
+            </div>
             <span class="category-card__name">Devil Fruits</span>
             <span class="category-card__count" id="cat-count-fruit">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=armor"   class="category-card" data-category="armor">
-            <span class="category-card__emoji">🛡️</span>
+          <a href="listings.html?filter=armor"   class="category-card" data-category="armor" style="--cat:#3b82f6;--cat-2:#2563eb;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4l10 3v8c0 7-5 11-10 13-5-2-10-6-10-13V7l10-3z" fill="currentColor" fill-opacity=".14"/><path d="M12 15l3 3 5-6"/></svg>
+            </div>
             <span class="category-card__name">Armor</span>
             <span class="category-card__count" id="cat-count-armor">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=weapon"  class="category-card" data-category="weapon">
-            <span class="category-card__emoji">⚔️</span>
+          <a href="listings.html?filter=weapon"  class="category-card" data-category="weapon" style="--cat:#ef4444;--cat-2:#dc2626;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M26 6l-14 14M26 6l-2 6-6 2M12 20l-6 6M10 22l2 4M8 20l4 2" stroke-width="2.2"/></svg>
+            </div>
             <span class="category-card__name">Weapons</span>
             <span class="category-card__count" id="cat-count-weapon">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=beli"    class="category-card" data-category="beli">
-            <span class="category-card__emoji">💰</span>
+          <a href="listings.html?filter=beli"    class="category-card" data-category="beli" style="--cat:#fbbf24;--cat-2:#d97706;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="currentColor" fill-opacity=".14"/><path d="M12 11h8M12 15h8M14 11v10l5-5" stroke-width="2.3"/></svg>
+            </div>
             <span class="category-card__name">Beli</span>
             <span class="category-card__count" id="cat-count-beli">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=sword"   class="category-card" data-category="sword">
-            <span class="category-card__emoji">🗡️</span>
+          <a href="listings.html?filter=sword"   class="category-card" data-category="sword" style="--cat:#8b5cf6;--cat-2:#7c3aed;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 4l4 4-16 16-4-1-1-4L23 3z" fill="currentColor" fill-opacity=".14"/><path d="M8 24l-3 3M24 4l4 4" stroke-width="2.2"/></svg>
+            </div>
             <span class="category-card__name">Swords</span>
             <span class="category-card__count" id="cat-count-sword">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=item"    class="category-card" data-category="item">
-            <span class="category-card__emoji">📦</span>
+          <a href="listings.html?filter=item"    class="category-card" data-category="item" style="--cat:#f59e0b;--cat-2:#b45309;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4L5 9v14l11 5 11-5V9L16 4z" fill="currentColor" fill-opacity=".14"/><path d="M5 9l11 5 11-5M16 14v14"/></svg>
+            </div>
             <span class="category-card__name">Items</span>
             <span class="category-card__count" id="cat-count-item">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
-          <a href="listings.html?filter=service" class="category-card" data-category="service">
-            <span class="category-card__emoji">🤝</span>
+          <a href="listings.html?filter=service" class="category-card" data-category="service" style="--cat:#ec4899;--cat-2:#be185d;">
+            <div class="category-card__glow"></div>
+            <div class="category-card__icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12v4a6 6 0 0012 0v-4M7 12h18M10 12L13 5M22 12L19 5M14 22v5M18 22v5M11 27h10" stroke-width="2"/></svg>
+            </div>
             <span class="category-card__name">Services</span>
             <span class="category-card__count" id="cat-count-service">— listings</span>
+            <span class="category-card__arrow" aria-hidden="true">→</span>
           </a>
         </div>
       </section>
@@ -355,47 +484,95 @@
 
         <!-- Slide 1 -->
         <div class="carousel__slide carousel__slide--active carousel__slide--p1">
-          <div class="carousel__content">
-            <h2 class="carousel__heading">Trade Smarter,<br/>Not Harder</h2>
-            <p class="carousel__sub">Set up price alerts, track market trends, and never miss a deal again.</p>
-            <div class="carousel__actions">
-              <a href="listings.html" class="btn btn--carousel-primary">Browse Listings</a>
-              <a href="prices.html" class="btn btn--carousel-outline">Price History</a>
+          <div class="promo-slide">
+            <div class="promo-slide__side">
+              <span class="promo-slide__num">01</span>
+              <span class="promo-slide__kicker">Market Intel</span>
             </div>
-          </div>
-          <div class="carousel__art" aria-hidden="true">
-            <img src="assets/I-fruit.png" class="carousel__art-main" alt="" />
-            <img src="assets/G-fruit.png" class="carousel__art-float carousel__art-float--1" alt="" />
+            <div class="promo-slide__content">
+              <h2 class="promo-slide__heading">Trade smarter,<br/>not harder.</h2>
+              <p class="promo-slide__sub">Set up price alerts, track market trends, and never miss a deal again.</p>
+              <div class="promo-slide__actions">
+                <a href="listings.html" class="btn btn--carousel-primary">Browse Listings →</a>
+                <a href="prices.html" class="btn btn--carousel-outline">Price History</a>
+              </div>
+            </div>
+            <div class="promo-slide__visual promo-slide__visual--chart">
+              <div class="promo-chart">
+                <div class="promo-chart__label"><span>Ope Ope no Mi</span><span class="promo-chart__pct">+18.4%</span></div>
+                <svg viewBox="0 0 200 80" preserveAspectRatio="none" class="promo-chart__svg">
+                  <defs><linearGradient id="promoChart1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5eead4" stop-opacity=".5"/><stop offset="100%" stop-color="#5eead4" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0,60 L20,55 L40,58 L60,45 L80,48 L100,35 L120,40 L140,25 L160,30 L180,15 L200,20 L200,80 L0,80 Z" fill="url(#promoChart1)"/>
+                  <path d="M0,60 L20,55 L40,58 L60,45 L80,48 L100,35 L120,40 L140,25 L160,30 L180,15 L200,20" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="180" cy="15" r="4" fill="#5eead4"/>
+                  <circle cx="180" cy="15" r="8" fill="none" stroke="#5eead4" stroke-opacity=".4"><animate attributeName="r" from="4" to="14" dur="2s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" from=".6" to="0" dur="2s" repeatCount="indefinite"/></circle>
+                </svg>
+                <div class="promo-chart__legend"><span>24h</span><span>7d</span><span class="is-active">30d</span></div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Slide 2 -->
         <div class="carousel__slide carousel__slide--p2">
-          <div class="carousel__content">
-            <h2 class="carousel__heading">Auctions Live<br/>Right Now 🔨</h2>
-            <p class="carousel__sub">Bid on rare items before time runs out — new auctions added every day.</p>
-            <div class="carousel__actions">
-              <a href="listings.html" class="btn btn--carousel-primary">See Auctions</a>
-              <a href="post-listing.html" class="btn btn--carousel-outline">Start an Auction</a>
+          <div class="promo-slide">
+            <div class="promo-slide__side">
+              <span class="promo-slide__num">02</span>
+              <span class="promo-slide__kicker promo-slide__kicker--red">Live Now</span>
             </div>
-          </div>
-          <div class="carousel__art" aria-hidden="true">
-            <img src="assets/Ou-fruit.png" class="carousel__art-main" alt="" />
+            <div class="promo-slide__content">
+              <h2 class="promo-slide__heading">Auctions live<br/><span class="promo-slide__strike">right now</span>.</h2>
+              <p class="promo-slide__sub">Bid on rare items before time runs out — new auctions added every hour.</p>
+              <div class="promo-slide__actions">
+                <a href="listings.html" class="btn btn--carousel-primary">See Auctions →</a>
+                <a href="post-listing.html" class="btn btn--carousel-outline">Start an Auction</a>
+              </div>
+            </div>
+            <div class="promo-slide__visual promo-slide__visual--auction">
+              <div class="promo-auction">
+                <div class="promo-auction__ring">
+                  <svg viewBox="0 0 120 120" class="promo-auction__svg">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="5"/>
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#fca5a5" stroke-width="5" stroke-linecap="round" stroke-dasharray="326" stroke-dashoffset="82" transform="rotate(-90 60 60)"/>
+                  </svg>
+                  <div class="promo-auction__center">
+                    <span class="promo-auction__time">02:14:36</span>
+                    <span class="promo-auction__label">time left</span>
+                  </div>
+                </div>
+                <div class="promo-auction__meta">
+                  <div><span>Current bid</span><strong>$24,800</strong></div>
+                  <div><span>Bidders</span><strong>17</strong></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Slide 3 -->
         <div class="carousel__slide carousel__slide--p3">
-          <div class="carousel__content">
-            <h2 class="carousel__heading">Looking for<br/>Something Rare?</h2>
-            <p class="carousel__sub">Post a "Looking For" listing and let traders come to you.</p>
-            <div class="carousel__actions">
-              <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing</a>
-              <a href="listings.html?type=looking" class="btn btn--carousel-outline">Browse Requests</a>
+          <div class="promo-slide">
+            <div class="promo-slide__side">
+              <span class="promo-slide__num">03</span>
+              <span class="promo-slide__kicker promo-slide__kicker--teal">Want List</span>
             </div>
-          </div>
-          <div class="carousel__art" aria-hidden="true">
-            <img src="assets/F-fruit.png" class="carousel__art-main" alt="" />
+            <div class="promo-slide__content">
+              <h2 class="promo-slide__heading">Looking for<br/>something <em>rare?</em></h2>
+              <p class="promo-slide__sub">Post a "Looking For" listing and let traders come to you.</p>
+              <div class="promo-slide__actions">
+                <a href="post-listing.html" class="btn btn--carousel-primary">Post a Listing →</a>
+                <a href="listings.html?type=looking" class="btn btn--carousel-outline">Browse Requests</a>
+              </div>
+            </div>
+            <div class="promo-slide__visual promo-slide__visual--wanted">
+              <div class="promo-wanted">
+                <div class="promo-wanted__header">★ WANTED ★</div>
+                <img src="assets/F-fruit.png" class="promo-wanted__img" alt=""/>
+                <div class="promo-wanted__reward">REWARD</div>
+                <div class="promo-wanted__amount">$50,000</div>
+                <div class="promo-wanted__stamp">DEAD OR<br/>ALIVE</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -478,5 +655,19 @@
   <script src="items-data.js"></script>
   <script src="script.js"></script>
   <script src="auth.js"></script>
+  <script>
+    (function(){
+      var el = document.getElementById('stats-bar-clock');
+      if (!el) return;
+      function tick(){
+        var d = new Date();
+        var hh = String(d.getHours()).padStart(2,'0');
+        var mm = String(d.getMinutes()).padStart(2,'0');
+        var ss = String(d.getSeconds()).padStart(2,'0');
+        el.textContent = hh+':'+mm+':'+ss;
+      }
+      tick(); setInterval(tick, 1000);
+    })();
+  </script>
 </body>
 </html>
