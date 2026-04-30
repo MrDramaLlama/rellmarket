@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// ── Trust weight helpers ──────────────────────────────────────────────────────
+// ── Trust weight helpers (used by recalculate) ───────────────────────────────
 function trustWeight(profile) {
   if (!profile) return 0;
   if (profile.is_trusted) return 1.5;
@@ -8,7 +8,6 @@ function trustWeight(profile) {
   return 0;
 }
 
-// ── Write new RV to item_values + rv_history ──────────────────────────────────
 async function writeRV(supabase, itemName, newRV) {
   const rounded = Math.round(newRV * 100) / 100;
   await supabase
@@ -23,7 +22,6 @@ async function writeRV(supabase, itemName, newRV) {
   await checkEstablishment(supabase, itemName);
 }
 
-// ── Check if item qualifies as established ────────────────────────────────────
 async function checkEstablishment(supabase, itemName) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
 
@@ -58,15 +56,105 @@ async function checkEstablishment(supabase, itemName) {
   }
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
-module.exports = async function handler(req, res) {
+// ── Action: get ──────────────────────────────────────────────────────────────
+async function getValues(req, res, supabase) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { item_name } = req.query;
+
+  if (item_name) {
+    const { data, error } = await supabase
+      .from('item_values')
+      .select('item_name, rv, manual_rv, demand_tier, is_established, last_updated')
+      .eq('item_name', item_name)
+      .single();
+    if (error || !data) return res.status(404).json({ error: 'Item not found' });
+    return res.status(200).json({ item: data });
+  }
+
+  const { data, error } = await supabase
+    .from('item_values')
+    .select('item_name, rv, manual_rv, demand_tier, is_established, last_updated')
+    .order('item_name');
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(200).json({ items: data || [] });
+}
+
+// ── Action: history ──────────────────────────────────────────────────────────
+async function getHistory(req, res, supabase) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  const { item_name } = req.query;
+  if (!item_name) return res.status(400).json({ error: 'Missing item_name' });
+
+  const { data, error } = await supabase
+    .from('rv_history')
+    .select('rv, recorded_at')
+    .eq('item_name', item_name)
+    .order('recorded_at', { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(200).json({ history: data || [] });
+}
+
+// ── Action: update (admin/mod only) ──────────────────────────────────────────
+async function updateValue(req, res, supabase) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Not authenticated' });
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (!profile || !['admin', 'mod'].includes(profile.role)) {
+    return res.status(403).json({ error: 'Not authorized' });
+  }
+
+  const { item_name, rv, demand_tier } = req.body;
+  if (!item_name) return res.status(400).json({ error: 'item_name is required' });
+
+  const updates = {
+    item_name,
+    last_updated: new Date().toISOString(),
+  };
+  if (rv !== undefined && rv !== null && rv !== '') {
+    const numRV = Number(rv);
+    if (isNaN(numRV) || numRV < 0) return res.status(400).json({ error: 'Invalid rv value' });
+    updates.rv = numRV;
+    updates.manual_rv = numRV;
+  }
+  if (demand_tier !== undefined) {
+    const valid = ['low', 'medium', 'high', 'very_high', null];
+    if (!valid.includes(demand_tier)) return res.status(400).json({ error: 'Invalid demand_tier' });
+    updates.demand_tier = demand_tier;
+  }
+
+  const { error: upsertError } = await supabase
+    .from('item_values')
+    .upsert(updates, { onConflict: 'item_name' });
+  if (upsertError) return res.status(500).json({ error: upsertError.message });
+
+  if (updates.rv !== undefined) {
+    await supabase.from('rv_history').insert({
+      item_name,
+      rv: updates.rv,
+      recorded_at: new Date().toISOString(),
+    });
+  }
+
+  return res.status(200).json({ success: true });
+}
+
+// ── Action: recalculate ──────────────────────────────────────────────────────
+async function recalculate(req, res, supabase) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { trade_id } = req.body;
   if (!trade_id) return res.status(400).json({ error: 'trade_id required' });
 
-  // ── Fetch trade with listing and sender profile ───────────────────────────
   const { data: trade, error: tradeErr } = await supabase
     .from('trade_requests')
     .select('id, sender_id, listing_id, offered_item, offered_beli, status, created_at, is_flagged')
@@ -74,7 +162,6 @@ module.exports = async function handler(req, res) {
     .single();
   if (tradeErr || !trade) return res.status(404).json({ error: 'Trade not found' });
   if (trade.status !== 'completed') return res.status(400).json({ error: 'Trade not completed' });
-  // Skip trades already flagged (will be approved explicitly by admin)
   if (trade.is_flagged) return res.status(200).json({ skipped: true, reason: 'flagged' });
 
   const { data: listing } = await supabase
@@ -90,7 +177,6 @@ module.exports = async function handler(req, res) {
   const offeredBeli = Number(trade.offered_beli || 0);
   const offeredItem = trade.offered_item || null;
 
-  // ── Fetch both profiles ───────────────────────────────────────────────────
   const [{ data: senderProfile }, { data: receiverProfile }] = await Promise.all([
     supabase.from('profiles').select('is_verified, is_trusted, created_at').eq('id', senderId).single(),
     supabase.from('profiles').select('is_verified, is_trusted, created_at').eq('id', receiverId).single(),
@@ -109,7 +195,6 @@ module.exports = async function handler(req, res) {
   const thirtyDaysAgo = new Date(now - ms30d).toISOString();
   const sevenDaysAgo  = new Date(now - ms7d).toISOString();
 
-  // Fetch completed trades between this pair in last 30 days
   const { data: pairTrades } = await supabase
     .from('trade_requests')
     .select('id, sender_id, listing_id, created_at, listings(user_id, item_name)')
@@ -123,15 +208,12 @@ module.exports = async function handler(req, res) {
            (t.sender_id === receiverId && owner === senderId);
   });
 
-  // Flag 1: Same pair, same item, 3+ times in 30 days
   const sameItemCount = between.filter(t => t.listings?.item_name === itemName).length;
   if (sameItemCount >= 3) flags.push('same_pair_same_item_3x');
 
-  // Flag 2: Same pair, 5+ trades in 7 days
   const recent7d = between.filter(t => new Date(t.created_at) >= new Date(sevenDaysAgo));
   if (recent7d.length >= 5) flags.push('same_pair_5x_7d');
 
-  // Flag 3: Item RV changed >20% in last 7 days
   const { data: rvSnap } = await supabase
     .from('rv_history')
     .select('rv')
@@ -146,13 +228,11 @@ module.exports = async function handler(req, res) {
     if (pctChange > 0.20) flags.push('rv_spike_20pct_7d');
   }
 
-  // Flag 4: Both accounts created within 7 days of each other
   if (senderProfile?.created_at && receiverProfile?.created_at) {
     const diff = Math.abs(new Date(senderProfile.created_at) - new Date(receiverProfile.created_at));
     if (diff < ms7d) flags.push('accounts_created_same_week');
   }
 
-  // Flag 5: New verified account (<30 days old) trading high-value item (RV >= 10)
   const currentRV = currentRow?.rv || 0;
   for (const p of [senderProfile, receiverProfile]) {
     if (!p || !p.is_verified) continue;
@@ -162,7 +242,6 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // If 2+ flags triggered: mark flagged, skip RV update
   if (flags.length >= 2) {
     await supabase.from('trade_requests')
       .update({ is_flagged: true })
@@ -170,20 +249,17 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ flagged: true, flag_count: flags.length });
   }
 
-  // ── Determine effective RV of current item ────────────────────────────────
   // While unestablished, use manual_rv as base; fall back to rv, then null
   const baseRV = currentRow
     ? (currentRow.is_established ? currentRow.rv : (currentRow.manual_rv || currentRow.rv))
     : null;
 
-  // ── Beli trade ────────────────────────────────────────────────────────────
   const beliAmount = offeredBeli > 0 ? offeredBeli
     : (listing.price_type === 'fixed' && listing.price ? Number(listing.price) : 0);
 
   if (beliAmount > 0 && (!offeredItem || offeredBeli > 0)) {
     const tradeRV = beliAmount / 10_000_000;
 
-    // Sanity check: outside 50%–200% of current RV → skip
     if (baseRV && (tradeRV < baseRV * 0.5 || tradeRV > baseRV * 2.0)) {
       return res.status(200).json({ skipped: true, reason: 'outside_sanity_range' });
     }
@@ -196,7 +272,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ success: true, type: 'beli' });
   }
 
-  // ── Item-for-item trade ───────────────────────────────────────────────────
   if (offeredItem) {
     const [{ data: rowA }, { data: rowB }] = await Promise.all([
       supabase.from('item_values').select('rv, manual_rv, is_established').eq('item_name', itemName).single(),
@@ -212,7 +287,6 @@ module.exports = async function handler(req, res) {
     const newRvA = rvA + (midpoint - rvA) * 0.05 * tradeWeight;
     const newRvB = rvB + (midpoint - rvB) * 0.05 * tradeWeight;
 
-    // Per-item sanity check
     if (newRvA >= rvA * 0.5 && newRvA <= rvA * 2.0) await writeRV(supabase, itemName, newRvA);
     if (newRvB >= rvB * 0.5 && newRvB <= rvB * 2.0) await writeRV(supabase, offeredItem, newRvB);
 
@@ -220,4 +294,17 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ skipped: true, reason: 'no_trade_value' });
+}
+
+module.exports = async function handler(req, res) {
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+  const action = req.query.action;
+
+  switch (action) {
+    case 'get':         return getValues(req, res, supabase);
+    case 'history':     return getHistory(req, res, supabase);
+    case 'update':      return updateValue(req, res, supabase);
+    case 'recalculate': return recalculate(req, res, supabase);
+    default:            return res.status(404).json({ error: 'Unknown action' });
+  }
 };

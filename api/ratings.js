@@ -1,12 +1,27 @@
 const { createClient } = require('@supabase/supabase-js');
 
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+async function getRatings(req, res, supabase) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
-  );
+  const { user_id } = req.query;
+  if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+
+  const { data, error } = await supabase
+    .from('trader_ratings')
+    .select('is_positive')
+    .eq('rated_id', user_id);
+
+  if (error) return res.status(500).json({ error: 'Failed to fetch ratings' });
+
+  const ratings = data || [];
+  const positive = ratings.filter(r => r.is_positive === true).length;
+  const negative = ratings.filter(r => r.is_positive === false).length;
+
+  return res.status(200).json({ positive, negative, total: ratings.length });
+}
+
+async function createRating(req, res, supabase) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace('Bearer ', '');
@@ -25,7 +40,6 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'You cannot rate yourself' });
   }
 
-  // Check trade exists and is completed
   const { data: trade, error: tradeError } = await supabase
     .from('trades')
     .select('id, status, requester_id, listing_id')
@@ -35,7 +49,6 @@ module.exports = async function handler(req, res) {
   if (tradeError || !trade) return res.status(404).json({ error: 'Trade not found' });
   if (trade.status !== 'completed') return res.status(400).json({ error: 'Trade is not completed' });
 
-  // Check both parties are valid
   const { data: listing } = await supabase
     .from('listings')
     .select('user_id')
@@ -66,4 +79,15 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ success: true });
+}
+
+module.exports = async function handler(req, res) {
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+  const action = req.query.action;
+
+  switch (action) {
+    case 'get':    return getRatings(req, res, supabase);
+    case 'create': return createRating(req, res, supabase);
+    default:       return res.status(404).json({ error: 'Unknown action' });
+  }
 };
