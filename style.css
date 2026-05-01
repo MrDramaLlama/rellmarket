@@ -7391,3 +7391,30 @@ html.dark-mode .footer { background: var(--color-surface); }
 
 /* Featured-col should match other cards — was --color-bg before */
 .featured-col { background: var(--color-surface); }
+
+/* ══════════════════════════════════════════════
+   IMAGE PROTECTION
+   Discourages casual save/drag of fruit/item art.
+   Determined users can still pull images via devtools — this just
+   removes the right-click / drag / long-press paths.
+══════════════════════════════════════════════ */
+img {
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Re-enable pointer events on images that need to be clickable
+   (listing/scroll/mini/value cards wrap their image in an <a> link). */
+.listing-card img,
+.item-gallery__main img,
+.item-gallery__thumb img,
+.scroll-card img,
+.mini-card img,
+.value-card img,
+.trader-card img {
+  pointer-events: auto;
+}

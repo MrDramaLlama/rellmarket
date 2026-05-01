@@ -1,5 +1,26 @@
 'use strict';
 
+// ─── Image protection ─────────────────────────────────────────────────────────
+// Light-weight discouragement against right-click save / drag / Ctrl+S / Ctrl+U.
+// Determined users can still pull images from devtools — this just removes the
+// casual paths.
+(function imageProtection() {
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
+
+  document.addEventListener('dragstart', (e) => {
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'u' ||
+                                      e.key === 'S' || e.key === 'U')) {
+      e.preventDefault();
+    }
+  });
+})();
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setFooterYear();
