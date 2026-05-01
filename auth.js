@@ -56,6 +56,10 @@ async function updateNavbar() {
 
     if (signupBtn) signupBtn.style.display = 'none';
 
+    // Hide any remaining Sign In buttons (e.g. the mobile drawer copy) — only
+    // the first .btn--login gets swapped with the user dropdown below.
+    document.querySelectorAll('.btn--signin').forEach(b => { b.style.display = 'none'; });
+
     // Extract token once, shared between all fetch calls
     let token = null;
     try {
