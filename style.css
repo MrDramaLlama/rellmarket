@@ -5920,56 +5920,88 @@ body.page-out {
 
 /* ═══════════════════════════════════════
    WANTED IN RETURN — listing cards
+   Inline chips that flow with the card body — no separate background.
 ════════════════════════════════════════ */
 .listing-card__wants {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: .3rem;
-  padding: .4rem .75rem;
-  background: #f0fdf4;
-  border-top: 1px solid #bbf7d0;
-  font-size: .73rem;
+  flex-direction: column;
+  gap: .35rem;
+  margin: .4rem 0 .15rem;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .listing-card__wants-label {
-  color: #16a34a;
+  font-size: .62rem;
   font-weight: 700;
-  flex-shrink: 0;
-  font-size: .7rem;
   text-transform: uppercase;
-  letter-spacing: .03em;
+  letter-spacing: .09em;
+  color: var(--color-muted);
+}
+
+.listing-card__wants-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
 }
 
 .listing-card__wants-chip {
   display: inline-flex;
   align-items: center;
-  gap: .25rem;
+  gap: .4rem;
+  padding: .3rem .65rem .3rem .4rem;
   background: var(--color-surface);
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  padding: .1rem .45rem .1rem .35rem;
   color: var(--color-text);
   white-space: nowrap;
-  font-size: .72rem;
+  line-height: 1;
+  font-size: .8rem;
+  transition: border-color .15s, background-color .15s;
 }
+.listing-card:hover .listing-card__wants-chip { border-color: var(--color-primary); }
 
-.listing-card__wants-chip .wants-icon {
-  border-radius: 50%;
-  display: block;
+.listing-card__wants-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
-
-.listing-card__wants-chip .wants-icon-emoji {
-  font-size: 11px;
+.listing-card__wants-chip-icon .wants-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+.listing-card__wants-chip-icon .wants-icon-emoji {
+  font-size: 16px;
   line-height: 1;
 }
 
-.listing-card__wants-more {
-  color: #16a34a;
-  font-size: .68rem;
+.listing-card__wants-chip-name {
   font-weight: 600;
-  opacity: .8;
+}
+
+.listing-card__wants-chip-qty {
+  color: var(--color-muted);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: .74rem;
+}
+
+.listing-card__wants-more {
+  display: inline-flex;
+  align-items: center;
+  padding: .3rem .55rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: 999px;
+  line-height: 1;
 }
 
 /* ═══════════════════════════════════════

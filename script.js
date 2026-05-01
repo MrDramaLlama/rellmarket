@@ -1970,17 +1970,25 @@ function initFetchListings() {
     const itemUrl = `item.html?id=${itemNameToId(l.item_name)}&listing_id=${l.id}`;
     const standardSortPrice = (l.price && Number(l.price) > 0) ? Number(l.price) : '';
 
-    // Compact "Wants:" row for selling listings that have wants set
+    // "Wants" chip row for selling listings — clean inline pills, max 2 visible
     const wantsArr = (!isLooking && Array.isArray(l.listing_wants) && l.listing_wants.length > 0) ? l.listing_wants : [];
+    const WANTS_MAX = 2;
     const wantsRowHTML = wantsArr.length > 0
       ? `<div class="listing-card__wants">
-          <span class="listing-card__wants-label">Wants:</span>
-          ${wantsArr.slice(0, 3).map(w => {
-            const icon = wantsItemIcon(w.item_name, 14);
-            const qty  = w.quantity > 1 ? ` ×${w.quantity}` : '';
-            return `<span class="listing-card__wants-chip">${icon}<span>${w.item_name}${qty}</span></span>`;
-          }).join('')}
-          ${wantsArr.length > 3 ? `<span class="listing-card__wants-more">+${wantsArr.length - 3} more</span>` : ''}
+          <span class="listing-card__wants-label">Wants</span>
+          <div class="listing-card__wants-chips">
+            ${wantsArr.slice(0, WANTS_MAX).map(w => {
+              const icon  = wantsItemIcon(w.item_name, 20);
+              const qtyHTML = w.quantity > 1
+                ? `<span class="listing-card__wants-chip-qty">×${w.quantity}</span>`
+                : '';
+              return `<span class="listing-card__wants-chip">
+                <span class="listing-card__wants-chip-icon">${icon}</span>
+                <span class="listing-card__wants-chip-name">${w.item_name}</span>${qtyHTML}
+              </span>`;
+            }).join('')}
+            ${wantsArr.length > WANTS_MAX ? `<span class="listing-card__wants-more">+${wantsArr.length - WANTS_MAX} more</span>` : ''}
+          </div>
         </div>`
       : '';
 
